@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+enum Role {
+  USER
+  MOD
+  ADMIN
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  displayName String?
+  avatar      String?
+  bio         String?
+  role        Role     @default(USER)
+  points      Int      @default(0)
+  reputation  Int      @default(0)
+  postCount   Int      @default(0)
+  rankId      String?
+  title       String?
+  isOnline    Boolean  @default(false)
+  lastSeen    DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  rank          Rank?          @relation(fields: [rankId], references: [id])
+  threads       Thread[]
+  posts         Post[]
+  reactions     Reaction[]
+  badges        UserBadge[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
+  reports       Report[]       @relation("Reporter")
+  sentMessages  Message[]      @relation("Sender")
+  conversations ConversationParticipant[]
+}
+
+model Rank {
+  id       String  @id @default(cuid())
+  name     String
+  icon     String
+  color    String
+  minPosts Int     @default(0)
+  special  Boolean @default(false)
+  position Int     @default(0)
+  users    User[]
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String
+  icon        String
+  description String
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+  badge    Badge    @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  icon        String
+  description String
+  color       String
+  position    Int        @default(0)
+  isVip       Boolean    @default(false)
+  isCasino    Boolean    @default(false)
+  parentId    String?
+  parent      Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children    Category[] @relation("SubCategories")
+  threads     Thread[]
+}
+
+model Prefix {
+  id      String   @id @default(cuid())
+  label   String
+  color   String
+  threads Thread[]
+}
+
+model Thread {
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  categoryId String
+  authorId   String
+  prefixId   String?
+  isPinned   Boolean  @default(false)
+  isLocked   Boolean  @default(false)
+  isFeatured Boolean  @default(false)
+  isHot      Boolean  @default(false)
+  viewCount  Int      @default(0)
+  replyCount Int      @default(0)
+  lastPostAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  category  Category   @relation(fields: [categoryId], references: [id])
+  author    User       @relation(fields: [authorId], references: [id])
+  prefix    Prefix?    @relation(fields: [prefixId], references: [id])
+  posts     Post[]
+  tags      ThreadTag[]
+  bookmarks Bookmark[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  threadId  String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+  editedAt  DateTime?
+
+  thread    Thread     @relation(fields: [threadId], references: [id])
+  author    User       @relation(fields: [authorId], references: [id])
+  reactions Reaction[]
+}
+
+model Tag {
+  id      String      @id @default(cuid())
+  name    String      @unique
+  slug    String      @unique
+  threads ThreadTag[]
+}
+
+model ThreadTag {
+  threadId String
+  tagId    String
+  thread   Thread @relation(fields: [threadId], references: [id])
+  tag      Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([threadId, tagId])
+}
+
+model Reaction {
+  id     String @id @default(cuid())
+  postId String
+  userId String
+  emoji  String
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId, emoji])
+}
+
+model Conversation {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  conversationId String
+  userId         String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@id([conversationId, userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+  sender       User         @relation("Sender", fields: [senderId], references: [id])
+}
+
+model Notification {
+  id              String   @id @default(cuid())
+  userId          String
+  type            String
+  content         String
+  isRead          Boolean  @default(false)
+  relatedThreadId String?
+  relatedUserId   String?
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Report {
+  id         String       @id @default(cuid())
+  reporterId String
+  type       String
+  targetId   String
+  reason     String
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  reporter User @relation("Reporter", fields: [reporterId], references: [id])
+}
+
+model Bookmark {
+  id       String @id @default(cuid())
+  userId   String
+  threadId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  thread Thread @relation(fields: [threadId], references: [id])
+
+  @@unique([userId, threadId])
+}
+
+model LiveMatch {
+  id        String   @id @default(cuid())
+  league    String
+  homeTeam  String
+  awayTeam  String
+  homeScore Int      @default(0)
+  awayScore Int      @default(0)
+  minute    Int      @default(0)
+  status    String   @default("upcoming")
+  startTime DateTime
+  createdAt DateTime @default(now())
+}
