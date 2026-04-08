@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import type { SportMatch } from "@/lib/sports/types";
+import { MatchDetailPanel } from "@/components/match-detail";
 
 // ── League config with popularity order ──
 const PINNED_LEAGUES = [
@@ -69,6 +70,11 @@ export default function CanliSkorlarPage() {
   const [standingsLeague, setStandingsLeague] = useState("Süper Lig");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(() => loadFavorites());
+  const [expandedMatch, setExpandedMatch] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedMatch((prev) => (prev === id ? null : id));
+  };
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => {
@@ -159,7 +165,14 @@ export default function CanliSkorlarPage() {
                 <span className="text-[12px] font-medium" style={{ color: "#94a3b8" }}>{league}</span>
                 <span className="text-[10px]" style={{ color: "#64748b" }}>{lm.length}</span>
               </div>
-              {lm.map((m) => <MatchRow key={m.id} match={m} isFav={favorites.has(m.id)} onToggleFav={() => toggleFavorite(m.id)} />)}
+              {lm.map((m) => (
+                <div key={m.id}>
+                  <MatchRow match={m} isFav={favorites.has(m.id)} onToggleFav={() => toggleFavorite(m.id)} isExpanded={expandedMatch === m.id} onToggleExpand={() => toggleExpand(m.id)} />
+                  {expandedMatch === m.id && (
+                    <MatchDetailPanel matchId={m.id} sport={m.sport} status={m.status} homeTeam={m.homeTeam} awayTeam={m.awayTeam} />
+                  )}
+                </div>
+              ))}
             </div>
           );
         })}
@@ -316,7 +329,7 @@ function SidebarContent({ selectedLeague, onSelect, leagueMatchCount, leagueHasL
 }
 
 // ── Match Row with favorite star ──
-function MatchRow({ match, isFav, onToggleFav }: { match: SportMatch; isFav: boolean; onToggleFav: () => void }) {
+function MatchRow({ match, isFav, onToggleFav, isExpanded, onToggleExpand }: { match: SportMatch; isFav: boolean; onToggleFav: () => void; isExpanded?: boolean; onToggleExpand?: () => void }) {
   const isLive = match.status === "live";
   const isHT = match.status === "ht";
   const isFT = match.status === "ft";
@@ -326,7 +339,7 @@ function MatchRow({ match, isFav, onToggleFav }: { match: SportMatch; isFav: boo
   const awayWin = isFT && (match.awayScore ?? 0) > (match.homeScore ?? 0);
 
   return (
-    <div className="flex items-center h-11 px-1 transition-colors hover:bg-[#1e2738]" style={{ borderBottom: "1px solid #1e293b" }}>
+    <div onClick={onToggleExpand} className="flex items-center h-11 px-1 transition-colors hover:bg-[#1e2738] cursor-pointer" style={{ borderBottom: isExpanded ? "none" : "1px solid #1e293b", backgroundColor: isExpanded ? "#1a2130" : undefined }}>
       {/* Favorite star */}
       <button onClick={(e) => { e.stopPropagation(); onToggleFav(); }} className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded transition-colors hover:bg-[#1a2130]" title={isFav ? "Favoriden çıkar" : "Favorilere ekle"}>
         <span style={{ color: isFav ? "#e8a935" : "#64748b", fontSize: "14px" }}>{isFav ? "★" : "☆"}</span>
