@@ -23,6 +23,8 @@ JSON formatında yanıt ver:
 SADECE JSON yanıt ver.`;
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20_000); // 20s timeout
     const res = await fetch(`${GEMINI_URL}?key=${key}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -30,7 +32,9 @@ SADECE JSON yanıt ver.`;
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
       }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
     if (!res.ok) return null;
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";

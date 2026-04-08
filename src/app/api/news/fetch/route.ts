@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAndCreateNews } from "@/lib/news/fetcher";
 
-export const maxDuration = 60; // 60 second timeout for cron
+export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
   // Verify cron secret
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const count = await fetchAndCreateNews(5);
+    const count = await fetchAndCreateNews(2);
     return NextResponse.json({ success: true, created: count });
   } catch (error) {
     console.error("News fetch error:", error);
