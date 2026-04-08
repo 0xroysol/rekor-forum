@@ -111,7 +111,12 @@ export default function CanliSkorlarPage() {
   // Filter
   const todayKey = dateKey(selectedDate);
   const filtered = useMemo(() => {
-    let list = matches.filter((m) => m.sport === sportTab && dateKey(new Date(m.startTime)) === todayKey);
+    let list = matches.filter((m) => {
+      if (m.sport !== sportTab) return false;
+      // Live/HT matches always show regardless of date filter
+      if (m.status === "live" || m.status === "ht") return true;
+      return dateKey(new Date(m.startTime)) === todayKey;
+    });
     if (selectedLeague) {
       const li = ALL_LEAGUE_ITEMS.find((l) => l.name === selectedLeague);
       if (li) list = list.filter((m) => m.league.toLowerCase().includes(li.apiName.toLowerCase()) || m.league.toLowerCase().includes(li.name.toLowerCase()));
