@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/auth-provider";
 
 interface CategoryOption {
   id: string;
@@ -24,227 +26,236 @@ export default function CreateThreadPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { dbUser } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    // Fetch categories
     fetch("/api/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch(() => {});
 
-    // Fetch prefixes
     fetch("/api/prefixes")
       .then((res) => res.json())
       .then((data) => setPrefixes(data))
       .catch(() => {});
   }, []);
 
+  async function handleSubmit() {
+    setError("");
+
+    if (!selectedCategory) {
+      setError("Lütfen bir kategori seçin");
+      return;
+    }
+    if (title.length < 5) {
+      setError("Başlık en az 5 karakter olmalıdır");
+      return;
+    }
+    if (content.length < 10) {
+      setError("İçerik en az 10 karakter olmalıdır");
+      return;
+    }
+
+    setLoading(true);
+
+    const tagList = tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+
+    const res = await fetch("/api/threads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title,
+        content,
+        categoryId: selectedCategory,
+        prefixId: selectedPrefix || null,
+        tags: tagList,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error || "Konu oluşturulurken bir hata oluştu");
+      setLoading(false);
+      return;
+    }
+
+    const data = await res.json();
+    router.push(`/konu/${data.slug}`);
+  }
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#080a0f" }}>
-      {/* Header */}
-      <header
-        className="border-b border-white/10"
-        style={{ backgroundColor: "#0d1017" }}
-      >
-        <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold" style={{ color: "#1f844e" }}>
-              REKOR
-            </span>
-            <span className="text-xl font-semibold text-white/80">Forum</span>
-          </Link>
-          <nav className="flex items-center gap-6 text-sm text-white/60">
-            <Link href="/" className="hover:text-white transition-colors">
-              Ana Sayfa
-            </Link>
-          </nav>
+    <div className="mx-auto max-w-3xl px-4 py-6">
+      {/* Breadcrumb */}
+      <nav className="mb-6 flex items-center gap-2 text-sm text-[#64748b]">
+        <Link href="/" className="transition-colors hover:text-[#e2e8f0]">
+          Forum
+        </Link>
+        <span>›</span>
+        <span className="text-[#94a3b8]">Yeni Konu Oluştur</span>
+      </nav>
+
+      {/* Form Card */}
+      <div className="overflow-hidden rounded-xl border border-[#1e293b] bg-[#131820]">
+        {/* Card Header */}
+        <div className="bg-[#1a2130] px-5 py-3">
+          <h1 className="text-xs font-semibold uppercase tracking-wide text-[#94a3b8]">
+            Yeni Konu Oluştur
+          </h1>
         </div>
-      </header>
 
-      <div className="mx-auto max-w-3xl px-4 py-6">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-white/40 mb-6">
-          <Link href="/" className="hover:text-white transition-colors">
-            Forum
-          </Link>
-          <span>/</span>
-          <span className="text-white/70">Yeni Konu Olustur</span>
-        </nav>
+        <div className="space-y-5 p-5">
+          {error && (
+            <div className="rounded-md border border-[#ef4444]/30 bg-[#ef4444]/10 px-3 py-2 text-sm text-[#ef4444]">
+              {error}
+            </div>
+          )}
 
-        {/* Form */}
-        <div className="rounded-lg overflow-hidden" style={{ backgroundColor: "#131820" }}>
-          <div
-            className="px-5 py-3 font-bold text-sm text-white uppercase tracking-wide"
-            style={{ backgroundColor: "#1f844e" }}
-          >
-            Yeni Konu Olustur
+          {!dbUser && (
+            <div className="rounded-md border border-[#e8a935]/30 bg-[#e8a935]/10 px-3 py-2 text-sm text-[#e8a935]">
+              Konu oluşturmak için{" "}
+              <Link href="/giris" className="underline">giriş yapın</Link>.
+            </div>
+          )}
+
+          {/* Category Selector */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[#94a3b8]">
+              Kategori
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            >
+              <option value="">Kategori seçin...</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.parentName ? `${cat.parentName} › ` : ""}
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="p-5 space-y-5">
-            {/* Category Selector */}
-            <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">
-                Kategori
-              </label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full rounded-lg border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#1f844e] transition-colors appearance-none"
-                style={{ backgroundColor: "#0d1017" }}
-              >
-                <option value="">Kategori secin...</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.parentName ? `${cat.parentName} > ` : ""}
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Prefix Selector */}
-            <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">
-                Etiket (Prefix)
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedPrefix("")}
-                  className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors ${
-                    selectedPrefix === ""
-                      ? "text-white ring-2 ring-white/30"
-                      : "text-white/50 hover:text-white"
-                  }`}
-                  style={{ backgroundColor: "#0d1017" }}
-                >
-                  Yok
-                </button>
-                {prefixes.map((prefix) => (
-                  <button
-                    key={prefix.id}
-                    type="button"
-                    onClick={() => setSelectedPrefix(prefix.id)}
-                    className={`px-3 py-1.5 rounded text-xs font-bold uppercase text-white transition-all ${
-                      selectedPrefix === prefix.id
-                        ? "ring-2 ring-white/50 scale-105"
-                        : "opacity-70 hover:opacity-100"
-                    }`}
-                    style={{ backgroundColor: prefix.color }}
-                  >
-                    {prefix.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Title Input */}
-            <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">
-                Konu Basligi
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Konunuz icin aciklayici bir baslik girin..."
-                className="w-full rounded-lg border border-white/10 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#1f844e] transition-colors"
-                style={{ backgroundColor: "#0d1017" }}
-              />
-            </div>
-
-            {/* Content Editor */}
-            <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">
-                Icerik
-              </label>
-              {/* Toolbar */}
-              <div
-                className="flex items-center gap-1 px-3 py-2 rounded-t-lg border border-b-0 border-white/10"
-                style={{ backgroundColor: "#0a0d14" }}
-              >
-                <button
-                  type="button"
-                  className="px-2 py-1 text-xs text-white/50 hover:text-white hover:bg-white/10 rounded transition-colors font-bold"
-                >
-                  B
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 text-xs text-white/50 hover:text-white hover:bg-white/10 rounded transition-colors italic"
-                >
-                  I
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 text-xs text-white/50 hover:text-white hover:bg-white/10 rounded transition-colors underline"
-                >
-                  U
-                </button>
-                <div className="w-px h-4 bg-white/10 mx-1" />
-                <button
-                  type="button"
-                  className="px-2 py-1 text-xs text-white/50 hover:text-white hover:bg-white/10 rounded transition-colors"
-                >
-                  🔗
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 text-xs text-white/50 hover:text-white hover:bg-white/10 rounded transition-colors"
-                >
-                  🖼️
-                </button>
-                <button
-                  type="button"
-                  className="px-2 py-1 text-xs text-white/50 hover:text-white hover:bg-white/10 rounded transition-colors"
-                >
-                  📋
-                </button>
-              </div>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Konu iceriginizi buraya yazin..."
-                rows={12}
-                className="w-full rounded-b-lg border border-white/10 px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#1f844e] transition-colors resize-y"
-                style={{ backgroundColor: "#0d1017" }}
-              />
-            </div>
-
-            {/* Tags Input */}
-            <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">
-                Etiketler (Tags)
-              </label>
-              <input
-                type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="Etiketleri virgul ile ayirin: futbol, super lig, fenerbahce"
-                className="w-full rounded-lg border border-white/10 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#1f844e] transition-colors"
-                style={{ backgroundColor: "#0d1017" }}
-              />
-              <p className="text-[11px] text-white/30 mt-1">
-                En fazla 5 etiket ekleyebilirsiniz.
-              </p>
-            </div>
-
-            {/* Submit */}
-            <div className="flex items-center justify-between pt-2">
-              <Link
-                href="/"
-                className="text-sm text-white/40 hover:text-white transition-colors"
-              >
-                Iptal
-              </Link>
+          {/* Prefix Selector */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[#94a3b8]">
+              Etiket (Prefix)
+            </label>
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                className="px-8 py-2.5 rounded-lg text-white font-semibold text-sm transition-all hover:brightness-110"
-                style={{ backgroundColor: "#1f844e" }}
+                onClick={() => setSelectedPrefix("")}
+                className={`rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  selectedPrefix === ""
+                    ? "border-[#94a3b8] bg-[#94a3b8]/10 text-[#e2e8f0]"
+                    : "border-[#1e293b] text-[#64748b] hover:text-[#94a3b8]"
+                }`}
               >
-                Konuyu Olustur
+                Yok
               </button>
+              {prefixes.map((prefix) => (
+                <button
+                  key={prefix.id}
+                  type="button"
+                  onClick={() => setSelectedPrefix(prefix.id)}
+                  className={`rounded-md border px-3 py-1.5 text-xs font-bold uppercase transition-all ${
+                    selectedPrefix === prefix.id
+                      ? "scale-105"
+                      : "opacity-70 hover:opacity-100"
+                  }`}
+                  style={{
+                    borderColor: prefix.color,
+                    color: prefix.color,
+                    backgroundColor:
+                      selectedPrefix === prefix.id
+                        ? `${prefix.color}1a`
+                        : "transparent",
+                  }}
+                >
+                  {prefix.label}
+                </button>
+              ))}
             </div>
+          </div>
+
+          {/* Title Input */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[#94a3b8]">
+              Konu Başlığı
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Konunuz için açıklayıcı bir başlık girin..."
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+          </div>
+
+          {/* Content Editor */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[#94a3b8]">
+              İçerik
+            </label>
+            <div className="flex items-center gap-1 rounded-t-md border border-b-0 border-[#1e293b] bg-[#1a2130] px-3 py-2">
+              <button type="button" className="rounded px-2 py-1 text-xs font-bold text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">B</button>
+              <button type="button" className="rounded px-2 py-1 text-xs italic text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">I</button>
+              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] underline transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">U</button>
+              <div className="mx-1 h-4 w-px bg-[#1e293b]" />
+              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">Link</button>
+              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">Resim</button>
+              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">Kod</button>
+            </div>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Konu içeriğinizi buraya yazın..."
+              rows={12}
+              className="w-full resize-y rounded-b-md border border-[#1e293b] bg-[#0d1017] px-4 py-3 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+          </div>
+
+          {/* Tags Input */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-[#94a3b8]">
+              Etiketler (Tags)
+            </label>
+            <input
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="Etiketleri virgülle ayırın: futbol, süper lig, fenerbahçe"
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+            <p className="mt-1 text-[11px] text-[#64748b]">
+              En fazla 5 etiket ekleyebilirsiniz.
+            </p>
+          </div>
+
+          {/* Submit */}
+          <div className="flex items-center justify-between pt-2">
+            <Link
+              href="/"
+              className="text-sm text-[#64748b] transition-colors hover:text-[#e2e8f0]"
+            >
+              İptal
+            </Link>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={loading || !dbUser}
+              className="rounded-md bg-[#1f844e] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+            >
+              {loading ? "Oluşturuluyor..." : "Konuyu Oluştur"}
+            </button>
           </div>
         </div>
       </div>

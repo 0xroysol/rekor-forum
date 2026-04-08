@@ -32,32 +32,32 @@ async function main() {
   // ============================================================
   const ranks = await Promise.all([
     prisma.rank.create({
-      data: { name: "Çaylak", icon: "🌱", color: "#22c55e", minPosts: 0, position: 1 },
+      data: { name: "Çaylak", icon: "🌱", color: "#6b7280", minPosts: 0, position: 1 },
     }),
     prisma.rank.create({
-      data: { name: "Acemi", icon: "🔰", color: "#14b8a6", minPosts: 10, position: 2 },
+      data: { name: "Üye", icon: "⚡", color: "#3b82f6", minPosts: 10, position: 2 },
     }),
     prisma.rank.create({
-      data: { name: "Üye", icon: "⭐", color: "#3b82f6", minPosts: 50, position: 3 },
+      data: { name: "Aktif Üye", icon: "🔥", color: "#8b5cf6", minPosts: 50, position: 3 },
     }),
     prisma.rank.create({
-      data: { name: "Kıdemli", icon: "💎", color: "#8b5cf6", minPosts: 100, position: 4 },
+      data: { name: "Uzman", icon: "⭐", color: "#f59e0b", minPosts: 150, position: 4 },
     }),
     prisma.rank.create({
-      data: { name: "Uzman", icon: "🏆", color: "#eab308", minPosts: 250, position: 5 },
+      data: { name: "Efsane", icon: "👑", color: "#ef4444", minPosts: 500, position: 5 },
     }),
     prisma.rank.create({
-      data: { name: "Usta", icon: "👑", color: "#f97316", minPosts: 500, position: 6 },
+      data: { name: "VIP", icon: "💎", color: "#e8a935", minPosts: 0, special: true, position: 6 },
     }),
     prisma.rank.create({
-      data: { name: "Efsane", icon: "🔥", color: "#ef4444", minPosts: 1000, special: true, position: 7 },
+      data: { name: "Moderatör", icon: "🛡️", color: "#1f844e", minPosts: 0, special: true, position: 7 },
     }),
     prisma.rank.create({
-      data: { name: "VIP", icon: "💜", color: "#8b5cf6", minPosts: 0, special: true, position: 8 },
+      data: { name: "Admin", icon: "⚔️", color: "#e74c3c", minPosts: 0, special: true, position: 8 },
     }),
   ]);
 
-  const [rankCaylak, rankAcemi, rankUye, rankKidemli, rankUzman, rankUsta, rankEfsane, rankVIP] = ranks;
+  const [rankCaylak, rankUye, rankAktif, rankUzman, rankEfsane, rankVIP, rankMod, rankAdmin] = ranks;
 
   console.log("✅ Ranks created");
 
@@ -69,37 +69,50 @@ async function main() {
       data: { name: "İlk Mesaj", icon: "✍️", description: "İlk mesajını yazdı" },
     }),
     prisma.badge.create({
-      data: { name: "Yardımsever", icon: "🤝", description: "50 beğeni aldı" },
+      data: { name: "Sohbet Ustası", icon: "💬", description: "100+ mesaj yazdı" },
     }),
     prisma.badge.create({
-      data: { name: "Analiz Ustası", icon: "📊", description: "En iyi analizci" },
+      data: { name: "Kupon Kralı", icon: "🎯", description: "10+ kupon/banko konusu açtı" },
     }),
     prisma.badge.create({
-      data: { name: "Kupon Kralı", icon: "👑", description: "Kuponu tutan efsane" },
+      data: { name: "Analizci", icon: "📊", description: "10+ analiz/taktik konusu açtı" },
     }),
     prisma.badge.create({
-      data: { name: "Forum Veteranı", icon: "🎖️", description: "1 yılı dolduran üye" },
+      data: { name: "Slot Gezgini", icon: "🎰", description: "Casino kategorisinde 10+ mesaj" },
     }),
     prisma.badge.create({
-      data: { name: "Altın Yorum", icon: "💬", description: "En çok beğenilen yorum" },
+      data: { name: "Yardımsever", icon: "🤝", description: "50+ tepki aldı" },
     }),
     prisma.badge.create({
-      data: { name: "Casino Gurusu", icon: "🎰", description: "Casino uzmanı" },
+      data: { name: "Popüler", icon: "🌟", description: "100+ görüntülenen bir konusu var" },
+    }),
+    // Manual badges
+    prisma.badge.create({
+      data: { name: "Erken Kuş", icon: "🐦", description: "Beta üyesi" },
     }),
     prisma.badge.create({
-      data: { name: "Maç Kahini", icon: "🔮", description: "Skor tahminlerinde başarılı" },
+      data: { name: "Forum Veteranı", icon: "🏛️", description: "1 yıldan eski üye" },
+    }),
+    prisma.badge.create({
+      data: { name: "Taktikçi", icon: "🧠", description: "Özel taktik uzmanı" },
+    }),
+    prisma.badge.create({
+      data: { name: "VIP Üye", icon: "💎", description: "VIP statüsü" },
     }),
   ]);
 
   const [
     badgeIlkMesaj,
-    badgeYardimsever,
-    badgeAnalizUstasi,
+    badgeSohbetUstasi,
     badgeKuponKrali,
+    badgeAnalizci,
+    badgeSlotGezgini,
+    badgeYardimsever,
+    badgePopuler,
+    badgeErkenKus,
     badgeForumVeterani,
-    badgeAltinYorum,
-    badgeCasinoGurusu,
-    badgeMacKahini,
+    badgeTaktikci,
+    badgeVipUye,
   ] = badges;
 
   console.log("✅ Badges created");
@@ -118,7 +131,7 @@ async function main() {
         points: 1250,
         reputation: 89,
         postCount: 156,
-        rankId: rankKidemli.id,
+        rankId: rankUzman.id,
         isOnline: true,
         lastSeen: new Date(),
       },
@@ -148,7 +161,7 @@ async function main() {
         points: 3200,
         reputation: 245,
         postCount: 534,
-        rankId: rankUsta.id,
+        rankId: rankMod.id,
         isOnline: true,
         lastSeen: new Date(),
       },
@@ -193,7 +206,7 @@ async function main() {
         points: 1560,
         reputation: 112,
         postCount: 203,
-        rankId: rankKidemli.id,
+        rankId: rankUzman.id,
         isOnline: false,
         lastSeen: new Date(Date.now() - 1800000),
       },
@@ -208,7 +221,7 @@ async function main() {
         points: 980,
         reputation: 76,
         postCount: 124,
-        rankId: rankKidemli.id,
+        rankId: rankUzman.id,
         isOnline: true,
         lastSeen: new Date(),
       },
@@ -223,7 +236,7 @@ async function main() {
         points: 120,
         reputation: 12,
         postCount: 23,
-        rankId: rankAcemi.id,
+        rankId: rankUye.id,
         isOnline: false,
         lastSeen: new Date(Date.now() - 86400000),
       },
@@ -238,7 +251,7 @@ async function main() {
         points: 5600,
         reputation: 430,
         postCount: 1245,
-        rankId: rankVIP.id,
+        rankId: rankAdmin.id,
         isOnline: true,
         lastSeen: new Date(),
       },
@@ -284,27 +297,27 @@ async function main() {
     prisma.userBadge.create({ data: { userId: userAli.id, badgeId: badgeYardimsever.id } }),
     // Ayse (MOD)
     prisma.userBadge.create({ data: { userId: userAyse.id, badgeId: badgeIlkMesaj.id } }),
-    prisma.userBadge.create({ data: { userId: userAyse.id, badgeId: badgeAnalizUstasi.id } }),
+    prisma.userBadge.create({ data: { userId: userAyse.id, badgeId: badgeAnalizci.id } }),
     prisma.userBadge.create({ data: { userId: userAyse.id, badgeId: badgeForumVeterani.id } }),
-    prisma.userBadge.create({ data: { userId: userAyse.id, badgeId: badgeAltinYorum.id } }),
+    prisma.userBadge.create({ data: { userId: userAyse.id, badgeId: badgeSohbetUstasi.id } }),
     // Fatih
     prisma.userBadge.create({ data: { userId: userFatih.id, badgeId: badgeIlkMesaj.id } }),
     prisma.userBadge.create({ data: { userId: userFatih.id, badgeId: badgeKuponKrali.id } }),
     prisma.userBadge.create({ data: { userId: userFatih.id, badgeId: badgeYardimsever.id } }),
     // Emre
     prisma.userBadge.create({ data: { userId: userEmre.id, badgeId: badgeIlkMesaj.id } }),
-    prisma.userBadge.create({ data: { userId: userEmre.id, badgeId: badgeCasinoGurusu.id } }),
+    prisma.userBadge.create({ data: { userId: userEmre.id, badgeId: badgeSlotGezgini.id } }),
     // Burak
     prisma.userBadge.create({ data: { userId: userBurak.id, badgeId: badgeIlkMesaj.id } }),
-    prisma.userBadge.create({ data: { userId: userBurak.id, badgeId: badgeMacKahini.id } }),
+    prisma.userBadge.create({ data: { userId: userBurak.id, badgeId: badgeTaktikci.id } }),
     // Hakan (ADMIN)
     prisma.userBadge.create({ data: { userId: userHakan.id, badgeId: badgeIlkMesaj.id } }),
     prisma.userBadge.create({ data: { userId: userHakan.id, badgeId: badgeForumVeterani.id } }),
-    prisma.userBadge.create({ data: { userId: userHakan.id, badgeId: badgeAltinYorum.id } }),
-    prisma.userBadge.create({ data: { userId: userHakan.id, badgeId: badgeAnalizUstasi.id } }),
+    prisma.userBadge.create({ data: { userId: userHakan.id, badgeId: badgeSohbetUstasi.id } }),
+    prisma.userBadge.create({ data: { userId: userHakan.id, badgeId: badgeAnalizci.id } }),
     // Derin
     prisma.userBadge.create({ data: { userId: userDerin.id, badgeId: badgeIlkMesaj.id } }),
-    prisma.userBadge.create({ data: { userId: userDerin.id, badgeId: badgeAnalizUstasi.id } }),
+    prisma.userBadge.create({ data: { userId: userDerin.id, badgeId: badgeAnalizci.id } }),
     prisma.userBadge.create({ data: { userId: userDerin.id, badgeId: badgeForumVeterani.id } }),
     // Mehmet
     prisma.userBadge.create({ data: { userId: userMehmet.id, badgeId: badgeIlkMesaj.id } }),

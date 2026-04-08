@@ -2,101 +2,120 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function GirisPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { login } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    // TODO: implement login
-    setTimeout(() => setLoading(false), 1000);
+
+    const result = await login(email, password);
+    if (result.error) {
+      setError(result.error);
+      setLoading(false);
+    } else {
+      const redirect = searchParams.get("redirect") || "/";
+      router.push(redirect);
+      router.refresh();
+    }
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#080a0f] px-4">
-      <Card className="w-full max-w-md border-none bg-[#131820] ring-white/5">
-        <CardHeader className="items-center gap-3 pb-2">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1f844e] font-bold text-white">
-              R
-            </div>
-            <span className="text-xl font-bold text-white">
-              Rekor<span className="text-[#e8a935]">Forum</span>
-            </span>
+      <div className="w-full max-w-sm rounded-xl border border-[#1e293b] bg-[#131820] p-6">
+        {/* Logo */}
+        <div className="mb-4 flex items-center justify-center gap-1.5">
+          <span className="text-lg font-bold text-[#1f844e]">REKOR</span>
+          <span className="text-lg font-bold text-white">FORUM</span>
+        </div>
+
+        {/* Title */}
+        <h1 className="mb-6 text-center text-lg font-semibold text-[#e2e8f0]">
+          Giriş Yap
+        </h1>
+
+        {error && (
+          <div className="mb-4 rounded-md border border-[#ef4444]/30 bg-[#ef4444]/10 px-3 py-2 text-sm text-[#ef4444]">
+            {error}
           </div>
-          <CardTitle className="text-lg text-white">Giris Yap</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" className="text-sm text-gray-400">
-                E-posta
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="ornek@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="border-white/10 bg-[#0d1017] text-white placeholder:text-gray-500 focus-visible:border-[#1f844e] focus-visible:ring-[#1f844e]/30"
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email" className="text-sm text-[#94a3b8]">
+              E-posta
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="ornek@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="password" className="text-sm text-[#94a3b8]">
+              Şifre
+            </label>
+            <input
+              id="password"
+              type="password"
+              placeholder="********"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-sm text-[#64748b]">
+              <input
+                type="checkbox"
+                className="rounded border-[#1e293b] bg-[#0d1017]"
               />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="password" className="text-sm text-gray-400">
-                Sifre
-              </label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="********"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="border-white/10 bg-[#0d1017] text-white placeholder:text-gray-500 focus-visible:border-[#1f844e] focus-visible:ring-[#1f844e]/30"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm text-gray-400">
-                <input
-                  type="checkbox"
-                  className="rounded border-white/10 bg-[#0d1017]"
-                />
-                Beni hatirla
-              </label>
-              <Link
-                href="#"
-                className="text-sm text-[#e8a935] hover:text-[#e8a935]/80"
-              >
-                Sifremi unuttum
-              </Link>
-            </div>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="h-10 w-full bg-[#1f844e] text-white hover:bg-[#1f844e]/80"
+              Beni hatırla
+            </label>
+            <Link
+              href="/sifremi-unuttum"
+              className="text-sm text-[#64748b] transition-colors hover:text-[#e8a935]"
             >
-              {loading ? "Giris yapiliyor..." : "Giris Yap"}
-            </Button>
-            <p className="text-center text-sm text-gray-400">
-              Hesabin yok mu?{" "}
-              <Link
-                href="/kayit"
-                className="font-medium text-[#1f844e] hover:text-[#1f844e]/80"
-              >
-                Kayit ol
-              </Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
+              Şifremi unuttum
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-[#1f844e] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+          >
+            {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+          </button>
+
+          <p className="text-center text-sm text-[#64748b]">
+            Hesabın yok mu?{" "}
+            <Link
+              href="/kayit"
+              className="font-medium text-[#1f844e] transition-colors hover:text-[#1f844e]/80"
+            >
+              Kayıt ol
+            </Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 }

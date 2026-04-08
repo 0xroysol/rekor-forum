@@ -1,107 +1,105 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
+import { generateUniqueSlug } from "@/lib/utils/slug";
+import { onThreadCreated } from "@/lib/utils/gamification";
 
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const categoryId = searchParams.get("categoryId");
+  const { searchParams } = new URL(request.url);
+  const categoryId = searchParams.get("categoryId");
 
-    const threads = await prisma.thread.findMany({
-      where: categoryId ? { categoryId } : undefined,
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatar: true,
-            role: true,
-          },
-        },
-        prefix: true,
-        _count: {
-          select: { posts: true },
-        },
+  const threads = await prisma.thread.findMany({
+    where: categoryId ? { categoryId } : undefined,
+    include: {
+      author: {
+        select: { id: true, username: true, displayName: true, avatar: true, role: true },
       },
-      orderBy: [{ isPinned: "desc" }, { lastPostAt: "desc" }],
-    });
+      prefix: true,
+      _count: { select: { posts: true } },
+    },
+    orderBy: [{ isPinned: "desc" }, { lastPostAt: "desc" }],
+  });
 
-    return NextResponse.json(threads);
-  } catch (error) {
-    console.error("Failed to fetch threads:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch threads" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(threads);
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { title, content, categoryId, prefixId, authorId } = body;
+  // Auth check
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Giriş yapmanız gerekiyor" }, { status: 401 });
+  }
 
-    if (!title || !content || !categoryId || !authorId) {
-      return NextResponse.json(
-        { error: "title, content, categoryId, and authorId are required" },
-        { status: 400 }
-      );
-    }
+  const dbUser = await prisma.user.findUnique({ where: { email: user.email! } });
+  if (!dbUser) {
+    return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
+  }
 
-    const slug = slugify(title) + "-" + Date.now().toString(36);
+  const body = await request.json();
+  const { title, content, categoryId, prefixId, tags } = body;
 
-    const thread = await prisma.thread.create({
+  if (!title || title.length < 5) {
+    return NextResponse.json({ error: "Başlık en az 5 karakter olmalıdır" }, { status: 400 });
+  }
+  if (!content || content.length < 10) {
+    return NextResponse.json({ error: "İçerik en az 10 karakter olmalıdır" }, { status: 400 });
+  }
+  if (!categoryId) {
+    return NextResponse.json({ error: "Kategori seçmeniz gerekiyor" }, { status: 400 });
+  }
+
+  const slug = await generateUniqueSlug(title);
+
+  // Create thread + first post in transaction
+  const thread = await prisma.$transaction(async (tx) => {
+    const newThread = await tx.thread.create({
       data: {
         title,
         slug,
         categoryId,
-        authorId,
+        authorId: dbUser.id,
         prefixId: prefixId || null,
         posts: {
           create: {
             content,
-            authorId,
+            authorId: dbUser.id,
           },
         },
       },
-      include: {
-        author: {
-          select: {
-            id: true,
-            username: true,
-            displayName: true,
-            avatar: true,
-          },
-        },
-        prefix: true,
-        posts: true,
-      },
+      include: { prefix: true },
     });
 
-    await prisma.user.update({
-      where: { id: authorId },
+    // Update user postCount
+    await tx.user.update({
+      where: { id: dbUser.id },
       data: { postCount: { increment: 1 } },
     });
 
-    return NextResponse.json(thread, { status: 201 });
-  } catch (error) {
-    console.error("Failed to create thread:", error);
-    return NextResponse.json(
-      { error: "Failed to create thread" },
-      { status: 500 }
-    );
-  }
+    // Create tags if provided
+    if (tags && Array.isArray(tags) && tags.length > 0) {
+      for (const tagName of tags.slice(0, 5)) {
+        const trimmed = tagName.trim().toLowerCase();
+        if (!trimmed) continue;
+
+        const tagSlug = trimmed.replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+        const tag = await tx.tag.upsert({
+          where: { slug: tagSlug },
+          create: { name: trimmed, slug: tagSlug },
+          update: {},
+        });
+
+        await tx.threadTag.create({
+          data: { threadId: newThread.id, tagId: tag.id },
+        }).catch(() => {}); // ignore duplicate
+      }
+    }
+
+    return newThread;
+  });
+
+  // Gamification: reputation, rank, badges
+  onThreadCreated(dbUser.id).catch(() => {});
+
+  return NextResponse.json({ thread, slug: thread.slug }, { status: 201 });
 }
