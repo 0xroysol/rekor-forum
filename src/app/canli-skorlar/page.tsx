@@ -106,7 +106,7 @@ export default function CanliSkorlarPage() {
     const k = title; const col = collapsed.has(k); const groups = groupByLeague(ms);
     return (
       <div key={k}>
-        <button onClick={() => toggleCol(k)} className="w-full flex items-center gap-2 px-3 h-9 text-left" style={{ borderBottom: "1px solid #1e293b" }}>
+        <button onClick={() => toggleCol(k)} className="w-full flex items-center gap-2 px-3 h-9 text-left" style={{ borderBottom: "1px solid #1e293b", backgroundColor: "#0d1017", borderLeft: borderColor ? `3px solid ${borderColor}` : undefined }}>
           {dot === "pulse" ? <span className="relative flex h-2 w-2"><span className="absolute h-full w-full animate-ping rounded-full opacity-75" style={{backgroundColor:"#ef4444"}}/><span className="relative h-2 w-2 rounded-full" style={{backgroundColor:"#ef4444"}}/></span> : dot ? <span className="text-[11px]">{dot}</span> : null}
           <span className="text-[13px] font-bold flex-1" style={{color}}>{title}</span>
           <span className="text-[11px]" style={{color:"#64748b"}}>({ms.length})</span>
@@ -115,11 +115,14 @@ export default function CanliSkorlarPage() {
         {!col && groups.map(([lg,lm]) => {
           const logo = lm[0]?.leagueLogo;
           const lgCol = collapsed.has(`lg_${lg}`);
+          const leagueItem = ALL_ITEMS.find(l => lg.toLowerCase().includes(l.apiName.toLowerCase()) || lg.toLowerCase().includes(l.name.toLowerCase()));
+          const flag = leagueItem?.flag || "";
           return (
             <div key={lg}>
-              <button onClick={() => toggleCol(`lg_${lg}`)} className="w-full flex items-center gap-1.5 px-3 h-8 text-left" style={{backgroundColor:"#1a2130"}}>
-                {logo && <img src={logo} alt="" className="h-3.5 w-3.5 object-contain"/>}
-                <span className="text-[12px] font-semibold uppercase tracking-wide flex-1" style={{color:"#94a3b8",letterSpacing:"0.3px"}}>{lg}</span>
+              <button onClick={() => toggleCol(`lg_${lg}`)} className="w-full flex items-center gap-1.5 px-3 h-8 text-left" style={{backgroundColor:"#1a2130",borderBottom:"1px solid #1e293b"}}>
+                {flag && <span className="text-[13px] flex-shrink-0">{flag}</span>}
+                {logo && <img src={logo} alt="" className="h-3.5 w-3.5 object-contain flex-shrink-0"/>}
+                <span className="text-[12px] font-semibold flex-1" style={{color:"#94a3b8"}}>{lg}</span>
                 <span className="text-[10px]" style={{color:"#64748b"}}>{lm.length}</span>
                 <span className="text-[8px] ml-1" style={{color:"#64748b",transform:lgCol?"rotate(-90deg)":"rotate(0)",transition:"transform 150ms"}}>▼</span>
               </button>
@@ -209,13 +212,13 @@ export default function CanliSkorlarPage() {
       </main>
 
       {/* Right Sidebar — Detail or Standings */}
-      <aside className="hidden xl:flex flex-col flex-shrink-0" style={{width:320,backgroundColor:"#131820",borderLeft:"1px solid #1e293b"}}>
+      <aside className="hidden xl:flex flex-col flex-shrink-0" style={{width:380,backgroundColor:"#131820",borderLeft:"1px solid #1e293b"}}>
         {selected ? (
           <div className="flex-1 overflow-y-auto">
             {/* Detail Header */}
             <div className="flex items-center justify-between px-3 py-2" style={{borderBottom:"1px solid #1e293b"}}>
-              <button onClick={()=>setSelected(null)} className="text-[14px] hover:text-[#e2e8f0]" style={{color:"#64748b"}}>✕</button>
-              <span className="text-[11px]" style={{color:"#64748b"}}>{selected.league}</span>
+              <button onClick={()=>setSelected(null)} className="flex items-center justify-center h-6 w-6 rounded hover:bg-[#1e2738] text-[16px] font-bold transition-colors" style={{color:"#94a3b8"}}>✕</button>
+              <span className="text-[11px] font-medium" style={{color:"#94a3b8"}}>{selected.league}</span>
             </div>
             {/* Score Header */}
             <div className="px-4 py-4 text-center" style={{borderBottom:"1px solid #1e293b"}}>
