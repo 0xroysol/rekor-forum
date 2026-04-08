@@ -56,6 +56,7 @@ export default function RootLayout({
             {/* Nav Links */}
             <nav className="hidden items-center gap-1 md:flex">
               <Link href="/" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Ana Sayfa</Link>
+              <Link href="/haberler" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Haberler</Link>
               <LiveNavLink />
               <Link href="/mesajlar" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Mesajlar</Link>
             </nav>

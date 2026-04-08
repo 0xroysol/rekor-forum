@@ -1,11 +1,30 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
 
+const NEWS_CATEGORY_ICONS: Record<string, string> = {
+  futbol: "⚽",
+  basketbol: "🏀",
+  transfer: "🔄",
+  dunya: "🌍",
+  genel: "📰",
+};
+
+function newsRelativeTime(date: Date): string {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "az önce";
+  if (mins < 60) return `${mins} dk önce`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} saat önce`;
+  const days = Math.floor(hours / 24);
+  return `${days} gün önce`;
+}
+
 export default async function Home() {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  const [categories, totalThreads, totalPosts, onlineUsers, trendThreads, topUsers, onlineUsersList, recentKuponThreads] =
+  const [categories, totalThreads, totalPosts, onlineUsers, trendThreads, topUsers, onlineUsersList, recentKuponThreads, latestNews] =
     await Promise.all([
       prisma.category.findMany({
         where: { parentId: { not: null } },
@@ -46,6 +65,12 @@ export default async function Home() {
         orderBy: { createdAt: "desc" },
         take: 3,
         include: { author: true, prefix: true },
+      }),
+      prisma.news.findMany({
+        where: { isPublished: true },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: { id: true, title: true, slug: true, category: true, createdAt: true },
       }),
     ]);
 
@@ -423,6 +448,48 @@ export default async function Home() {
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+
+            {/* Son Haberler */}
+            <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: "12px", overflow: "hidden" }}>
+              <div className="px-4 py-3" style={{ borderBottom: "1px solid #1e293b" }}>
+                <span className="text-[13px] font-semibold" style={{ color: "#94a3b8" }}>📰 Son Haberler</span>
+              </div>
+              <div>
+                {latestNews.length === 0 ? (
+                  <div className="px-4 py-4 text-center text-xs" style={{ color: "#64748b" }}>
+                    Henüz haber yok
+                  </div>
+                ) : (
+                  latestNews.map((news, idx) => (
+                    <div
+                      key={news.id}
+                      className="px-4 py-2.5 transition-colors duration-150 hover:bg-bg-hover"
+                      style={{
+                        borderBottom: idx < latestNews.length - 1 ? "1px solid #1e293b" : undefined,
+                      }}
+                    >
+                      <Link
+                        href={`/haberler/${news.slug}`}
+                        className="text-xs font-medium block truncate transition-colors duration-150 hover:text-accent-green"
+                        style={{ color: "#e2e8f0" }}
+                      >
+                        {news.title}
+                      </Link>
+                      <div className="text-[11px] mt-0.5" style={{ color: "#64748b" }}>
+                        {NEWS_CATEGORY_ICONS[news.category] ?? "📰"} {newsRelativeTime(news.createdAt)}
+                      </div>
+                    </div>
+                  ))
+                )}
+                <Link
+                  href="/haberler"
+                  className="block px-4 py-2 text-center text-[12px] font-medium transition-colors hover:bg-bg-hover"
+                  style={{ color: "#1f844e", borderTop: "1px solid #1e293b" }}
+                >
+                  Tüm Haberler →
+                </Link>
               </div>
             </div>
 
