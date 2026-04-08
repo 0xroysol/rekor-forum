@@ -7,6 +7,7 @@ import { ScrollToTop } from "@/components/scroll-to-top";
 import { MobileMenu } from "@/components/mobile-menu";
 import { ToastProvider } from "@/components/toast";
 import { LiveTicker } from "@/components/live-ticker";
+import { LiveNavLink } from "@/components/live-nav-link";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -54,19 +55,9 @@ export default function RootLayout({
 
             {/* Nav Links */}
             <nav className="hidden items-center gap-1 md:flex">
-              {[
-                { href: "/", label: "Ana Sayfa" },
-                { href: "/canli-skorlar", label: "Canlı Skorlar" },
-                { href: "/mesajlar", label: "Mesajlar" },
-              ].map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <Link href="/" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Ana Sayfa</Link>
+              <LiveNavLink />
+              <Link href="/mesajlar" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Mesajlar</Link>
             </nav>
 
             {/* Right: auth */}

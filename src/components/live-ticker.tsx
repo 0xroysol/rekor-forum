@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface TickerMatch {
+  id: string;
   league: string;
   text: string;
   minute: string;
   live: boolean;
+  homeScore: number;
+  awayScore: number;
 }
 
 function formatTime(d: string) {
@@ -15,6 +18,8 @@ function formatTime(d: string) {
 
 export function LiveTicker() {
   const [items, setItems] = useState<TickerMatch[]>([]);
+  const [goalIds, setGoalIds] = useState<Set<string>>(new Set());
+  const prevScores = useRef<Map<string, { h: number; a: number }>>(new Map());
 
   const fetchData = useCallback(async () => {
     try {
@@ -22,35 +27,48 @@ export function LiveTicker() {
       const data = await res.json();
       const matches = data.matches || [];
 
-      // Football only: live + today's upcoming
       const tickerItems: TickerMatch[] = [];
+      const newGoals = new Set<string>();
 
       for (const m of matches) {
         if (m.sport !== "football") continue;
         const status = m.status as string;
         const isLive = status === "live" || status === "ht";
         const isUpcoming = status === "upcoming";
+        if (!isLive && !isUpcoming) continue;
 
-        if (!isLive && !isUpcoming) continue; // skip finished
+        const id = m.id as string;
+        const hs = (m.homeScore ?? 0) as number;
+        const as_ = (m.awayScore ?? 0) as number;
 
+        // Goal detection
         if (isLive) {
-          tickerItems.push({
-            league: m.league,
-            text: `${m.homeTeam} ${m.homeScore ?? 0} - ${m.awayScore ?? 0} ${m.awayTeam}`,
-            minute: status === "ht" ? "DA" : m.minute ? `${m.minute}'` : "CANLI",
-            live: true,
-          });
-        } else {
-          tickerItems.push({
-            league: m.league,
-            text: `${m.homeTeam} - ${m.awayTeam}`,
-            minute: formatTime(m.startTime),
-            live: false,
-          });
+          const prev = prevScores.current.get(id);
+          if (prev && (prev.h !== hs || prev.a !== as_)) {
+            newGoals.add(id);
+          }
+          prevScores.current.set(id, { h: hs, a: as_ });
         }
+
+        tickerItems.push({
+          id,
+          league: m.league,
+          text: isLive
+            ? `${m.homeTeam} ${hs} - ${as_} ${m.awayTeam}`
+            : `${m.homeTeam} - ${m.awayTeam}`,
+          minute: isLive ? (status === "ht" ? "DA" : m.minute ? `${m.minute}'` : "CANLI") : formatTime(m.startTime),
+          live: isLive,
+          homeScore: hs,
+          awayScore: as_,
+        });
       }
 
       setItems(tickerItems.slice(0, 20));
+
+      if (newGoals.size > 0) {
+        setGoalIds(newGoals);
+        setTimeout(() => setGoalIds(new Set()), 2500);
+      }
     } catch {}
   }, []);
 
@@ -63,7 +81,6 @@ export function LiveTicker() {
 
   if (items.length === 0) return null;
 
-  // Repeat 4x for seamless infinite scroll (translateX(-50%) needs at least 2x)
   const repeated = [...items, ...items, ...items, ...items];
 
   return (
@@ -75,21 +92,38 @@ export function LiveTicker() {
         </div>
         <div className="relative flex-1 overflow-hidden">
           <div className="animate-ticker flex w-max items-center py-1.5">
-            {repeated.map((item, i) => (
-              <span
-                key={i}
-                className="flex shrink-0 items-center gap-2 text-xs"
-                style={{ borderRight: "1px solid #1e293b", paddingRight: "16px", marginRight: "16px" }}
-              >
-                <span className="rounded px-1 py-0.5 text-[10px] font-medium" style={{ backgroundColor: "#1a2130", color: "#64748b" }}>
-                  {item.league}
+            {repeated.map((item, i) => {
+              const hasGoal = goalIds.has(item.id);
+              return (
+                <span
+                  key={i}
+                  className="flex shrink-0 items-center gap-2 text-xs"
+                  style={{ borderRight: "1px solid #1e293b", paddingRight: "16px", marginRight: "16px" }}
+                >
+                  <span className="rounded px-1 py-0.5 text-[10px] font-medium" style={{ backgroundColor: "#1a2130", color: "#64748b" }}>
+                    {item.league}
+                  </span>
+                  <span style={{ color: "#94a3b8" }}>{item.text}</span>
+                  <span
+                    className={hasGoal ? "goal-flash" : ""}
+                    style={{
+                      color: item.live ? "#ef4444" : "#64748b",
+                      fontWeight: item.live ? 700 : 500,
+                      display: "inline-block",
+                      borderRadius: "4px",
+                      padding: "0 2px",
+                    }}
+                  >
+                    {item.minute}
+                  </span>
+                  {hasGoal && (
+                    <span className="goal-text" style={{ color: "#1f844e", fontWeight: 700, fontSize: "11px" }}>
+                      ⚽ GOL!
+                    </span>
+                  )}
                 </span>
-                <span style={{ color: "#94a3b8" }}>{item.text}</span>
-                <span style={{ color: item.live ? "#ef4444" : "#64748b" }} className="font-medium">
-                  {item.minute}
-                </span>
-              </span>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

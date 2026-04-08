@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import type { SportMatch } from "@/lib/sports/types";
 import { MatchDetailPanel } from "@/components/match-detail";
 
@@ -59,6 +59,8 @@ export default function CanliSkorlarPage() {
   const [favs, setFavs] = useState<Set<string>>(() => loadFavs());
   const [selected, setSelected] = useState<SportMatch | null>(null);
   const [mobDetail, setMobDetail] = useState(false);
+  const [goalIds, setGoalIds] = useState<Set<string>>(new Set());
+  const prevScores = useRef<Map<string, string>>(new Map());
 
   const toggleFav = (id: string) => { setFavs(p => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); saveFavs(n); return n; }); };
   const toggleCol = (k: string) => { setCollapsed(p => { const n = new Set(p); n.has(k) ? n.delete(k) : n.add(k); return n; }); };
@@ -67,7 +69,28 @@ export default function CanliSkorlarPage() {
   // Adaptive polling
   const hasLive = matches.some(m => m.status === "live" || m.status === "ht");
   const fetchData = useCallback(async () => {
-    try { const r = await fetch("/api/live-scores"); const d = await r.json(); setMatches(d.matches || []); setLastUpdated(d.lastUpdated || ""); } catch {} finally { setLoading(false); }
+    try {
+      const r = await fetch("/api/live-scores");
+      const d = await r.json();
+      const newMatches = d.matches || [];
+
+      // Goal detection
+      const newGoals = new Set<string>();
+      for (const m of newMatches) {
+        if (m.status !== "live" && m.status !== "ht") continue;
+        const scoreKey = `${m.homeScore ?? 0}-${m.awayScore ?? 0}`;
+        const prev = prevScores.current.get(m.id);
+        if (prev && prev !== scoreKey) newGoals.add(m.id);
+        prevScores.current.set(m.id, scoreKey);
+      }
+      if (newGoals.size > 0) {
+        setGoalIds(newGoals);
+        setTimeout(() => setGoalIds(new Set()), 2500);
+      }
+
+      setMatches(newMatches);
+      setLastUpdated(d.lastUpdated || "");
+    } catch {} finally { setLoading(false); }
   }, []);
   useEffect(() => { fetchData(); const i = setInterval(fetchData, hasLive ? 120_000 : 300_000); return () => clearInterval(i); }, [fetchData, hasLive]);
 
@@ -249,7 +272,7 @@ export default function CanliSkorlarPage() {
                   <span className="text-[8px] ml-1" style={{ color: "#64748b", transform: lgCol ? "rotate(-90deg)" : "rotate(0)", transition: "transform 150ms" }}>▼</span>
                 </button>
                 {!lgCol && lm.map(m => (
-                  <MRow key={m.id} m={m} fav={favs.has(m.id)} onFav={() => toggleFav(m.id)} active={selected?.id === m.id} onSelect={() => selectMatch(m)} />
+                  <MRow key={m.id} m={m} fav={favs.has(m.id)} onFav={() => toggleFav(m.id)} active={selected?.id === m.id} onSelect={() => selectMatch(m)} hasGoal={goalIds.has(m.id)} />
                 ))}
               </div>
             );
@@ -321,11 +344,12 @@ export default function CanliSkorlarPage() {
 }
 
 // ── Match Row ──
-function MRow({ m, fav, onFav, active, onSelect }: { m: SportMatch; fav: boolean; onFav: () => void; active: boolean; onSelect: () => void }) {
+function MRow({ m, fav, onFav, active, onSelect, hasGoal }: { m: SportMatch; fav: boolean; onFav: () => void; active: boolean; onSelect: () => void; hasGoal?: boolean }) {
   const live = m.status === "live"; const ht = m.status === "ht"; const ft = m.status === "ft"; const up = m.status === "upcoming"; const post = m.status === "postponed";
   const hw = ft && (m.homeScore ?? 0) > (m.awayScore ?? 0); const aw = ft && (m.awayScore ?? 0) > (m.homeScore ?? 0);
+  const liveBg = (live || ht) ? "rgba(239,68,68,0.03)" : undefined;
   return (
-    <div className="flex items-center h-10 px-1 transition-colors hover:bg-[#1e2738] cursor-pointer" style={{ borderBottom: "1px solid #1e293b", backgroundColor: active ? "#1a2130" : undefined, borderLeft: live || ht ? "2px solid #ef4444" : "2px solid transparent" }} onClick={onSelect}>
+    <div className="flex items-center h-10 px-1 transition-colors hover:bg-[#1e2738] cursor-pointer" style={{ borderBottom: "1px solid #1e293b", backgroundColor: active ? "#1a2130" : liveBg, borderLeft: live || ht ? "2px solid #ef4444" : hasGoal ? "2px solid #1f844e" : "2px solid transparent" }} onClick={onSelect}>
       <button onClick={e => { e.stopPropagation(); onFav(); }} className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded hover:bg-[#1a2130]"><span style={{ color: fav ? "#e8a935" : "#64748b", fontSize: "12px" }}>{fav ? "★" : "☆"}</span></button>
       <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 48 }}>
         {live && <span className="flex items-center gap-0.5 text-[11px] font-bold" style={{ color: "#ef4444" }}>{m.minute}&apos;<span className="h-1.5 w-1.5 rounded-full animate-pulse inline-block" style={{ backgroundColor: "#ef4444" }} /></span>}
@@ -335,7 +359,10 @@ function MRow({ m, fav, onFav, active, onSelect }: { m: SportMatch; fav: boolean
         {post && <span className="text-[10px]" style={{ color: "#64748b" }}>ERT</span>}
       </div>
       <div className="flex-1 flex items-center justify-end gap-1 min-w-0 pr-1"><span className="text-[13px] truncate" style={{ color: hw ? "#e2e8f0" : "#94a3b8", fontWeight: hw ? 700 : 500 }}>{m.homeTeam}</span>{m.homeLogo && <img src={m.homeLogo} alt="" className="h-4 w-4 object-contain flex-shrink-0" />}</div>
-      <div className="flex-shrink-0 flex items-center justify-center font-mono text-[14px] font-bold" style={{ width: 48, color: live || ht ? "#ef4444" : ft ? "#e2e8f0" : "#64748b" }}>{up ? <span className="text-[12px]" style={{ color: "#64748b" }}>-:-</span> : <>{m.homeScore ?? 0}:{m.awayScore ?? 0}</>}</div>
+      <div className={`flex-shrink-0 flex items-center justify-center gap-0.5 font-mono font-bold rounded ${hasGoal ? "goal-flash" : ""}`} style={{ width: 52, fontSize: live || ht ? "15px" : "14px", color: live || ht ? "#ef4444" : ft ? "#e2e8f0" : "#64748b" }}>
+        {hasGoal && <span className="goal-text text-[10px]" style={{ color: "#1f844e", position: "absolute", left: -2, top: -8 }}>⚽</span>}
+        {up ? <span className="text-[12px]" style={{ color: "#64748b" }}>-:-</span> : <>{m.homeScore ?? 0}:{m.awayScore ?? 0}</>}
+      </div>
       <div className="flex-1 flex items-center gap-1 min-w-0 pl-1">{m.awayLogo && <img src={m.awayLogo} alt="" className="h-4 w-4 object-contain flex-shrink-0" />}<span className="text-[13px] truncate" style={{ color: aw ? "#e2e8f0" : "#94a3b8", fontWeight: aw ? 700 : 500 }}>{m.awayTeam}</span></div>
       <span className="flex-shrink-0 text-[10px] pr-1" style={{ color: active ? "#e2e8f0" : "#64748b" }}>›</span>
     </div>
