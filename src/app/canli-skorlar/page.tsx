@@ -266,19 +266,37 @@ export default function CanliSkorlarPage() {
           <span className="block text-[11px] mt-0.5" style={{ color: "#64748b" }}>{standingsLeague}</span>
         </div>
         {standings.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-y-auto" style={{ maxHeight: 500 }}>
             <table className="w-full text-[11px]">
-              <thead><tr style={{ color: "#64748b", borderBottom: "1px solid #1e293b" }}><th className="px-2 py-1.5 text-left font-medium">#</th><th className="px-1 py-1.5 text-left font-medium">Takım</th><th className="px-1 py-1.5 text-center font-medium">O</th><th className="px-1 py-1.5 text-center font-medium">G</th><th className="px-1 py-1.5 text-center font-medium">M</th><th className="px-1 py-1.5 text-center font-medium">P</th></tr></thead>
+              <thead className="sticky top-0" style={{ backgroundColor: "#131820" }}>
+                <tr style={{ color: "#64748b", borderBottom: "1px solid #1e293b" }}>
+                  <th className="px-2 py-1.5 text-left font-medium">#</th>
+                  <th className="px-1 py-1.5 text-left font-medium">Takım</th>
+                  <th className="px-1 py-1.5 text-center font-medium">O</th>
+                  <th className="px-1 py-1.5 text-center font-medium">G</th>
+                  <th className="px-1 py-1.5 text-center font-medium">B</th>
+                  <th className="px-1 py-1.5 text-center font-medium">M</th>
+                  <th className="px-1 py-1.5 text-center font-medium">P</th>
+                </tr>
+              </thead>
               <tbody>
-                {standings.slice(0, 10).map((t) => {
+                {standings.map((t) => {
                   let bc = "transparent";
-                  if (t.rank <= 4) bc = "#1f844e"; else if (t.rank <= 6) bc = "#3b82f6"; else if (t.rank >= standings.length - 2 && standings.length > 10) bc = "#ef4444";
+                  if (t.rank <= 4) bc = "#1f844e";
+                  else if (t.rank <= 6) bc = "#3b82f6";
+                  else if (t.rank >= standings.length - 2) bc = "#ef4444";
                   return (
                     <tr key={t.rank} className="hover:bg-[#1e2738] transition-colors" style={{ borderBottom: "1px solid #1e293b" }}>
                       <td className="px-2 py-1.5" style={{ borderLeft: `2px solid ${bc}`, color: "#64748b" }}>{t.rank}</td>
-                      <td className="px-1 py-1.5"><div className="flex items-center gap-1">{t.teamLogo && <img src={t.teamLogo} alt="" className="h-3.5 w-3.5 object-contain" />}<span className="truncate" style={{ color: "#e2e8f0", maxWidth: 120 }}>{t.teamName}</span></div></td>
+                      <td className="px-1 py-1.5">
+                        <div className="flex items-center gap-1">
+                          {t.teamLogo && <img src={t.teamLogo} alt="" className="h-3.5 w-3.5 object-contain" />}
+                          <span className="truncate" style={{ color: "#e2e8f0", maxWidth: 110 }}>{t.teamName}</span>
+                        </div>
+                      </td>
                       <td className="px-1 py-1.5 text-center" style={{ color: "#94a3b8" }}>{t.played}</td>
                       <td className="px-1 py-1.5 text-center" style={{ color: "#94a3b8" }}>{t.won}</td>
+                      <td className="px-1 py-1.5 text-center" style={{ color: "#94a3b8" }}>{t.drawn}</td>
                       <td className="px-1 py-1.5 text-center" style={{ color: "#94a3b8" }}>{t.lost}</td>
                       <td className="px-1 py-1.5 text-center font-semibold" style={{ color: "#e2e8f0" }}>{t.points}</td>
                     </tr>

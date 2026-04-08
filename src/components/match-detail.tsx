@@ -37,7 +37,8 @@ interface MatchData {
 
 function eventIcon(type: string, detail: string): string {
   if (type === "Goal") {
-    if (detail?.includes("Penalty")) return "🅿️";
+    if (detail?.includes("Missed Penalty")) return "❌";
+    if (detail?.includes("Penalty")) return "⚽";
     if (detail?.includes("Own Goal")) return "🔴";
     return "⚽";
   }
@@ -191,24 +192,31 @@ export function MatchDetailPanel({
                 ) : (
                   <div className="space-y-0.5">
                     {data.events.map((e, i) => {
-                      const isHome = e.team === homeTeam;
+                      const isOwnGoal = e.type === "Goal" && e.detail?.includes("Own Goal");
+                      const isMissedPen = e.type === "Goal" && e.detail?.includes("Missed Penalty");
+                      const isPenGoal = e.type === "Goal" && e.detail?.includes("Penalty") && !isMissedPen && !isOwnGoal;
+                      // Own goals: show on the OPPOSITE side (score goes to opposing team)
+                      const isHome = isOwnGoal ? e.team !== homeTeam : e.team === homeTeam;
                       const icon = eventIcon(e.type, e.detail);
                       const min = e.extra ? `${e.time}+${e.extra}'` : `${e.time}'`;
-                      const isGoal = e.type === "Goal";
+                      const isGoal = e.type === "Goal" && !isMissedPen;
+
+                      const playerDisplay = (
+                        <span className="text-[12px] truncate" style={{ color: isOwnGoal ? "#ef4444" : isGoal ? "#e2e8f0" : "#94a3b8", fontWeight: isGoal ? 600 : 400 }}>
+                          {e.player}
+                          {isOwnGoal && <span style={{ color: "#ef4444" }}> (k.k.)</span>}
+                          {isPenGoal && <span style={{ color: "#64748b" }}> (P)</span>}
+                          {isMissedPen && <span style={{ color: "#ef4444" }}> (P)</span>}
+                          {e.type === "subst" && e.assist && <span style={{ color: "#64748b" }}> ↔ {e.assist}</span>}
+                          {isGoal && !isOwnGoal && !isPenGoal && e.assist && <span style={{ color: "#64748b" }}> ({e.assist})</span>}
+                        </span>
+                      );
+
                       return (
                         <div key={i} className="flex items-center gap-2 py-1" style={{ borderBottom: "1px solid #1e293b20" }}>
                           {/* Home side */}
                           <div className="flex-1 flex items-center justify-end gap-1.5 min-w-0">
-                            {isHome && (
-                              <>
-                                <span className="text-[12px] truncate" style={{ color: isGoal ? "#e2e8f0" : "#94a3b8", fontWeight: isGoal ? 600 : 400 }}>
-                                  {e.player}
-                                  {e.type === "subst" && e.assist && <span style={{ color: "#64748b" }}> ↔ {e.assist}</span>}
-                                  {isGoal && e.assist && <span style={{ color: "#64748b" }}> ({e.assist})</span>}
-                                </span>
-                                <span>{icon}</span>
-                              </>
-                            )}
+                            {isHome && <>{playerDisplay}<span>{icon}</span></>}
                           </div>
                           {/* Minute */}
                           <div className="flex-shrink-0 w-12 text-center">
@@ -216,16 +224,7 @@ export function MatchDetailPanel({
                           </div>
                           {/* Away side */}
                           <div className="flex-1 flex items-center gap-1.5 min-w-0">
-                            {!isHome && (
-                              <>
-                                <span>{icon}</span>
-                                <span className="text-[12px] truncate" style={{ color: isGoal ? "#e2e8f0" : "#94a3b8", fontWeight: isGoal ? 600 : 400 }}>
-                                  {e.player}
-                                  {e.type === "subst" && e.assist && <span style={{ color: "#64748b" }}> ↔ {e.assist}</span>}
-                                  {isGoal && e.assist && <span style={{ color: "#64748b" }}> ({e.assist})</span>}
-                                </span>
-                              </>
-                            )}
+                            {!isHome && <><span>{icon}</span>{playerDisplay}</>}
                           </div>
                         </div>
                       );
