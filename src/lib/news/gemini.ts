@@ -4,45 +4,50 @@ export async function rewriteNews(title: string, summary: string): Promise<{ tit
   const key = process.env.GEMINI_API_KEY;
   if (!key) return null;
 
-  const prompt = `Sen bir Türk spor gazetecisisin. Aşağıdaki haber başlığı ve özetini kullanarak tamamen orijinal bir Türkçe spor haberi yaz.
+  const prompt = `Türkçe spor haberi yaz. Kaynak: "${title}" - ${summary.slice(0, 150)}
 
-KAYNAK BAŞLIK: ${title}
-KAYNAK ÖZET: ${summary}
+Kısa başlık (max 60 karakter), 1 cümle özet, 2 paragraf içerik (100-150 kelime). Orijinal yaz.
 
-KURALLAR:
-- Tamamen orijinal, kendi cümlelerinle yaz. Kaynak metni kopyalama.
-- Başlık: dikkat çekici, kısa, Türkçe (max 80 karakter)
-- Özet: 1-2 cümle (max 200 karakter)
-- İçerik: 3-4 paragraf, detaylı spor haberi (200-400 kelime)
-- Profesyonel gazetecilik diliyle yaz
-- Tarafsız ve bilgilendirici ol
-
-JSON formatında yanıt ver:
-{"title": "...", "summary": "...", "content": "..."}
-
-SADECE JSON yanıt ver.`;
+SADECE şu JSON formatında yanıt ver, başka hiçbir şey yazma:
+{"title":"başlık","summary":"özet","content":"paragraf1\\n\\nparagraf2"}`;
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20_000); // 20s timeout
+    const timeout = setTimeout(() => controller.abort(), 30_000);
     const res = await fetch(`${GEMINI_URL}?key=${key}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+          responseMimeType: "application/json",
+        },
       }),
       signal: controller.signal,
     });
     clearTimeout(timeout);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.error(`[Gemini] HTTP ${res.status}`);
+      return null;
+    }
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    // Extract JSON from response (may have markdown code blocks)
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
-    return JSON.parse(jsonMatch[0]);
-  } catch {
+    if (!text) return null;
+
+    // Clean and parse
+    const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (match) return JSON.parse(match[0]);
+      console.error("[Gemini] Parse failed:", cleaned.slice(0, 150));
+      return null;
+    }
+  } catch (e) {
+    console.error("[Gemini] Error:", (e as Error).message?.slice(0, 80));
     return null;
   }
 }
