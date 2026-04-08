@@ -260,7 +260,7 @@ export function MatchDetailPanel({
                       return (
                         <div key={i}>
                           <div className="text-center text-[11px] mb-0.5" style={{ color: "#64748b" }}>{label}</div>
-                          <StatBar homeVal={s.value} awayVal={awayS?.value ?? null} />
+                          <StatBar label={label} homeVal={s.value} awayVal={awayS?.value ?? null} />
                         </div>
                       );
                     })}
