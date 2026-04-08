@@ -195,8 +195,8 @@ export function MatchDetailPanel({
                       const isOwnGoal = e.type === "Goal" && e.detail?.includes("Own Goal");
                       const isMissedPen = e.type === "Goal" && e.detail?.includes("Missed Penalty");
                       const isPenGoal = e.type === "Goal" && e.detail?.includes("Penalty") && !isMissedPen && !isOwnGoal;
-                      // Own goals: show on the OPPOSITE side (score goes to opposing team)
-                      const isHome = isOwnGoal ? e.team !== homeTeam : e.team === homeTeam;
+                      // Own goals: show on the player's OWN team side (like Flashscore)
+                      const isHome = e.team === homeTeam;
                       const icon = eventIcon(e.type, e.detail);
                       const min = e.extra ? `${e.time}+${e.extra}'` : `${e.time}'`;
                       const isGoal = e.type === "Goal" && !isMissedPen;
