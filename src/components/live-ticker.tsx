@@ -18,43 +18,31 @@ export function LiveTicker() {
       const data = await res.json();
       const matches = data.matches || data || [];
 
-      const mapped: TickerMatch[] = matches.slice(0, 15).map((m: Record<string, unknown>) => {
-        // Handle both old (LiveMatch DB) and new (API-Sports) format
-        const sport = m.sport as string | undefined;
+      // Only show LIVE matches in ticker
+      const liveOnly = matches.filter((m: Record<string, unknown>) => {
         const status = m.status as string;
+        return status === "live" || status === "ht";
+      });
+
+      const mapped: TickerMatch[] = liveOnly.slice(0, 15).map((m: Record<string, unknown>) => {
+        const sport = m.sport as string | undefined;
         const homeScore = m.homeScore as number | null;
         const awayScore = m.awayScore as number | null;
         const homeTeam = m.homeTeam as string;
         const awayTeam = m.awayTeam as string;
         const league = m.league as string;
         const minute = m.minute as string | null;
-        const startTime = m.startTime as string;
-
-        const isLive = status === "live" || status === "ht";
-        let minuteStr: string;
-        if (isLive) {
-          minuteStr = minute ? `${minute}'` : "CANLI";
-        } else if (status === "ft" || status === "finished") {
-          minuteStr = "MS";
-        } else {
-          try {
-            minuteStr = new Date(startTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
-          } catch {
-            minuteStr = "";
-          }
-        }
+        const status = m.status as string;
 
         return {
           league: sport === "basketball" ? `🏀 ${league}` : league,
-          match: `${homeTeam} ${homeScore ?? "-"} - ${awayScore ?? "-"} ${awayTeam}`,
-          minute: minuteStr,
-          live: isLive,
+          match: `${homeTeam} ${homeScore ?? 0} - ${awayScore ?? 0} ${awayTeam}`,
+          minute: status === "ht" ? "DA" : minute ? `${minute}'` : "CANLI",
+          live: true,
         };
       });
 
-      if (mapped.length > 0) {
-        setScores(mapped);
-      }
+      setScores(mapped);
     } catch {
       // Keep existing scores on error
     }
@@ -67,21 +55,8 @@ export function LiveTicker() {
     return () => clearInterval(interval);
   }, [fetchScores, hasLive]);
 
-  if (scores.length === 0) {
-    return (
-      <div className="overflow-hidden border-t bg-bg-deep" style={{ borderColor: "#1e293b" }}>
-        <div className="flex items-center">
-          <div className="z-10 flex shrink-0 items-center gap-1.5 bg-red px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-            CANLI
-          </div>
-          <div className="flex-1 py-1.5 px-4">
-            <span className="text-xs" style={{ color: "#64748b" }}>Skorlar yükleniyor...</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Hide ticker completely if no live matches
+  if (scores.length === 0) return null;
 
   const doubled = [...scores, ...scores];
 
