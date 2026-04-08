@@ -6,6 +6,7 @@ import { HeaderAuth } from "@/components/header-auth";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { MobileMenu } from "@/components/mobile-menu";
 import { ToastProvider } from "@/components/toast";
+import prisma from "@/lib/prisma";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -20,19 +21,37 @@ export const metadata: Metadata = {
     "Türkiye'nin en büyük spor ve bahis tartışma forumu. Canlı skorlar, tahminler ve daha fazlası.",
 };
 
-const liveScores = [
-  { league: "Süper Lig", match: "Galatasaray 2 - 1 Fenerbahçe", minute: "67'", live: true },
-  { league: "Süper Lig", match: "Beşiktaş 0 - 0 Trabzonspor", minute: "34'", live: true },
-  { league: "La Liga", match: "Real Madrid 0 - 0 Barcelona", minute: "Yakında", live: false },
-  { league: "Premier League", match: "Manchester City 3 - 2 Liverpool", minute: "MS", live: false },
-  { league: "Bundesliga", match: "Bayern München 1 - 1 Dortmund", minute: "78'", live: true },
-];
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch ticker data from DB: recent finished (last 4 days), live, and today's upcoming
+  const fourDaysAgo = new Date();
+  fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  const tickerMatches = await prisma.liveMatch.findMany({
+    where: {
+      OR: [
+        { status: "finished", startTime: { gte: fourDaysAgo } },
+        { status: "live" },
+        { status: "upcoming", startTime: { gte: todayStart, lte: todayEnd } },
+      ],
+    },
+    orderBy: { startTime: "desc" },
+    take: 15,
+  });
+
+  const liveScores = tickerMatches.map((m) => ({
+    league: m.league,
+    match: `${m.homeTeam} ${m.homeScore} - ${m.awayScore} ${m.awayTeam}`,
+    minute: m.status === "live" ? `${m.minute}'` : m.status === "finished" ? "MS" : m.startTime.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }),
+    live: m.status === "live",
+  }));
   return (
     <html lang="tr" className={`${dmSans.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-bg-deep text-text-primary font-sans">
