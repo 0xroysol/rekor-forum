@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/utils/rate-limit";
 
 async function getAuthUser() {
   const supabase = await createClient();
@@ -72,6 +73,12 @@ export async function POST(request: NextRequest) {
 
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ error: "Mesaj içeriği gereklidir." }, { status: 400 });
+    }
+
+    // Rate limit: 1 message per 10 seconds
+    const rl = rateLimit(`msg_send_${dbUser.id}`, 1, 10_000);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Çok hızlı mesaj gönderiyorsunuz." }, { status: 429 });
     }
 
     let targetConversationId = conversationId;

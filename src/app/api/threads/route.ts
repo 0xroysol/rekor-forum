@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import { generateUniqueSlug } from "@/lib/utils/slug";
 import { onThreadCreated } from "@/lib/utils/gamification";
+import { rateLimit } from "@/lib/utils/rate-limit";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -34,6 +35,12 @@ export async function POST(request: NextRequest) {
   const dbUser = await prisma.user.findUnique({ where: { email: user.email! } });
   if (!dbUser) {
     return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
+  }
+
+  // Rate limit: 3 threads per minute
+  const rl = rateLimit(`thread_create_${dbUser.id}`, 3, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Çok hızlı konu açıyorsunuz. Lütfen biraz bekleyin." }, { status: 429 });
   }
 
   const body = await request.json();

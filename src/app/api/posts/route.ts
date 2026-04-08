@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import { onPostCreated } from "@/lib/utils/gamification";
+import { rateLimit } from "@/lib/utils/rate-limit";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -53,6 +54,12 @@ export async function POST(request: NextRequest) {
 
   if (!threadId || !content || content.trim().length === 0) {
     return NextResponse.json({ error: "İçerik boş olamaz" }, { status: 400 });
+  }
+
+  // Rate limit: 1 post per 30 seconds
+  const rl = rateLimit(`post_create_${dbUser.id}`, 2, 30_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Çok hızlı mesaj gönderiyorsunuz. Lütfen biraz bekleyin." }, { status: 429 });
   }
 
   // Check thread exists and not locked
