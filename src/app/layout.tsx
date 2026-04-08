@@ -6,7 +6,7 @@ import { HeaderAuth } from "@/components/header-auth";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { MobileMenu } from "@/components/mobile-menu";
 import { ToastProvider } from "@/components/toast";
-import prisma from "@/lib/prisma";
+import { getAllMatches } from "@/lib/sports/provider";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -26,32 +26,24 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Fetch ticker data from DB: recent finished (last 4 days), live, and today's upcoming
-  const fourDaysAgo = new Date();
-  fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
-
-  const tickerMatches = await prisma.liveMatch.findMany({
-    where: {
-      OR: [
-        { status: "finished", startTime: { gte: fourDaysAgo } },
-        { status: "live" },
-        { status: "upcoming", startTime: { gte: todayStart, lte: todayEnd } },
-      ],
-    },
-    orderBy: { startTime: "desc" },
-    take: 15,
-  });
-
-  const liveScores = tickerMatches.map((m) => ({
-    league: m.league,
-    match: `${m.homeTeam} ${m.homeScore} - ${m.awayScore} ${m.awayTeam}`,
-    minute: m.status === "live" ? `${m.minute}'` : m.status === "finished" ? "MS" : m.startTime.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }),
-    live: m.status === "live",
-  }));
+  // Fetch ticker data from API-Sports
+  let liveScores: { league: string; match: string; minute: string; live: boolean }[] = [];
+  try {
+    const allMatches = await getAllMatches();
+    liveScores = allMatches.slice(0, 15).map((m) => ({
+      league: m.league,
+      match: `${m.homeTeam} ${m.homeScore ?? 0} - ${m.awayScore ?? 0} ${m.awayTeam}`,
+      minute:
+        m.status === "live" || m.status === "ht"
+          ? m.minute ? `${m.minute}'` : "CANLI"
+          : m.status === "ft"
+            ? "MS"
+            : new Date(m.startTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }),
+      live: m.status === "live" || m.status === "ht",
+    }));
+  } catch {
+    liveScores = [{ league: "", match: "Skorlar yükleniyor...", minute: "", live: false }];
+  }
   return (
     <html lang="tr" className={`${dmSans.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-bg-deep text-text-primary font-sans">

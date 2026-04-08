@@ -1,181 +1,221 @@
-import prisma from "@/lib/prisma";
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Canlı Skorlar - Rekor Forum",
-  description: "Futbol, basketbol ve diğer sporların canlı maç sonuçları.",
-  openGraph: { title: "Canlı Skorlar - Rekor Forum", siteName: "Rekor Forum" },
+import { useState, useEffect, useCallback } from "react";
+import type { SportMatch } from "@/lib/sports/types";
+
+const statusConfig: Record<string, { label: string; borderColor: string; textColor: string; bgColor: string }> = {
+  live: { label: "CANLI", borderColor: "#1f844e", textColor: "#1f844e", bgColor: "rgba(31,132,78,0.1)" },
+  ht: { label: "D.ARASI", borderColor: "#e8a935", textColor: "#e8a935", bgColor: "rgba(232,169,53,0.1)" },
+  ft: { label: "BİTTİ", borderColor: "#64748b", textColor: "#64748b", bgColor: "rgba(100,116,139,0.1)" },
+  upcoming: { label: "YAKINDA", borderColor: "#3b82f6", textColor: "#3b82f6", bgColor: "rgba(59,130,246,0.1)" },
+  postponed: { label: "ERTELENDİ", borderColor: "#ef4444", textColor: "#ef4444", bgColor: "rgba(239,68,68,0.1)" },
 };
 
-function formatTime(date: Date) {
-  return new Intl.DateTimeFormat("tr-TR", {
+function formatTime(dateStr: string) {
+  return new Date(dateStr).toLocaleTimeString("tr-TR", {
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date);
+    timeZone: "Europe/Istanbul",
+  });
 }
 
-const statusConfig: Record<
-  string,
-  { label: string; borderColor: string; textColor: string; bgColor: string }
-> = {
-  live: {
-    label: "CANLI",
-    borderColor: "border-l-[#1f844e]",
-    textColor: "text-[#1f844e]",
-    bgColor: "bg-[#1f844e]/10",
-  },
-  finished: {
-    label: "BITTI",
-    borderColor: "border-l-[#64748b]",
-    textColor: "text-[#64748b]",
-    bgColor: "bg-[#64748b]/10",
-  },
-  upcoming: {
-    label: "YAKINLA",
-    borderColor: "border-l-[#3b82f6]",
-    textColor: "text-[#3b82f6]",
-    bgColor: "bg-[#3b82f6]/10",
-  },
-};
+export default function CanliSkorlarPage() {
+  const [matches, setMatches] = useState<SportMatch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [sportTab, setSportTab] = useState<"all" | "football" | "basketball">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "live" | "ft" | "upcoming">("all");
 
-export default async function CanliSkorlarPage() {
-  const matches = await prisma.liveMatch.findMany({
-    orderBy: [{ status: "asc" }, { startTime: "asc" }],
+  const fetchMatches = useCallback(async () => {
+    try {
+      const res = await fetch("/api/live-scores?type=all");
+      const data = await res.json();
+      setMatches(data.matches || []);
+      setLastUpdated(data.lastUpdated || "");
+    } catch {
+      // Keep existing data on error
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMatches();
+    const interval = setInterval(fetchMatches, 60_000);
+    return () => clearInterval(interval);
+  }, [fetchMatches]);
+
+  // Filter matches
+  const filtered = matches.filter((m) => {
+    if (sportTab !== "all" && m.sport !== sportTab) return false;
+    if (statusFilter !== "all" && m.status !== statusFilter && !(statusFilter === "live" && m.status === "ht")) return false;
+    return true;
   });
 
-  const grouped = matches.reduce<Record<string, typeof matches>>(
-    (acc, match) => {
-      if (!acc[match.league]) {
-        acc[match.league] = [];
-      }
-      acc[match.league].push(match);
-      return acc;
-    },
-    {}
-  );
+  // Group by league
+  const grouped = filtered.reduce<Record<string, SportMatch[]>>((acc, m) => {
+    if (!acc[m.league]) acc[m.league] = [];
+    acc[m.league].push(m);
+    return acc;
+  }, {});
 
-  const leagueNames = Object.keys(grouped);
+  const liveCount = matches.filter((m) => m.status === "live" || m.status === "ht").length;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      {/* Page Title */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-[#e2e8f0]">Canli Skorlar</h1>
+    <div className="mx-auto max-w-4xl px-5 py-5">
+      {/* Header */}
+      <div className="mb-5 flex items-center justify-between">
+        <h1 className="text-xl font-bold" style={{ color: "#e2e8f0" }}>Canlı Skorlar</h1>
         <div className="flex items-center gap-2">
-          <span className="relative flex h-3 w-3">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1f844e] opacity-75" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-[#1f844e]" />
-          </span>
-          <span className="text-sm text-[#64748b]">
-            Canli guncelleme aktif
-          </span>
+          {liveCount > 0 && (
+            <span className="flex items-center gap-1.5 text-xs" style={{ color: "#1f844e" }}>
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ backgroundColor: "#1f844e" }} />
+                <span className="relative inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: "#1f844e" }} />
+              </span>
+              {liveCount} canlı maç
+            </span>
+          )}
+          {lastUpdated && (
+            <span className="text-xs" style={{ color: "#64748b" }}>
+              Son güncelleme: {new Date(lastUpdated).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" })}
+            </span>
+          )}
         </div>
       </div>
 
-      {leagueNames.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-[#1e293b] bg-[#131820] py-12">
-          <span className="text-4xl">&#9917;</span>
-          <p className="text-[#94a3b8]">Su anda aktif mac bulunmuyor.</p>
-          <p className="text-sm text-[#64748b]">
-            Maclar basladiginda burada gorunecektir.
-          </p>
+      {/* Sport Tabs */}
+      <div className="mb-4 flex items-center gap-1">
+        {[
+          { key: "all" as const, label: "Tümü" },
+          { key: "football" as const, label: "⚽ Futbol" },
+          { key: "basketball" as const, label: "🏀 Basketbol" },
+        ].map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setSportTab(t.key)}
+            className="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+            style={{
+              backgroundColor: sportTab === t.key ? "#1a2130" : "transparent",
+              color: sportTab === t.key ? "#e2e8f0" : "#64748b",
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+        <div className="flex-1" />
+        {/* Status filter */}
+        {[
+          { key: "all" as const, label: "Tümü" },
+          { key: "live" as const, label: "Canlı" },
+          { key: "ft" as const, label: "Biten" },
+          { key: "upcoming" as const, label: "Yaklaşan" },
+        ].map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setStatusFilter(f.key)}
+            className="rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
+            style={{
+              backgroundColor: statusFilter === f.key ? "#1a2130" : "transparent",
+              color: statusFilter === f.key ? "#e2e8f0" : "#64748b",
+            }}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-20 rounded-xl animate-pulse" style={{ backgroundColor: "#131820" }} />
+          ))}
         </div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {leagueNames.map((league) => (
+      )}
+
+      {/* No matches */}
+      {!loading && filtered.length === 0 && (
+        <div className="rounded-xl px-6 py-12 text-center" style={{ backgroundColor: "#131820", border: "1px solid #1e293b" }}>
+          <span className="text-4xl block mb-3">⚽</span>
+          <p style={{ color: "#94a3b8" }}>Şu an gösterilecek maç bulunmuyor.</p>
+          <p className="text-sm mt-1" style={{ color: "#64748b" }}>Maçlar başladığında burada görünecektir.</p>
+        </div>
+      )}
+
+      {/* Match list grouped by league */}
+      {!loading && Object.entries(grouped).length > 0 && (
+        <div className="space-y-5">
+          {Object.entries(grouped).map(([league, leagueMatches]) => (
             <div key={league}>
-              {/* League Header */}
-              <div className="mb-3 flex items-center gap-2">
-                <span className="text-lg">&#127942;</span>
-                <h2 className="text-lg font-semibold text-[#e2e8f0]">
-                  {league}
-                </h2>
-                <span className="rounded-md bg-[#1a2130] px-2 py-0.5 text-xs text-[#64748b]">
-                  {grouped[league].length} mac
+              {/* League header */}
+              <div className="mb-2 flex items-center gap-2">
+                {leagueMatches[0]?.leagueLogo && (
+                  <img src={leagueMatches[0].leagueLogo} alt="" className="h-5 w-5 object-contain" />
+                )}
+                <span className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>{league}</span>
+                <span className="rounded-md px-1.5 py-0.5 text-[11px]" style={{ backgroundColor: "#1a2130", color: "#64748b" }}>
+                  {leagueMatches.length} maç
                 </span>
               </div>
 
-              {/* Match Cards */}
-              <div className="flex flex-col gap-3">
-                {grouped[league].map((match) => {
-                  const config =
-                    statusConfig[match.status] || statusConfig.upcoming;
-
+              {/* Matches */}
+              <div className="space-y-2">
+                {leagueMatches.map((match) => {
+                  const config = statusConfig[match.status] || statusConfig.upcoming;
                   return (
                     <div
                       key={match.id}
-                      className={`flex items-center gap-4 rounded-xl border border-[#1e293b] border-l-2 ${config.borderColor} bg-[#131820] px-4 py-3`}
+                      className="flex items-center gap-4 rounded-xl px-4 py-3"
+                      style={{
+                        backgroundColor: "#131820",
+                        border: "1px solid #1e293b",
+                        borderLeftWidth: "3px",
+                        borderLeftColor: config.borderColor,
+                      }}
                     >
                       {/* Status */}
-                      <div className="flex w-16 flex-col items-center gap-1">
+                      <div className="flex w-16 flex-col items-center gap-1 flex-shrink-0">
                         <span
-                          className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${config.bgColor} ${config.textColor} ${
-                            match.status === "live"
-                              ? "animate-pulse border-[#1f844e]"
-                              : match.status === "finished"
-                                ? "border-[#64748b]"
-                                : "border-[#3b82f6]"
-                          }`}
+                          className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                          style={{
+                            backgroundColor: config.bgColor,
+                            color: config.textColor,
+                            ...(match.status === "live" ? { animation: "pulse 2s infinite" } : {}),
+                          }}
                         >
                           {config.label}
                         </span>
-                        {match.status === "live" && (
-                          <span className="text-xs font-medium text-[#1f844e]">
-                            {match.minute}&apos;
-                          </span>
+                        {match.status === "live" && match.minute && (
+                          <span className="text-xs font-medium" style={{ color: "#1f844e" }}>{match.minute}&apos;</span>
                         )}
                         {match.status === "upcoming" && (
-                          <span className="text-xs text-[#64748b]">
-                            {formatTime(match.startTime)}
-                          </span>
+                          <span className="text-xs" style={{ color: "#64748b" }}>{formatTime(match.startTime)}</span>
                         )}
                       </div>
 
                       {/* Teams & Score */}
                       <div className="flex flex-1 flex-col gap-2">
-                        {/* Home Team */}
                         <div className="flex items-center justify-between">
-                          <span
-                            className={`text-sm font-medium ${
-                              match.status === "finished" &&
-                              match.homeScore > match.awayScore
-                                ? "text-[#e2e8f0]"
-                                : "text-[#94a3b8]"
-                            }`}
-                          >
-                            {match.homeTeam}
-                          </span>
-                          <span
-                            className={`min-w-[2rem] text-center text-lg font-bold ${
-                              match.status === "live"
-                                ? "text-[#1f844e]"
-                                : "text-[#e2e8f0]"
-                            }`}
-                          >
-                            {match.homeScore}
+                          <div className="flex items-center gap-2">
+                            {match.homeLogo && <img src={match.homeLogo} alt="" className="h-5 w-5 object-contain" />}
+                            <span className="text-sm font-medium" style={{ color: match.status === "ft" && (match.homeScore ?? 0) > (match.awayScore ?? 0) ? "#e2e8f0" : "#94a3b8" }}>
+                              {match.homeTeam}
+                            </span>
+                          </div>
+                          <span className="min-w-[2rem] text-center text-lg font-bold" style={{ color: match.status === "live" || match.status === "ht" ? "#1f844e" : "#e2e8f0" }}>
+                            {match.homeScore ?? "-"}
                           </span>
                         </div>
-
-                        {/* Away Team */}
                         <div className="flex items-center justify-between">
-                          <span
-                            className={`text-sm font-medium ${
-                              match.status === "finished" &&
-                              match.awayScore > match.homeScore
-                                ? "text-[#e2e8f0]"
-                                : "text-[#94a3b8]"
-                            }`}
-                          >
-                            {match.awayTeam}
-                          </span>
-                          <span
-                            className={`min-w-[2rem] text-center text-lg font-bold ${
-                              match.status === "live"
-                                ? "text-[#1f844e]"
-                                : "text-[#e2e8f0]"
-                            }`}
-                          >
-                            {match.awayScore}
+                          <div className="flex items-center gap-2">
+                            {match.awayLogo && <img src={match.awayLogo} alt="" className="h-5 w-5 object-contain" />}
+                            <span className="text-sm font-medium" style={{ color: match.status === "ft" && (match.awayScore ?? 0) > (match.homeScore ?? 0) ? "#e2e8f0" : "#94a3b8" }}>
+                              {match.awayTeam}
+                            </span>
+                          </div>
+                          <span className="min-w-[2rem] text-center text-lg font-bold" style={{ color: match.status === "live" || match.status === "ht" ? "#1f844e" : "#e2e8f0" }}>
+                            {match.awayScore ?? "-"}
                           </span>
                         </div>
                       </div>
@@ -188,11 +228,10 @@ export default async function CanliSkorlarPage() {
         </div>
       )}
 
-      {/* Bottom Note */}
-      <div className="mt-8 rounded-xl border border-[#1e293b] bg-[#131820] px-4 py-3 text-center">
-        <p className="text-xs text-[#64748b]">
-          Skorlar otomatik olarak guncellenmektedir. Sayfa yenilemenize gerek
-          yoktur.
+      {/* Auto-refresh note */}
+      <div className="mt-6 rounded-xl px-4 py-3 text-center" style={{ backgroundColor: "#131820", border: "1px solid #1e293b" }}>
+        <p className="text-xs" style={{ color: "#64748b" }}>
+          Skorlar her 60 saniyede otomatik güncellenir. Sayfa yenilemenize gerek yoktur.
         </p>
       </div>
     </div>
