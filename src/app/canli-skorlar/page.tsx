@@ -36,11 +36,7 @@ function saveFavs(f: Set<string>) { localStorage.setItem("fav_matches", JSON.str
 
 interface Standing { rank: number; teamName: string; teamLogo: string; played: number; won: number; drawn: number; lost: number; points: number; }
 
-function groupByLeague(ms: SportMatch[]): [string, SportMatch[]][] {
-  const map: Record<string, SportMatch[]> = {};
-  for (const m of ms) { (map[m.league] ??= []).push(m); }
-  return Object.entries(map).sort(([a],[b]) => leagueOrder(a) - leagueOrder(b));
-}
+// groupByLeague removed — now using leagueGroups useMemo directly
 
 export default function CanliSkorlarPage() {
   const [matches, setMatches] = useState<SportMatch[]>([]);
@@ -85,10 +81,39 @@ export default function CanliSkorlarPage() {
     return list;
   }, [matches, sport, today, league]);
 
-  const favMs = useMemo(() => filtered.filter(m=>favs.has(m.id)), [filtered,favs]);
-  const liveMs = useMemo(() => filtered.filter(m=>(m.status==="live"||m.status==="ht")&&!favs.has(m.id)), [filtered,favs]);
-  const upMs = useMemo(() => filtered.filter(m=>m.status==="upcoming"&&!favs.has(m.id)).sort((a,b)=>new Date(a.startTime).getTime()-new Date(b.startTime).getTime()), [filtered,favs]);
-  const ftMs = useMemo(() => filtered.filter(m=>(m.status==="ft"||m.status==="postponed")&&!favs.has(m.id)), [filtered,favs]);
+  // Favorites (separate section)
+  const favMs = useMemo(() => filtered.filter(m => favs.has(m.id)), [filtered, favs]);
+
+  // Group by league (Mackolik style) — within each league: live → upcoming → finished
+  const leagueGroups = useMemo(() => {
+    const nonFav = filtered.filter(m => !favs.has(m.id));
+    const map: Record<string, SportMatch[]> = {};
+    for (const m of nonFav) { (map[m.league] ??= []).push(m); }
+
+    // Sort matches within each league: live first, then upcoming (by time), then finished
+    const statusOrder = (s: string) => s === "live" || s === "ht" ? 0 : s === "upcoming" ? 1 : 2;
+    for (const lg of Object.keys(map)) {
+      map[lg].sort((a, b) => {
+        const sd = statusOrder(a.status) - statusOrder(b.status);
+        if (sd !== 0) return sd;
+        return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+      });
+    }
+
+    // Sort leagues: ones with live matches first, then upcoming, then finished-only
+    // Within same priority, sort by popularity order
+    return Object.entries(map).sort(([aLg, aMs], [bLg, bMs]) => {
+      const aHasLive = aMs.some(m => m.status === "live" || m.status === "ht") ? 0 : 1;
+      const bHasLive = bMs.some(m => m.status === "live" || m.status === "ht") ? 0 : 1;
+      if (aHasLive !== bHasLive) return aHasLive - bHasLive;
+
+      const aHasUp = aMs.some(m => m.status === "upcoming") ? 0 : 1;
+      const bHasUp = bMs.some(m => m.status === "upcoming") ? 0 : 1;
+      if (aHasUp !== bHasUp) return aHasUp - bHasUp;
+
+      return leagueOrder(aLg) - leagueOrder(bLg);
+    });
+  }, [filtered, favs]);
 
   const fbCount = matches.filter(m=>m.sport==="football"&&(dk(new Date(m.startTime))===today||(m.status==="live"||m.status==="ht"))).length;
   const bbCount = matches.filter(m=>m.sport==="basketball"&&(dk(new Date(m.startTime))===today||(m.status==="live"||m.status==="ht"))).length;
@@ -100,41 +125,7 @@ export default function CanliSkorlarPage() {
   const isToday = dk(date) === dk(new Date());
   const selLeague = (n: string|null) => { setLeague(n); if (n) setStLeague(n); setMobSidebar(false); };
 
-  // Section renderer
-  const renderSection = (title: string, dot: string|null, ms: SportMatch[], color: string, borderColor?: string) => {
-    if (!ms.length) return null;
-    const k = title; const col = collapsed.has(k); const groups = groupByLeague(ms);
-    return (
-      <div key={k}>
-        <button onClick={() => toggleCol(k)} className="w-full flex items-center gap-2 px-3 h-9 text-left" style={{ borderBottom: "1px solid #1e293b", backgroundColor: "#0d1017", borderLeft: borderColor ? `3px solid ${borderColor}` : undefined }}>
-          {dot === "pulse" ? <span className="relative flex h-2 w-2"><span className="absolute h-full w-full animate-ping rounded-full opacity-75" style={{backgroundColor:"#ef4444"}}/><span className="relative h-2 w-2 rounded-full" style={{backgroundColor:"#ef4444"}}/></span> : dot ? <span className="text-[11px]">{dot}</span> : null}
-          <span className="text-[13px] font-bold flex-1" style={{color}}>{title}</span>
-          <span className="text-[11px]" style={{color:"#64748b"}}>({ms.length})</span>
-          <span className="text-[9px]" style={{color:"#64748b",transform:col?"rotate(-90deg)":"rotate(0)",transition:"transform 150ms"}}>▼</span>
-        </button>
-        {!col && groups.map(([lg,lm]) => {
-          const logo = lm[0]?.leagueLogo;
-          const lgCol = collapsed.has(`lg_${lg}`);
-          const leagueItem = ALL_ITEMS.find(l => lg.toLowerCase().includes(l.apiName.toLowerCase()) || lg.toLowerCase().includes(l.name.toLowerCase()));
-          const flag = leagueItem?.flag || "";
-          return (
-            <div key={lg}>
-              <button onClick={() => toggleCol(`lg_${lg}`)} className="w-full flex items-center gap-1.5 px-3 h-8 text-left" style={{backgroundColor:"#1a2130",borderBottom:"1px solid #1e293b"}}>
-                {flag && <span className="text-[13px] flex-shrink-0">{flag}</span>}
-                {logo && <img src={logo} alt="" className="h-3.5 w-3.5 object-contain flex-shrink-0"/>}
-                <span className="text-[12px] font-semibold flex-1" style={{color:"#94a3b8"}}>{lg}</span>
-                <span className="text-[10px]" style={{color:"#64748b"}}>{lm.length}</span>
-                <span className="text-[8px] ml-1" style={{color:"#64748b",transform:lgCol?"rotate(-90deg)":"rotate(0)",transition:"transform 150ms"}}>▼</span>
-              </button>
-              {!lgCol && lm.map(m => (
-                <MRow key={m.id} m={m} fav={favs.has(m.id)} onFav={()=>toggleFav(m.id)} active={selected?.id===m.id} onSelect={()=>selectMatch(m)} />
-              ))}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  // No renderSection needed — we render league groups directly
 
   return (
     <div className="flex" style={{minHeight:"calc(100vh - 120px)"}}>
@@ -203,10 +194,45 @@ export default function CanliSkorlarPage() {
           <div className="py-16 text-center"><span className="text-3xl block mb-2 opacity-20">{sport==="football"?"⚽":"🏀"}</span><p className="text-[13px]" style={{color:"#94a3b8"}}>Bugün maç bulunmuyor</p><p className="text-[11px] mt-1" style={{color:"#64748b"}}>Farklı bir tarih veya lig seçin</p></div>
         ) : (
           <>
-            {renderSection("Favorilerim","⭐",favMs,"#e8a935","#e8a935")}
-            {renderSection("Canlı","pulse",liveMs,"#ef4444","#ef4444")}
-            {renderSection("Başlayacak",null,upMs,"#94a3b8")}
-            {renderSection("Biten","✅",ftMs,"#1f844e")}
+            {/* Favorites section */}
+            {favMs.length > 0 && (
+              <div>
+                <button onClick={() => toggleCol("fav")} className="w-full flex items-center gap-2 px-3 h-9 text-left" style={{borderBottom:"1px solid #1e293b",backgroundColor:"#0d1017",borderLeft:"3px solid #e8a935"}}>
+                  <span className="text-[11px]">⭐</span>
+                  <span className="text-[13px] font-bold flex-1" style={{color:"#e8a935"}}>Favorilerim</span>
+                  <span className="text-[11px]" style={{color:"#64748b"}}>({favMs.length})</span>
+                  <span className="text-[9px]" style={{color:"#64748b",transform:collapsed.has("fav")?"rotate(-90deg)":"rotate(0)",transition:"transform 150ms"}}>▼</span>
+                </button>
+                {!collapsed.has("fav") && favMs.map(m => (
+                  <MRow key={m.id} m={m} fav={true} onFav={()=>toggleFav(m.id)} active={selected?.id===m.id} onSelect={()=>selectMatch(m)} />
+                ))}
+              </div>
+            )}
+
+            {/* League groups — each league shows all its matches (live → upcoming → finished) */}
+            {leagueGroups.map(([lg, lm]) => {
+              const lgCol = collapsed.has(`lg_${lg}`);
+              const logo = lm[0]?.leagueLogo;
+              const leagueItem = ALL_ITEMS.find(l => lg.toLowerCase().includes(l.apiName.toLowerCase()) || lg.toLowerCase().includes(l.name.toLowerCase()));
+              const flag = leagueItem?.flag || "";
+              const hasLive = lm.some(m => m.status === "live" || m.status === "ht");
+
+              return (
+                <div key={lg}>
+                  <button onClick={() => toggleCol(`lg_${lg}`)} className="w-full flex items-center gap-1.5 px-3 h-8 text-left" style={{backgroundColor:"#1a2130",borderBottom:"1px solid #1e293b"}}>
+                    {hasLive && <span className="relative flex h-2 w-2 flex-shrink-0"><span className="absolute h-full w-full animate-ping rounded-full opacity-75" style={{backgroundColor:"#ef4444"}}/><span className="relative h-2 w-2 rounded-full" style={{backgroundColor:"#ef4444"}}/></span>}
+                    {flag && <span className="text-[13px] flex-shrink-0">{flag}</span>}
+                    {logo && <img src={logo} alt="" className="h-4 w-4 object-contain flex-shrink-0"/>}
+                    <span className="text-[12px] font-semibold flex-1" style={{color:"#e2e8f0"}}>{lg}</span>
+                    <span className="text-[10px]" style={{color:"#64748b"}}>{lm.length}</span>
+                    <span className="text-[8px] ml-1" style={{color:"#64748b",transform:lgCol?"rotate(-90deg)":"rotate(0)",transition:"transform 150ms"}}>▼</span>
+                  </button>
+                  {!lgCol && lm.map(m => (
+                    <MRow key={m.id} m={m} fav={favs.has(m.id)} onFav={()=>toggleFav(m.id)} active={selected?.id===m.id} onSelect={()=>selectMatch(m)} />
+                  ))}
+                </div>
+              );
+            })}
           </>
         )}
       </main>
