@@ -74,7 +74,8 @@ export async function fetchAndCreateNews(maxItems: number = 5): Promise<number> 
         const imageUrl = extractImage(item);
 
         // Rewrite with Gemini
-        const summary = item.contentSnippet || item.description?.replace(/<[^>]*>/g, "").slice(0, 300) || "";
+        const rawDesc = (item as unknown as Record<string, unknown>).description as string | undefined;
+        const summary = item.contentSnippet || rawDesc?.replace(/<[^>]*>/g, "").slice(0, 300) || "";
         console.log(`[News] Rewriting: ${item.title.slice(0, 60)}...`);
         const rewritten = await rewriteNews(item.title, summary);
 
