@@ -6,7 +6,7 @@ import { HeaderAuth } from "@/components/header-auth";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { MobileMenu } from "@/components/mobile-menu";
 import { ToastProvider } from "@/components/toast";
-import { getAllMatches } from "@/lib/sports/provider";
+import { LiveTicker } from "@/components/live-ticker";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -21,29 +21,11 @@ export const metadata: Metadata = {
     "Türkiye'nin en büyük spor ve bahis tartışma forumu. Canlı skorlar, tahminler ve daha fazlası.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Fetch ticker data from API-Sports
-  let liveScores: { league: string; match: string; minute: string; live: boolean }[] = [];
-  try {
-    const allMatches = await getAllMatches();
-    liveScores = allMatches.slice(0, 15).map((m) => ({
-      league: m.league,
-      match: `${m.homeTeam} ${m.homeScore ?? 0} - ${m.awayScore ?? 0} ${m.awayTeam}`,
-      minute:
-        m.status === "live" || m.status === "ht"
-          ? m.minute ? `${m.minute}'` : "CANLI"
-          : m.status === "ft"
-            ? "MS"
-            : new Date(m.startTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }),
-      live: m.status === "live" || m.status === "ht",
-    }));
-  } catch {
-    liveScores = [{ league: "", match: "Skorlar yükleniyor...", minute: "", live: false }];
-  }
   return (
     <html lang="tr" className={`${dmSans.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-bg-deep text-text-primary font-sans">
@@ -91,34 +73,8 @@ export default async function RootLayout({
             <HeaderAuth />
           </div>
 
-          {/* Live Score Ticker */}
-          <div className="overflow-hidden border-t bg-bg-deep" style={{ borderColor: "#1e293b" }}>
-            <div className="flex items-center">
-              <div className="z-10 flex shrink-0 items-center gap-1.5 bg-red px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-                CANLI
-              </div>
-              <div className="relative flex-1 overflow-hidden">
-                <div className="animate-ticker flex w-max items-center py-1.5">
-                  {[...liveScores, ...liveScores].map((score, i) => (
-                    <span
-                      key={i}
-                      className="flex shrink-0 items-center gap-2 text-xs"
-                      style={{ borderRight: "1px solid #1e293b", paddingRight: "16px", marginRight: "16px" }}
-                    >
-                      <span className="rounded px-1 py-0.5 text-[10px] font-medium" style={{ backgroundColor: "#1a2130", color: "#64748b" }}>
-                        {score.league}
-                      </span>
-                      <span style={{ color: "#94a3b8" }}>{score.match}</span>
-                      <span style={{ color: score.live ? "#ef4444" : "#64748b" }} className="font-medium">
-                        {score.minute}
-                      </span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Live Score Ticker — client component, fetches from /api/live-scores */}
+          <LiveTicker />
         </header>
 
         {/* Main Content */}

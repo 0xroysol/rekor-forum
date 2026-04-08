@@ -3,7 +3,7 @@ import type { SportMatch } from "./types";
 const API_BASE = "https://v3.football.api-sports.io";
 const API_KEY = process.env.API_SPORTS_KEY || "";
 
-const TRACKED_LEAGUES = [203, 2, 3, 39, 140, 135, 78, 61];
+const TRACKED_LEAGUES = [203, 204, 2, 3, 39, 140, 135, 78, 61]; // 203=Süper Lig, 204=1.Lig
 const SEASON = 2025;
 
 function mapStatus(short: string): SportMatch["status"] {
