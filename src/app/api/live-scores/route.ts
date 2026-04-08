@@ -1,28 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getLiveMatches, getTodayMatches, getRecentResults, getAllMatches } from "@/lib/sports/provider";
+import { NextResponse } from "next/server";
+import { getAllMatches } from "@/lib/sports/provider";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get("type") || "all";
-
+export async function GET() {
   try {
-    let matches;
-    switch (type) {
-      case "live":
-        matches = await getLiveMatches();
-        break;
-      case "today":
-        matches = await getTodayMatches();
-        break;
-      case "recent":
-        matches = await getRecentResults();
-        break;
-      default:
-        matches = await getAllMatches();
-    }
-
+    const matches = await getAllMatches();
     return NextResponse.json({
       matches,
       lastUpdated: new Date().toISOString(),

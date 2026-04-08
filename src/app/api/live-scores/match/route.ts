@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_KEY = process.env.API_SPORTS_KEY || "";
 
-// Cache for finished matches (never changes)
-const finishedCache = new Map<string, { data: unknown; ts: number }>();
-// Cache for live matches (60s TTL)
-const liveCache = new Map<string, { data: unknown; ts: number }>();
+// Cache: finished = 1 hour, live = 5 min
+const cache = new Map<string, { data: unknown; ts: number }>();
+const LIVE_TTL = 300_000; // 5 min
+const FINISHED_TTL = 3600_000; // 1 hour
 
 async function fetchApi(base: string, endpoint: string) {
   if (!API_KEY) return null;
@@ -33,15 +33,11 @@ export async function GET(request: NextRequest) {
 
   const cacheKey = `${sport}_${id}`;
 
-  // Check finished cache (permanent)
-  if (status === "ft" && finishedCache.has(cacheKey)) {
-    return NextResponse.json(finishedCache.get(cacheKey)!.data);
-  }
-
-  // Check live cache (60s)
-  if (liveCache.has(cacheKey)) {
-    const cached = liveCache.get(cacheKey)!;
-    if (Date.now() - cached.ts < 60_000) {
+  // Check cache
+  if (cache.has(cacheKey)) {
+    const cached = cache.get(cacheKey)!;
+    const ttl = status === "ft" ? FINISHED_TTL : LIVE_TTL;
+    if (Date.now() - cached.ts < ttl) {
       return NextResponse.json(cached.data);
     }
   }
@@ -111,11 +107,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Cache result
-  if (status === "ft") {
-    finishedCache.set(cacheKey, { data: result, ts: Date.now() });
-  } else {
-    liveCache.set(cacheKey, { data: result, ts: Date.now() });
-  }
+  cache.set(cacheKey, { data: result, ts: Date.now() });
 
   return NextResponse.json(result);
 }

@@ -3,14 +3,14 @@ import type { SportMatch } from "./types";
 const API_BASE = "https://v1.basketball.api-sports.io";
 const API_KEY = process.env.API_SPORTS_KEY || "";
 
-const TRACKED_LEAGUES = [79, 120, 12]; // BSL, EuroLeague, NBA
+const TRACKED_LEAGUES = new Set([79, 120, 12]); // BSL, EuroLeague, NBA
 
 function mapStatus(short: string): SportMatch["status"] {
-  if (["Q1", "Q2", "Q3", "Q4", "OT", "BT", "HT"].includes(short)) return "live";
+  if (["Q1", "Q2", "Q3", "Q4", "OT", "BT"].includes(short)) return "live";
   if (short === "HT") return "ht";
   if (["FT", "AOT"].includes(short)) return "ft";
   if (["POST", "CANC", "SUSP"].includes(short)) return "postponed";
-  return "upcoming"; // NS
+  return "upcoming";
 }
 
 interface ApiGame {
@@ -45,7 +45,6 @@ async function apiFetch(endpoint: string): Promise<ApiGame[]> {
   try {
     const res = await fetch(`${API_BASE}${endpoint}`, {
       headers: { "x-apisports-key": API_KEY },
-      next: { revalidate: 60 },
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -55,28 +54,14 @@ async function apiFetch(endpoint: string): Promise<ApiGame[]> {
   }
 }
 
+// Single request for all live basketball, then filter
 export async function getBasketballLiveMatches(): Promise<SportMatch[]> {
   const games = await apiFetch("/games?live=all");
-  return games
-    .filter((g) => TRACKED_LEAGUES.includes(g.league.id))
-    .map(parseGame);
+  return games.filter((g) => TRACKED_LEAGUES.has(g.league.id)).map(parseGame);
 }
 
+// Single request for all basketball on a date, then filter
 export async function getBasketballMatchesByDate(date: string): Promise<SportMatch[]> {
   const games = await apiFetch(`/games?date=${date}`);
-  return games
-    .filter((g) => TRACKED_LEAGUES.includes(g.league.id))
-    .map(parseGame);
-}
-
-export async function getBasketballRecentResults(days: number = 3): Promise<SportMatch[]> {
-  const matches: SportMatch[] = [];
-  for (let i = 1; i <= days; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split("T")[0];
-    const dayMatches = await getBasketballMatchesByDate(dateStr);
-    matches.push(...dayMatches.filter((m) => m.status === "ft"));
-  }
-  return matches;
+  return games.filter((g) => TRACKED_LEAGUES.has(g.league.id)).map(parseGame);
 }

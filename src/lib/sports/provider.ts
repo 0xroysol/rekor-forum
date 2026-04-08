@@ -1,83 +1,48 @@
 import type { SportMatch } from "./types";
-import { getFootballLiveMatches, getFootballMatchesByDate, getFootballRecentResults } from "./football";
-import { getBasketballLiveMatches, getBasketballMatchesByDate, getBasketballRecentResults } from "./basketball";
+import { getFootballLiveMatches, getFootballMatchesByDate } from "./football";
+import { getBasketballLiveMatches, getBasketballMatchesByDate } from "./basketball";
 
-// In-memory cache
-let cache: { data: SportMatch[]; timestamp: number; type: string } | null = null;
-const CACHE_TTL = 60_000; // 60 seconds
-
-function getCacheKey(type: string) {
-  return type;
+// ── Smart cache with variable TTL ──
+interface CacheEntry {
+  data: SportMatch[];
+  timestamp: number;
+  hasLive: boolean;
 }
 
-function getFromCache(type: string): SportMatch[] | null {
-  if (cache && cache.type === type && Date.now() - cache.timestamp < CACHE_TTL) {
-    return cache.data;
-  }
-  return null;
+let mainCache: CacheEntry | null = null;
+
+// TTL based on content:
+// - Has live matches: 2 minutes
+// - Only upcoming/finished: 5 minutes
+function getCacheTTL(hasLive: boolean): number {
+  return hasLive ? 120_000 : 300_000; // 2 min vs 5 min
 }
 
-function setCache(type: string, data: SportMatch[]) {
-  cache = { data, timestamp: Date.now(), type };
-}
-
-export async function getLiveMatches(): Promise<SportMatch[]> {
-  const cached = getFromCache("live");
-  if (cached) return cached;
-
-  const [football, basketball] = await Promise.all([
-    getFootballLiveMatches(),
-    getBasketballLiveMatches(),
-  ]);
-  const result = [...football, ...basketball];
-  setCache("live", result);
-  return result;
-}
-
-export async function getTodayMatches(): Promise<SportMatch[]> {
-  const cached = getFromCache("today");
-  if (cached) return cached;
-
-  const today = new Date().toISOString().split("T")[0];
-  const [football, basketball] = await Promise.all([
-    getFootballMatchesByDate(today),
-    getBasketballMatchesByDate(today),
-  ]);
-  const result = [...football, ...basketball];
-  setCache("today", result);
-  return result;
-}
-
-export async function getRecentResults(): Promise<SportMatch[]> {
-  const cached = getFromCache("recent");
-  if (cached) return cached;
-
-  const [football, basketball] = await Promise.all([
-    getFootballRecentResults(3),
-    getBasketballRecentResults(3),
-  ]);
-  const result = [...football, ...basketball];
-  setCache("recent", result);
-  return result;
+function isCacheValid(): boolean {
+  if (!mainCache) return false;
+  const ttl = getCacheTTL(mainCache.hasLive);
+  return Date.now() - mainCache.timestamp < ttl;
 }
 
 export async function getAllMatches(): Promise<SportMatch[]> {
-  const cached = getFromCache("all");
-  if (cached) return cached;
+  // Return cache if valid
+  if (isCacheValid()) return mainCache!.data;
 
-  const [live, today, recent] = await Promise.all([
-    getLiveMatches(),
-    getTodayMatches(),
-    getRecentResults(),
+  const today = new Date().toISOString().split("T")[0];
+
+  // Only 4 API calls total: 2 live + 2 today's fixtures
+  const [fbLive, bbLive, fbToday, bbToday] = await Promise.all([
+    getFootballLiveMatches(),    // 1 API call
+    getBasketballLiveMatches(),  // 1 API call
+    getFootballMatchesByDate(today),    // 1 API call
+    getBasketballMatchesByDate(today),  // 1 API call
   ]);
 
-  // Merge and deduplicate by id
+  // Merge and deduplicate by id (live data takes priority over today data)
   const map = new Map<string, SportMatch>();
-  for (const m of [...live, ...today, ...recent]) {
-    map.set(m.id, m);
-  }
+  for (const m of [...fbToday, ...bbToday]) map.set(m.id, m);
+  for (const m of [...fbLive, ...bbLive]) map.set(m.id, m); // live overwrites
 
-  // Sort: live first, then upcoming by time, then finished
   const result = Array.from(map.values()).sort((a, b) => {
     const order = { live: 0, ht: 0, upcoming: 1, ft: 2, postponed: 3 };
     const diff = (order[a.status] ?? 9) - (order[b.status] ?? 9);
@@ -85,6 +50,13 @@ export async function getAllMatches(): Promise<SportMatch[]> {
     return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
   });
 
-  setCache("all", result);
+  const hasLive = result.some((m) => m.status === "live" || m.status === "ht");
+
+  mainCache = { data: result, timestamp: Date.now(), hasLive };
   return result;
+}
+
+// For the ticker — just return cached data, never make extra API calls
+export async function getTickerMatches(): Promise<SportMatch[]> {
+  return getAllMatches();
 }

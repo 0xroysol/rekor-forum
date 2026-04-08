@@ -34,9 +34,7 @@ function dk(d: Date) { return `${d.getFullYear()}-${String(d.getMonth()+1).padSt
 function loadFavs(): Set<string> { if (typeof window === "undefined") return new Set(); try { return new Set(JSON.parse(localStorage.getItem("fav_matches")||"[]")); } catch { return new Set(); } }
 function saveFavs(f: Set<string>) { localStorage.setItem("fav_matches", JSON.stringify([...f])); }
 
-interface Standing { rank: number; teamName: string; teamLogo: string; played: number; won: number; drawn: number; lost: number; points: number; }
-
-// groupByLeague removed — now using leagueGroups useMemo directly
+// League groups computed in useMemo below
 
 export default function CanliSkorlarPage() {
   const [matches, setMatches] = useState<SportMatch[]>([]);
@@ -46,8 +44,6 @@ export default function CanliSkorlarPage() {
   const [sport, setSport] = useState<"football"|"basketball">("football");
   const [league, setLeague] = useState<string|null>(null);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const [standings, setStandings] = useState<Standing[]>([]);
-  const [stLeague, setStLeague] = useState("Süper Lig");
   const [mobSidebar, setMobSidebar] = useState(false);
   const [favs, setFavs] = useState<Set<string>>(() => loadFavs());
   const [selected, setSelected] = useState<SportMatch|null>(null);
@@ -61,18 +57,17 @@ export default function CanliSkorlarPage() {
     if (window.innerWidth < 1280) setMobDetail(true);
   };
 
-  // Fetch
+  // Fetch — adaptive polling: 2 min if live matches, 5 min otherwise
+  const hasLiveMatches = matches.some(m => m.status === "live" || m.status === "ht");
   const fetch_ = useCallback(async () => {
-    try { const r = await fetch("/api/live-scores?type=all"); const d = await r.json(); setMatches(d.matches||[]); setLastUpdated(d.lastUpdated||""); } catch {} finally { setLoading(false); }
+    try { const r = await fetch("/api/live-scores"); const d = await r.json(); setMatches(d.matches||[]); setLastUpdated(d.lastUpdated||""); } catch {} finally { setLoading(false); }
   }, []);
-  useEffect(() => { fetch_(); const i = setInterval(fetch_, 60_000); return () => clearInterval(i); }, [fetch_]);
-
-  // Standings
   useEffect(() => {
-    const li = ALL_ITEMS.find(l => l.name === stLeague);
-    if (!li || ["79","120","12"].includes(li.leagueId)) { setStandings([]); return; }
-    fetch(`/api/standings?league=${li.leagueId}&season=2025`).then(r=>r.json()).then(d=>setStandings(d.standings||[])).catch(()=>setStandings([]));
-  }, [stLeague]);
+    fetch_();
+    const interval = hasLiveMatches ? 120_000 : 300_000; // 2 min vs 5 min
+    const i = setInterval(fetch_, interval);
+    return () => clearInterval(i);
+  }, [fetch_, hasLiveMatches]);
 
   const today = dk(date);
   const filtered = useMemo(() => {
@@ -123,7 +118,7 @@ export default function CanliSkorlarPage() {
 
   const shift = (d: number) => { const n = new Date(date); n.setDate(n.getDate()+d); setDate(n); };
   const isToday = dk(date) === dk(new Date());
-  const selLeague = (n: string|null) => { setLeague(n); if (n) setStLeague(n); setMobSidebar(false); };
+  const selLeague = (n: string|null) => { setLeague(n); setMobSidebar(false); };
 
   // No renderSection needed — we render league groups directly
 
@@ -271,20 +266,9 @@ export default function CanliSkorlarPage() {
             <MatchDetailPanel matchId={selected.id} sport={selected.sport} status={selected.status} homeTeam={selected.homeTeam} awayTeam={selected.awayTeam} />
           </div>
         ) : (
-          /* Standings */
-          <div className="flex-1 overflow-y-auto">
-            <div className="px-3 py-2.5" style={{borderBottom:"1px solid #1e293b"}}>
-              <span className="text-[13px] font-semibold" style={{color:"#94a3b8"}}>📊 Puan Durumu</span>
-              <span className="block text-[11px] mt-0.5" style={{color:"#64748b"}}>{stLeague}</span>
-            </div>
-            {standings.length>0 ? (
-              <table className="w-full text-[11px]">
-                <thead className="sticky top-0" style={{backgroundColor:"#131820"}}><tr style={{color:"#64748b",borderBottom:"1px solid #1e293b"}}><th className="px-2 py-1 text-left font-medium">#</th><th className="px-1 py-1 text-left font-medium">Takım</th><th className="px-1 py-1 text-center font-medium">O</th><th className="px-1 py-1 text-center font-medium">G</th><th className="px-1 py-1 text-center font-medium">B</th><th className="px-1 py-1 text-center font-medium">M</th><th className="px-1 py-1 text-center font-medium">P</th></tr></thead>
-                <tbody>{standings.map(t=>{let bc="transparent";if(t.rank<=4)bc="#1f844e";else if(t.rank<=6)bc="#3b82f6";else if(t.rank>=standings.length-2)bc="#ef4444";return(<tr key={t.rank} className="hover:bg-[#1e2738]" style={{borderBottom:"1px solid #1e293b"}}><td className="px-2 py-1" style={{borderLeft:`2px solid ${bc}`,color:"#64748b"}}>{t.rank}</td><td className="px-1 py-1"><div className="flex items-center gap-1">{t.teamLogo&&<img src={t.teamLogo} alt="" className="h-3 w-3 object-contain"/>}<span className="truncate text-[11px]" style={{color:"#e2e8f0",maxWidth:120}}>{t.teamName}</span></div></td><td className="px-1 py-1 text-center" style={{color:"#94a3b8"}}>{t.played}</td><td className="px-1 py-1 text-center" style={{color:"#94a3b8"}}>{t.won}</td><td className="px-1 py-1 text-center" style={{color:"#94a3b8"}}>{t.drawn}</td><td className="px-1 py-1 text-center" style={{color:"#94a3b8"}}>{t.lost}</td><td className="px-1 py-1 text-center font-semibold" style={{color:"#e2e8f0"}}>{t.points}</td></tr>);})}</tbody>
-              </table>
-            ) : (
-              <div className="px-4 py-8 text-center"><p className="text-[11px]" style={{color:"#64748b"}}>{sport==="basketball"?"Basketbol puan durumu yakında":"Bir lig seçin"}</p></div>
-            )}
+          /* No match selected — hide right sidebar or show hint */
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-[12px] text-center px-6" style={{color:"#64748b"}}>Detayları görmek için<br/>bir maça tıklayın</p>
           </div>
         )}
       </aside>

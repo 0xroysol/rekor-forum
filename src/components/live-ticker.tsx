@@ -60,11 +60,12 @@ export function LiveTicker() {
     }
   }, []);
 
+  const hasLive = scores.some(s => s.live);
   useEffect(() => {
     fetchScores();
-    const interval = setInterval(fetchScores, 60_000);
+    const interval = setInterval(fetchScores, hasLive ? 120_000 : 300_000);
     return () => clearInterval(interval);
-  }, [fetchScores]);
+  }, [fetchScores, hasLive]);
 
   if (scores.length === 0) {
     return (
