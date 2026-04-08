@@ -4,61 +4,67 @@ import { useState, useEffect, useCallback } from "react";
 
 interface TickerMatch {
   league: string;
-  match: string;
+  text: string;
   minute: string;
   live: boolean;
 }
 
+function formatTime(d: string) {
+  return new Date(d).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" });
+}
+
 export function LiveTicker() {
-  const [scores, setScores] = useState<TickerMatch[]>([]);
+  const [items, setItems] = useState<TickerMatch[]>([]);
 
-  const fetchScores = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const res = await fetch("/api/live-scores?type=all");
+      const res = await fetch("/api/live-scores");
       const data = await res.json();
-      const matches = data.matches || data || [];
+      const matches = data.matches || [];
 
-      // Only show LIVE matches in ticker
-      const liveOnly = matches.filter((m: Record<string, unknown>) => {
+      // Football only: live + today's upcoming
+      const tickerItems: TickerMatch[] = [];
+
+      for (const m of matches) {
+        if (m.sport !== "football") continue;
         const status = m.status as string;
-        return status === "live" || status === "ht";
-      });
+        const isLive = status === "live" || status === "ht";
+        const isUpcoming = status === "upcoming";
 
-      const mapped: TickerMatch[] = liveOnly.slice(0, 15).map((m: Record<string, unknown>) => {
-        const sport = m.sport as string | undefined;
-        const homeScore = m.homeScore as number | null;
-        const awayScore = m.awayScore as number | null;
-        const homeTeam = m.homeTeam as string;
-        const awayTeam = m.awayTeam as string;
-        const league = m.league as string;
-        const minute = m.minute as string | null;
-        const status = m.status as string;
+        if (!isLive && !isUpcoming) continue; // skip finished
 
-        return {
-          league: sport === "basketball" ? `🏀 ${league}` : league,
-          match: `${homeTeam} ${homeScore ?? 0} - ${awayScore ?? 0} ${awayTeam}`,
-          minute: status === "ht" ? "DA" : minute ? `${minute}'` : "CANLI",
-          live: true,
-        };
-      });
+        if (isLive) {
+          tickerItems.push({
+            league: m.league,
+            text: `${m.homeTeam} ${m.homeScore ?? 0} - ${m.awayScore ?? 0} ${m.awayTeam}`,
+            minute: status === "ht" ? "DA" : m.minute ? `${m.minute}'` : "CANLI",
+            live: true,
+          });
+        } else {
+          tickerItems.push({
+            league: m.league,
+            text: `${m.homeTeam} - ${m.awayTeam}`,
+            minute: formatTime(m.startTime),
+            live: false,
+          });
+        }
+      }
 
-      setScores(mapped);
-    } catch {
-      // Keep existing scores on error
-    }
+      setItems(tickerItems.slice(0, 20));
+    } catch {}
   }, []);
 
-  const hasLive = scores.some(s => s.live);
+  const hasLive = items.some(i => i.live);
   useEffect(() => {
-    fetchScores();
-    const interval = setInterval(fetchScores, hasLive ? 120_000 : 300_000);
-    return () => clearInterval(interval);
-  }, [fetchScores, hasLive]);
+    fetchData();
+    const i = setInterval(fetchData, hasLive ? 120_000 : 300_000);
+    return () => clearInterval(i);
+  }, [fetchData, hasLive]);
 
-  // Hide ticker completely if no live matches
-  if (scores.length === 0) return null;
+  if (items.length === 0) return null;
 
-  const doubled = [...scores, ...scores];
+  // Repeat 4x for seamless infinite scroll (translateX(-50%) needs at least 2x)
+  const repeated = [...items, ...items, ...items, ...items];
 
   return (
     <div className="overflow-hidden border-t bg-bg-deep" style={{ borderColor: "#1e293b" }}>
@@ -69,18 +75,18 @@ export function LiveTicker() {
         </div>
         <div className="relative flex-1 overflow-hidden">
           <div className="animate-ticker flex w-max items-center py-1.5">
-            {doubled.map((score, i) => (
+            {repeated.map((item, i) => (
               <span
                 key={i}
                 className="flex shrink-0 items-center gap-2 text-xs"
                 style={{ borderRight: "1px solid #1e293b", paddingRight: "16px", marginRight: "16px" }}
               >
                 <span className="rounded px-1 py-0.5 text-[10px] font-medium" style={{ backgroundColor: "#1a2130", color: "#64748b" }}>
-                  {score.league}
+                  {item.league}
                 </span>
-                <span style={{ color: "#94a3b8" }}>{score.match}</span>
-                <span style={{ color: score.live ? "#ef4444" : "#64748b" }} className="font-medium">
-                  {score.minute}
+                <span style={{ color: "#94a3b8" }}>{item.text}</span>
+                <span style={{ color: item.live ? "#ef4444" : "#64748b" }} className="font-medium">
+                  {item.minute}
                 </span>
               </span>
             ))}
