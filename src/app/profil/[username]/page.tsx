@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { ProfileEditButton } from "@/components/profile-edit";
 import SendMessageButton from "@/components/send-message-button";
+import UserStats from "@/components/user-stats";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
@@ -261,6 +262,9 @@ export default async function ProfilPage({
           </div>
         </div>
       )}
+
+      {/* User Stats */}
+      <UserStats userId={user.id} />
 
       {/* Content Sections */}
       <div className="mt-6 space-y-6">

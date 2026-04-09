@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /yonetim/
-Disallow: /mesajlar/
+Disallow: /yonetim
+Disallow: /mesajlar
 Sitemap: https://rekorforum.com/sitemap.xml

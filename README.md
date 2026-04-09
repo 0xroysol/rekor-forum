@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rekor Forum
 
-## Getting Started
+Turkce spor ve bahis tartisma platformu. XenForo tarzi modern forum, canli skorlar, AI spor haberleri ve skor tahmin oyunu.
 
-First, run the development server:
+**Canli Demo:** [rekorforum.com](https://rekorforum.com)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Ozellikler
+
+- **Forum Sistemi** — Kategori, thread, post, prefix, etiket, arama
+- **Canli Skorlar** — API-Sports entegrasyonu, Flashscore tarzi UI, mac detaylari
+- **Spor Haberleri** — RSS + Gemini AI ile otomatik haber uretimi
+- **Skor Tahmini** — Mac skoru tahmin oyunu, liderlik tablosu
+- **Auth Sistemi** — Supabase Auth, kayit, giris, profil duzenleme
+- **Mesajlasma** — Ozel mesaj sistemi, gercek zamanli polling
+- **Moderasyon** — Admin paneli, rapor sistemi, moderasyon araclari
+- **Bildirimler** — Yanit, tepki, mention bildirimleri
+- **Rank & Rozet** — Otomatik rutbe yukseltme, basari rozetleri
+- **Tepki Sistemi** — 8 emoji ile post tepkileri
+- **Anket** — Konu ici anket olusturma
+- **PWA** — Progressive Web App destegi
+- **SEO** — Dinamik meta taglar, sitemap, OG image
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router, TypeScript)
+- **Styling:** Tailwind CSS v4
+- **Database:** PostgreSQL (Supabase)
+- **ORM:** Prisma 7
+- **Auth:** Supabase Auth
+- **Storage:** Supabase Storage
+- **Sports API:** API-Sports (Football + Basketball)
+- **AI:** Google Gemini (haber uretimi)
+- **Editor:** Tiptap (zengin metin editoru)
+- **Deploy:** Vercel
+
+## Kurulum
+
+### Gereksinimler
+- Node.js 20+
+- PostgreSQL veritabani (Supabase onerilir)
+
+### Adimlar
+
+1. Clone
+```
+git clone https://github.com/0xroysol/rekor-forum.git
+cd rekor-forum
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Bagimliliklari yukle
+```
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Environment variables
+```
+cp .env.example .env.local
+# .env.local dosyasini duzenle
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Veritabani
+```
+npx prisma migrate dev
+npx prisma db seed
+```
 
-## Learn More
+5. Gelistirme sunucusu
+```
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Aciklama |
+|----------|----------|
+| NEXT_PUBLIC_SUPABASE_URL | Supabase proje URL'si |
+| NEXT_PUBLIC_SUPABASE_ANON_KEY | Supabase anon key |
+| SUPABASE_SERVICE_ROLE_KEY | Supabase service role key |
+| DATABASE_URL | PostgreSQL baglanti URL'si (pooler) |
+| DIRECT_URL | PostgreSQL direkt URL (migration icin) |
+| API_SPORTS_KEY | API-Sports API anahtari |
+| GEMINI_API_KEY | Google Gemini API anahtari |
+| CRON_SECRET | Cron job guvenlik anahtari |
+| NEXT_PUBLIC_GA_ID | Google Analytics ID (opsiyonel) |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Lisans
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Bu proje ozel kullanim icindir.

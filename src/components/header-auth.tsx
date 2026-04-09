@@ -122,6 +122,14 @@ export function HeaderAuth() {
               Kaydedilenler
             </Link>
             <Link
+              href="/takip-ettiklerim"
+              onClick={() => setDropdownOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 text-sm transition-colors duration-150 hover:bg-bg-hover"
+              style={{ color: "#e2e8f0" }}
+            >
+              Takip Ettiklerim
+            </Link>
+            <Link
               href="#"
               onClick={() => setDropdownOpen(false)}
               className="flex items-center gap-2 px-3 py-2 text-sm transition-colors duration-150 hover:bg-bg-hover"

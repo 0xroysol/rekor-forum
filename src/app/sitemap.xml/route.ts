@@ -47,7 +47,7 @@ export async function GET() {
 
   // User profiles
   for (const user of users) {
-    xml += `<url><loc>${baseUrl}/profil/${user.username}</loc><changefreq>weekly</changefreq><priority>0.4</priority></url>`;
+    xml += `<url><loc>${baseUrl}/profil/${user.username}</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>`;
   }
 
   // Legal pages
@@ -58,6 +58,12 @@ export async function GET() {
 
   // Canli skorlar
   xml += `<url><loc>${baseUrl}/canli-skorlar</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>`;
+
+  // Tahminler
+  xml += `<url><loc>${baseUrl}/tahminler</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>`;
+
+  // Takip Ettiklerim
+  xml += `<url><loc>${baseUrl}/takip-ettiklerim</loc><changefreq>weekly</changefreq><priority>0.3</priority></url>`;
 
   // Search
   xml += `<url><loc>${baseUrl}/ara</loc><changefreq>weekly</changefreq><priority>0.4</priority></url>`;
