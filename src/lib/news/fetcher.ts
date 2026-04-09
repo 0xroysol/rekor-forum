@@ -64,10 +64,15 @@ export async function fetchAndCreateNews(maxItems: number = 5): Promise<number> 
         const sourceUrl = item.link || "";
         if (!sourceUrl || !item.title) continue;
 
-        // Duplicate check
-        const existing = await prisma.news.findFirst({
-          where: { OR: [{ sourceUrl }, { title: { contains: item.title.slice(0, 30) } }] },
-        });
+        // Skip old articles (only last 24 hours)
+        if (item.isoDate || item.pubDate) {
+          const pubDate = new Date(item.isoDate || item.pubDate || "");
+          const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          if (pubDate < oneDayAgo) continue;
+        }
+
+        // Duplicate check — only by sourceUrl (exact match)
+        const existing = await prisma.news.findFirst({ where: { sourceUrl } });
         if (existing) continue;
 
         // Extract image
@@ -109,6 +114,11 @@ export async function fetchAndCreateNews(maxItems: number = 5): Promise<number> 
       console.error(`RSS fetch error for ${feed.source}:`, e);
     }
   }
+
+  // Clean up old news (older than 3 days)
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  const deleted = await prisma.news.deleteMany({ where: { createdAt: { lt: threeDaysAgo } } });
+  if (deleted.count > 0) console.log(`[News] Cleaned up ${deleted.count} old articles`);
 
   return created;
 }
