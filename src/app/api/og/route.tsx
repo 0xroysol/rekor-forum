@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
           Rekor Forum
         </div>
         <div style={{ fontSize: 20, color: "#94a3b8", marginTop: 8 }}>
-          Spor &amp; Bahis Tartışma Platformu
+          Spor Tartışma Platformu
         </div>
       </div>
     ),

@@ -25,12 +25,12 @@ export default function KurallarPage() {
             <li>Yanıltıcı veya sahte bilgi paylaşmayın.</li>
           </ul>
 
-          <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Bahis &amp; Kupon Kuralları</h2>
+          <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Kupon Paylaşım Kuralları</h2>
           <ul className="text-sm list-disc list-inside mb-3 space-y-1" style={{ color: "#94a3b8" }}>
             <li>Paylaşılan kuponlar yalnızca fikir amaçlıdır, yatırım tavsiyesi değildir.</li>
             <li>Garantili kazanç vaadinde bulunmak yasaktır.</li>
             <li>Ücretli kupon satışı ve reklam yapmak yasaktır.</li>
-            <li>Bahis sitelerinin referans linklerini paylaşmak yasaktır.</li>
+            <li>Dış sitelerin referans linklerini paylaşmak yasaktır.</li>
           </ul>
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Casino &amp; Slot Bölümü</h2>
