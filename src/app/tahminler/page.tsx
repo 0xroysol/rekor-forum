@@ -236,35 +236,49 @@ export default function TahminlerPage() {
                       </div>
 
                       {/* Score inputs */}
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <input
                           type="number"
+                          inputMode="numeric"
                           min={0}
-                          max={99}
+                          max={15}
                           value={inputs[match.id]?.home ?? ""}
                           onChange={(e) => handleInput(match.id, "home", e.target.value)}
                           disabled={!isLoggedIn}
-                          className="w-10 rounded-md border px-1 py-1.5 text-center text-sm font-medium disabled:opacity-40"
+                          className="score-input"
                           style={{
-                            backgroundColor: "var(--bg-elevated)",
-                            borderColor: saved || hasPrediction ? "var(--accent-green)" : "var(--border-color)",
-                            color: "var(--text-primary)",
+                            width: 40, height: 36,
+                            backgroundColor: "#0d1017",
+                            borderColor: saved || hasPrediction ? "#1f844e" : "#1e293b",
+                            color: "#e2e8f0",
+                            border: "1px solid",
+                            borderRadius: 8,
+                            textAlign: "center",
+                            fontSize: 18,
+                            fontWeight: 700,
                           }}
                           placeholder="-"
                         />
-                        <span className="text-xs text-text-muted">-</span>
+                        <span className="text-base font-bold" style={{ color: "#64748b" }}>:</span>
                         <input
                           type="number"
+                          inputMode="numeric"
                           min={0}
-                          max={99}
+                          max={15}
                           value={inputs[match.id]?.away ?? ""}
                           onChange={(e) => handleInput(match.id, "away", e.target.value)}
                           disabled={!isLoggedIn}
-                          className="w-10 rounded-md border px-1 py-1.5 text-center text-sm font-medium disabled:opacity-40"
+                          className="score-input"
                           style={{
-                            backgroundColor: "var(--bg-elevated)",
-                            borderColor: saved || hasPrediction ? "var(--accent-green)" : "var(--border-color)",
-                            color: "var(--text-primary)",
+                            width: 40, height: 36,
+                            backgroundColor: "#0d1017",
+                            borderColor: saved || hasPrediction ? "#1f844e" : "#1e293b",
+                            color: "#e2e8f0",
+                            border: "1px solid",
+                            borderRadius: 8,
+                            textAlign: "center",
+                            fontSize: 18,
+                            fontWeight: 700,
                           }}
                           placeholder="-"
                         />

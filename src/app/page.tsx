@@ -24,7 +24,10 @@ export default async function Home() {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  const [categories, totalThreads, totalPosts, onlineUsers, trendThreads, topUsers, onlineUsersList, recentKuponThreads, latestNews] =
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const [categories, totalThreads, totalPosts, onlineUsers, trendThreads, topUsers, onlineUsersList, recentKuponThreads, latestNews, todayMatchThreads] =
     await Promise.all([
       prisma.category.findMany({
         where: { parentId: { not: null } },
@@ -71,6 +74,15 @@ export default async function Home() {
         orderBy: { createdAt: "desc" },
         take: 5,
         select: { id: true, title: true, slug: true, category: true, createdAt: true },
+      }),
+      prisma.thread.findMany({
+        where: {
+          createdAt: { gte: todayStart },
+          prefix: { label: "CANLI" },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: { id: true, title: true, slug: true, replyCount: true, isPinned: true },
       }),
     ]);
 
@@ -327,6 +339,45 @@ export default async function Home() {
                 </div>
               </div>
             </div>
+
+            {/* Bugünün Maç Tartışmaları */}
+            {todayMatchThreads.length > 0 && (
+              <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: "12px", overflow: "hidden" }}>
+                <div className="px-4 py-3" style={{ borderBottom: "1px solid #1e293b" }}>
+                  <span className="text-[13px] font-semibold" style={{ color: "#94a3b8" }}>
+                    ⚽ Bugünün Maç Tartışmaları
+                  </span>
+                </div>
+                <div>
+                  {todayMatchThreads.map((thread, idx) => (
+                    <div
+                      key={thread.id}
+                      className="px-4 py-2.5 transition-colors duration-150 hover:bg-bg-hover"
+                      style={{ borderBottom: idx < todayMatchThreads.length - 1 ? "1px solid #1e293b" : undefined }}
+                    >
+                      <Link
+                        href={`/konu/${thread.slug}`}
+                        className="flex items-center gap-1.5 text-xs font-medium truncate transition-colors duration-150 hover:text-accent-green"
+                        style={{ color: "#e2e8f0" }}
+                      >
+                        {thread.isPinned && <span>📌</span>}
+                        {thread.title}
+                      </Link>
+                      <div className="text-[11px] mt-0.5 flex items-center gap-2" style={{ color: "#64748b" }}>
+                        <span>{thread.replyCount} yanıt</span>
+                      </div>
+                    </div>
+                  ))}
+                  <Link
+                    href="/forum/super-lig-tartismalari"
+                    className="block px-4 py-2 text-center text-[12px] font-medium transition-colors hover:bg-bg-hover"
+                    style={{ color: "#1f844e", borderTop: "1px solid #1e293b" }}
+                  >
+                    Tüm Maç Tartışmaları →
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {/* Trend Konular */}
             <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: "12px", overflow: "hidden" }}>
