@@ -117,7 +117,7 @@ export async function fetchAndCreateNews(maxItems: number = 5): Promise<number> 
         if (existingNews.some((n) => n.sourceUrl === sourceUrl)) continue;
 
         // Duplicate check — title similarity >70%
-        if (existingNews.some((n) => titleSimilarity(n.title, item.title) > 0.7)) {
+        if (existingNews.some((n) => titleSimilarity(n.title, item.title || "") > 0.7)) {
           console.log(`[News] Skipped (similar): ${item.title.slice(0, 50)}`);
           continue;
         }
