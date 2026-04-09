@@ -53,5 +53,5 @@ Go to **Supabase Dashboard > Authentication > Email Templates** and replace each
 
 - Supabase uses Go template syntax: `{{ .ConfirmationURL }}` is the magic variable.
 - Make sure "Enable email confirmations" is turned on under **Authentication > Settings**.
-- Set the **Site URL** to `https://rekor-forum.vercel.app` (or your custom domain).
-- Set **Redirect URLs** to include `https://rekor-forum.vercel.app/**` for wildcard matching.
+- Set the **Site URL** to `https://rekorforum.com` (or your custom domain).
+- Set **Redirect URLs** to include `https://rekorforum.com/**` for wildcard matching.

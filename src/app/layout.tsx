@@ -19,13 +19,13 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rekor-forum.vercel.app"),
+  metadataBase: new URL("https://rekorforum.com"),
   title: { default: "Rekor Forum — Spor & Bahis Tartışma Platformu", template: "%s | Rekor Forum" },
   description: "Türkiye'nin en aktif spor ve bahis topluluğu. Maç analizleri, kupon paylaşımları, canlı skorlar ve spor haberleri.",
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    url: "https://rekor-forum.vercel.app",
+    url: "https://rekorforum.com",
     siteName: "Rekor Forum",
     title: "Rekor Forum — Spor & Bahis Tartışma Platformu",
     description: "Türkiye'nin en aktif spor ve bahis topluluğu.",
