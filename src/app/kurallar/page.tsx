@@ -50,7 +50,7 @@ export default function KurallarPage() {
           </ul>
 
           <p className="text-sm leading-relaxed mb-3 mt-6" style={{ color: "#64748b" }}>
-            Yardım ve destek için: iletisim@rekorforum.com | Yardım Hattı: 444 0 632
+            Yardım ve destek için: iletisim@rekorforum.com
           </p>
         </div>
       </div>

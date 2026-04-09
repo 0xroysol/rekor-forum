@@ -1,6 +1,6 @@
 # Rekor Forum
 
-Turkce spor ve bahis tartisma platformu. XenForo tarzi modern forum, canli skorlar, AI spor haberleri ve skor tahmin oyunu.
+Turkce spor tartisma platformu. XenForo tarzi modern forum, canli skorlar, AI spor haberleri ve skor tahmin oyunu.
 
 **Canli Demo:** [rekorforum.com](https://rekorforum.com)
 

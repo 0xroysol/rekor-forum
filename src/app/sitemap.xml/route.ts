@@ -51,7 +51,7 @@ export async function GET() {
   }
 
   // Legal pages
-  const legalPages = ["/kurallar", "/gizlilik", "/kullanim-sartlari", "/kvkk", "/sorumlu-oyun"];
+  const legalPages = ["/kurallar", "/gizlilik", "/kullanim-sartlari", "/kvkk"];
   for (const page of legalPages) {
     xml += `<url><loc>${baseUrl}${page}</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>`;
   }

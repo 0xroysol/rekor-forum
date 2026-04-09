@@ -140,7 +140,7 @@ export default async function Home() {
                 Rekor Forum&apos;a Hoş Geldiniz!
               </h2>
               <p className="mt-1.5 text-[14px]" style={{ color: "#94a3b8" }}>
-                Türkiye&apos;nin en aktif spor ve bahis tartışma platformu
+                Türkiye&apos;nin en aktif spor tartışma platformu
               </p>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">

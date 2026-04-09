@@ -147,17 +147,6 @@ export default async function ThreadPage({
         <span className="text-[#94a3b8] truncate max-w-xs">{thread.title}</span>
       </nav>
 
-      {/* Casino Warning */}
-      {thread.category.isCasino && (
-        <div className="mb-5 rounded-xl bg-[#131820] border-l-2 border-[#ef4444] px-4 py-3">
-          <p className="text-[#94a3b8] text-sm">
-            <span className="font-semibold text-[#e2e8f0]">18+ Sorumlu Oyun</span>
-            {" — "}
-            Bu bölüm casino ve bahis içerikleri içermektedir. Kumar bağımlılık
-            yapabilir. 18 yaşından küçükseniz bu bölümü terk ediniz.
-          </p>
-        </div>
-      )}
 
       {/* Thread Title Section */}
       <div className="mb-6">

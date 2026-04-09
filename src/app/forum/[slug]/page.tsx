@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
-import CasinoGate from "@/components/casino-gate";
+// CasinoGate removed
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -124,17 +124,7 @@ export default async function CategoryPage({
         <span className="text-[#94a3b8]">{category.name}</span>
       </nav>
 
-      {/* Casino Warning */}
-      {category.isCasino && (
-        <div className="mb-4 rounded-xl bg-[#131820] border-l-2 border-[#ef4444] px-4 py-3">
-          <p className="text-[#94a3b8] text-sm">
-            <span className="font-semibold text-[#e2e8f0]">18+ Sorumlu Oyun</span>
-            {" — "}
-            Bu bölüm casino ve bahis içerikleri içermektedir. Kumar bağımlılık yapabilir.
-          </p>
-        </div>
-      )}
-      {category.isCasino && <CasinoGate />}
+      {/* Casino category indicator removed */}
 
       {/* Category Info Bar */}
       <div className="border border-[#1e293b] bg-[#131820] p-4 mb-4 flex items-center justify-between" style={{ borderRadius: "12px" }}>

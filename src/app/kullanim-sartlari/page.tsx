@@ -10,7 +10,7 @@ export default function KullanimSartlariPage() {
         <div className="px-6 py-6 prose-sm" style={{ color: "#94a3b8" }}>
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Hizmet Tanımı</h2>
           <p className="text-sm leading-relaxed mb-3" style={{ color: "#94a3b8" }}>
-            Rekor Forum, spor ve bahis konularında tartışma ve bilgi paylaşımı yapılan bir topluluk platformudur. Platform herhangi bir bahis veya kumar hizmeti sunmamaktadır.
+            Rekor Forum, spor konularında tartışma ve bilgi paylaşımı yapılan bir topluluk platformudur.
           </p>
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Üyelik</h2>
@@ -30,7 +30,7 @@ export default function KullanimSartlariPage() {
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Sorumluluk Reddi</h2>
           <p className="text-sm leading-relaxed mb-3" style={{ color: "#94a3b8" }}>
-            Rekor Forum, kullanıcıların bahis ve kumar faaliyetlerinden doğan kayıplardan sorumlu değildir. Platformdaki bilgiler yalnızca tartışma amaçlıdır ve profesyonel tavsiye yerine geçmez.
+            Platformdaki bilgiler yalnızca tartışma amaçlıdır ve profesyonel tavsiye yerine geçmez.
           </p>
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Değişiklikler</h2>

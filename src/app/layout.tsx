@@ -21,21 +21,21 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rekorforum.com"),
-  title: { default: "Rekor Forum — Spor & Bahis Tartışma Platformu", template: "%s | Rekor Forum" },
-  description: "Türkiye'nin en aktif spor ve bahis topluluğu. Maç analizleri, kupon paylaşımları, canlı skorlar ve spor haberleri.",
+  title: { default: "Rekor Forum — Spor Tartışma Platformu", template: "%s | Rekor Forum" },
+  description: "Türkiye'nin en aktif spor topluluğu. Maç analizleri, kupon paylaşımları, canlı skorlar ve spor haberleri.",
   openGraph: {
     type: "website",
     locale: "tr_TR",
     url: "https://rekorforum.com",
     siteName: "Rekor Forum",
-    title: "Rekor Forum — Spor & Bahis Tartışma Platformu",
-    description: "Türkiye'nin en aktif spor ve bahis topluluğu.",
+    title: "Rekor Forum — Spor Tartışma Platformu",
+    description: "Türkiye'nin en aktif spor topluluğu.",
     images: [{ url: "/api/og", width: 1200, height: 630, alt: "Rekor Forum" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Rekor Forum",
-    description: "Türkiye'nin en aktif spor ve bahis topluluğu.",
+    description: "Türkiye'nin en aktif spor topluluğu.",
     images: ["/api/og"],
   },
   robots: { index: true, follow: true },
@@ -116,9 +116,6 @@ export default function RootLayout({
             <p className="text-sm text-text-muted">
               &copy; 2026 Rekor Forum. Tüm hakları saklıdır.
             </p>
-            <p className="mt-1 text-xs text-text-muted">
-              18+ | Bu platform casino ve bahis tartışma içerikleri barındırır. Kumar bağımlılık yapabilir.
-            </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-text-muted">
               <Link href="/kurallar" className="hover:text-text-secondary transition-colors">Kurallar</Link>
               <span>·</span>
@@ -129,8 +126,6 @@ export default function RootLayout({
               <Link href="/kvkk" className="hover:text-text-secondary transition-colors">KVKK</Link>
               <span>·</span>
               <a href="#" className="hover:text-text-secondary transition-colors">İletişim</a>
-              <span>·</span>
-              <Link href="/sorumlu-oyun" className="hover:text-text-secondary transition-colors">Sorumlu Oyun</Link>
             </div>
           </div>
         </footer>
