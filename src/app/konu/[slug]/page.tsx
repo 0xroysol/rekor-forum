@@ -7,6 +7,7 @@ import { BookmarkButton } from "@/components/bookmark-button";
 import ModDropdown from "@/components/mod-dropdown";
 import ReportModal from "@/components/report-modal";
 import { createClient } from "@/lib/supabase/server";
+import { renderPostContent } from "@/components/editor/sanitize";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -322,9 +323,16 @@ export default async function ThreadPage({
                   </div>
 
                   {/* Post Body */}
-                  <div className={`px-4 py-4 flex-1 text-sm leading-relaxed whitespace-pre-wrap ${isDeleted ? "text-[#64748b] italic" : "text-[#94a3b8]"}`}>
-                    {post.content}
-                  </div>
+                  {isDeleted ? (
+                    <div className="px-4 py-4 flex-1 text-sm leading-relaxed text-[#64748b] italic">
+                      {post.content}
+                    </div>
+                  ) : (
+                    <div
+                      className="px-4 py-4 flex-1 text-sm leading-relaxed text-[#94a3b8] prose-forum"
+                      dangerouslySetInnerHTML={{ __html: renderPostContent(post.content) }}
+                    />
+                  )}
 
                   {/* Reactions */}
                   {!isDeleted && (

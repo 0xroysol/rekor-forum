@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 import Link from "next/link";
+import { RichTextEditor } from "@/components/editor/rich-text-editor";
 
 // --- Reply Form ---
 export function ReplyForm({ threadId, isLocked }: { threadId: string; isLocked: boolean }) {
@@ -68,15 +69,8 @@ export function ReplyForm({ threadId, isLocked }: { threadId: string; isLocked: 
             {error}
           </div>
         )}
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Yanıtınızı buraya yazın..."
-          rows={6}
-          className="w-full rounded-xl border border-[#1e293b] bg-[#0d1017] px-4 py-3 text-sm text-[#e2e8f0] placeholder-[#64748b] focus:outline-none focus:border-[#1f844e] transition-colors resize-y"
-        />
-        <div className="mt-3 flex items-center justify-between">
-          <div className="text-xs text-[#64748b]">Markdown desteklenmektedir</div>
+        <RichTextEditor content={content} onChange={setContent} placeholder="Yanıtınızı yazın..." minHeight={150} />
+        <div className="mt-3 flex items-center justify-end">
           <button
             onClick={handleSubmit}
             disabled={loading || !content.trim()}

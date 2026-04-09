@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { RichTextEditor } from "@/components/editor/rich-text-editor";
 import { useAuth } from "@/providers/auth-provider";
 
 interface CategoryOption {
@@ -205,22 +206,7 @@ export default function CreateThreadPage() {
             <label className="mb-1.5 block text-sm font-medium text-[#94a3b8]">
               İçerik
             </label>
-            <div className="flex items-center gap-1 rounded-t-md border border-b-0 border-[#1e293b] bg-[#1a2130] px-3 py-2">
-              <button type="button" className="rounded px-2 py-1 text-xs font-bold text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">B</button>
-              <button type="button" className="rounded px-2 py-1 text-xs italic text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">I</button>
-              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] underline transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">U</button>
-              <div className="mx-1 h-4 w-px bg-[#1e293b]" />
-              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">Link</button>
-              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">Resim</button>
-              <button type="button" className="rounded px-2 py-1 text-xs text-[#64748b] transition-colors hover:bg-[#1e2738] hover:text-[#e2e8f0]">Kod</button>
-            </div>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Konu içeriğinizi buraya yazın..."
-              rows={12}
-              className="w-full resize-y rounded-b-md border border-[#1e293b] bg-[#0d1017] px-4 py-3 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
-            />
+            <RichTextEditor content={content} onChange={setContent} placeholder="Konunuzu detaylı yazın..." minHeight={250} />
           </div>
 
           {/* Tags Input */}

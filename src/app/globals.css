@@ -198,6 +198,36 @@
   animation: goalTextFade 2s ease forwards;
 }
 
+/* Rich text editor + post content prose */
+.prose-forum p { margin-bottom: 0.75em; }
+.prose-forum strong { font-weight: 700; color: #e2e8f0; }
+.prose-forum em { font-style: italic; }
+.prose-forum u { text-decoration: underline; }
+.prose-forum s { text-decoration: line-through; }
+.prose-forum a { color: #1f844e; text-decoration: underline; }
+.prose-forum a:hover { color: #22a85e; }
+.prose-forum blockquote { border-left: 2px solid #1e293b; padding-left: 12px; color: #64748b; margin: 8px 0; font-style: italic; }
+.prose-forum pre { background: #1a2130; border-radius: 8px; padding: 12px; overflow-x: auto; margin: 8px 0; }
+.prose-forum code { background: #1a2130; border-radius: 4px; padding: 2px 6px; font-family: monospace; font-size: 0.9em; }
+.prose-forum pre code { background: transparent; padding: 0; }
+.prose-forum ul, .prose-forum ol { padding-left: 1.5em; margin: 8px 0; }
+.prose-forum li { margin-bottom: 4px; }
+.prose-forum img { max-width: 100%; border-radius: 8px; margin: 8px 0; }
+.prose-forum h2 { font-size: 1.25em; font-weight: 700; color: #e2e8f0; margin: 16px 0 8px; }
+.prose-forum h3 { font-size: 1.1em; font-weight: 600; color: #e2e8f0; margin: 12px 0 6px; }
+.prose-forum .mention { color: #1f844e; font-weight: 500; cursor: pointer; }
+.prose-forum .mention:hover { text-decoration: underline; }
+
+/* Tiptap editor styles */
+.tiptap-editor .ProseMirror { outline: none; min-height: inherit; }
+.tiptap-editor .ProseMirror p { margin-bottom: 0.5em; }
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: #64748b; float: left; pointer-events: none; height: 0; }
+.tiptap-editor .ProseMirror blockquote { border-left: 2px solid #1e293b; padding-left: 12px; color: #64748b; }
+.tiptap-editor .ProseMirror pre { background: #1a2130; border-radius: 8px; padding: 12px; }
+.tiptap-editor .ProseMirror code { background: #1a2130; border-radius: 4px; padding: 2px 6px; font-family: monospace; }
+.tiptap-editor .ProseMirror img { max-width: 100%; border-radius: 8px; }
+.tiptap-editor .ProseMirror ul, .tiptap-editor .ProseMirror ol { padding-left: 1.5em; }
+
 /* Scrollbar styling */
 * {
   scrollbar-width: thin;
