@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import type { SportMatch } from "@/lib/sports/types";
 import { MatchDetailPanel } from "@/components/match-detail";
+import { AuthGate } from "@/components/auth-gate";
 
 // ── Config ──
 const SIDEBAR_LEAGUES = [
@@ -142,6 +143,11 @@ export default function CanliSkorlarPage() {
   const selLeague = (n: string | null) => { setLeague(n); setMobSidebar(false); };
 
   return (
+    <AuthGate
+      title="Canlı Skorları Görüntülemek İçin Giriş Yapın"
+      description="Canlı maç skorları, istatistikler ve detaylı maç bilgilerine erişmek için ücretsiz hesap oluşturun."
+      icon="⚽"
+    >
     <div className="flex" style={{ minHeight: "calc(100vh - 120px)" }}>
       {/* ═══ Left Sidebar — Football leagues only ═══ */}
       <aside className="hidden lg:block flex-shrink-0 overflow-y-auto" style={{ width: 220, backgroundColor: "#131820", borderRight: "1px solid #1e293b" }}>
@@ -340,6 +346,7 @@ export default function CanliSkorlarPage() {
         </div>
       )}
     </div>
+    </AuthGate>
   );
 }
 

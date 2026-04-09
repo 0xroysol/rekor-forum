@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
+import { useAuth } from "@/providers/auth-provider";
 
 interface TickerMatch {
   id: string;
@@ -17,6 +19,7 @@ function formatTime(d: string) {
 }
 
 export function LiveTicker() {
+  const { dbUser, loading: authLoading } = useAuth();
   const [items, setItems] = useState<TickerMatch[]>([]);
   const [goalIds, setGoalIds] = useState<Set<string>>(new Set());
   const prevScores = useRef<Map<string, { h: number; a: number }>>(new Map());
@@ -78,6 +81,16 @@ export function LiveTicker() {
     const i = setInterval(fetchData, hasLive ? 120_000 : 300_000);
     return () => clearInterval(i);
   }, [fetchData, hasLive]);
+
+  // Not logged in: show login banner instead of ticker
+  if (!authLoading && !dbUser) {
+    return (
+      <div className="border-t flex items-center justify-center h-8 text-xs" style={{ borderColor: "#1e293b", backgroundColor: "#0d1017" }}>
+        <span style={{ color: "#64748b" }}>📡 Canlı skor takibi için </span>
+        <Link href="/giris" className="ml-1 font-medium hover:underline" style={{ color: "#1f844e" }}>giriş yapın</Link>
+      </div>
+    );
+  }
 
   if (items.length === 0) return null;
 

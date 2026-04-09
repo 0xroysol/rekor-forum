@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@/providers/auth-provider";
 
 interface NewsItem {
   id: string;
@@ -52,12 +53,14 @@ function relativeTime(date: string): string {
 }
 
 export default function HaberlerPage() {
+  const { dbUser } = useAuth();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const isLoggedIn = !!dbUser;
 
   const fetchNews = useCallback(
     async (pageNum: number, append: boolean) => {
@@ -143,8 +146,9 @@ export default function HaberlerPage() {
             Henüz haber yok
           </div>
         ) : (
+          <div className="relative">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {news.map((item) => {
+            {(isLoggedIn ? news : news.slice(0, 3)).map((item) => {
               const grad = CATEGORY_GRADIENTS[item.category] ?? CATEGORY_GRADIENTS.genel;
               const badgeColor = CATEGORY_COLORS[item.category] ?? "#64748b";
               const showImage = item.imageUrl && !imageErrors.has(item.id);
@@ -242,10 +246,24 @@ export default function HaberlerPage() {
               );
             })}
           </div>
+
+          {/* Auth overlay for non-logged-in users */}
+          {!isLoggedIn && news.length > 3 && (
+            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-center pb-8" style={{ height: "200px", background: "linear-gradient(transparent, #080a0f 70%)" }}>
+              <div className="text-center">
+                <p className="text-sm font-medium mb-3" style={{ color: "#e2e8f0" }}>Tüm haberleri okumak için giriş yapın</p>
+                <div className="flex items-center justify-center gap-3">
+                  <Link href="/giris" className="rounded-lg px-5 py-2 text-sm font-medium text-white hover:brightness-110" style={{ backgroundColor: "#1f844e" }}>Giriş Yap</Link>
+                  <Link href="/kayit" className="rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#1e2738]" style={{ color: "#94a3b8", border: "1px solid #1e293b" }}>Kayıt Ol</Link>
+                </div>
+              </div>
+            </div>
+          )}
+          </div>
         )}
 
         {/* Load More */}
-        {hasMore && news.length > 0 && (
+        {isLoggedIn && hasMore && news.length > 0 && (
           <div className="flex justify-center pt-2 pb-4">
             <button
               onClick={loadMore}

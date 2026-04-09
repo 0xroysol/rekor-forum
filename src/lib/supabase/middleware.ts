@@ -32,10 +32,11 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Protected routes — redirect to /giris if not logged in
-  const protectedPaths = ["/mesajlar", "/konu/olustur", "/yonetim"];
+  const protectedPaths = ["/mesajlar", "/konu/olustur", "/yonetim", "/tahminler"];
   const isProtected =
     protectedPaths.some((p) => pathname.startsWith(p)) ||
-    (pathname.match(/^\/profil\/[^/]+\/duzenle/) !== null);
+    (pathname.match(/^\/profil\/[^/]+\/duzenle/) !== null) ||
+    (pathname.match(/^\/haberler\/.+/) !== null); // haber detay sayfaları
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();
