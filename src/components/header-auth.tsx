@@ -35,7 +35,7 @@ export function HeaderAuth() {
 
   if (!dbUser) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="hidden md:flex items-center gap-2">
         <Link
           href="/giris"
           className="rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-150 hover:bg-bg-hover"

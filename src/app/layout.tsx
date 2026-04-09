@@ -11,6 +11,7 @@ import { MobileMenu } from "@/components/mobile-menu";
 import { ToastProvider } from "@/components/toast";
 import { LiveTicker } from "@/components/live-ticker";
 import { LiveNavLink } from "@/components/live-nav-link";
+import { BottomTabBar } from "@/components/bottom-tab-bar";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -107,8 +108,11 @@ export default function RootLayout({
           <LiveTicker />
         </header>
 
-        {/* Main Content */}
-        <main className="flex-1">{children}</main>
+        {/* Main Content — pb-20 on mobile for bottom tab bar */}
+        <main className="flex-1 pb-20 md:pb-0">{children}</main>
+
+        {/* Bottom Tab Bar — mobile only */}
+        <BottomTabBar />
 
         {/* Footer */}
         <footer className="border-t" style={{ borderColor: "#1e293b" }}>

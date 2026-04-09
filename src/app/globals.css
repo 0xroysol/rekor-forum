@@ -263,6 +263,16 @@
 .tiptap-editor .ProseMirror img { max-width: 100%; border-radius: 8px; }
 .tiptap-editor .ProseMirror ul, .tiptap-editor .ProseMirror ol { padding-left: 1.5em; }
 
+/* Mobile responsive overrides */
+@media (max-width: 768px) {
+  /* Post author panel: horizontal on mobile */
+  .md\:w-44 { width: 100% !important; }
+  .md\:flex-col { flex-direction: row !important; }
+  .md\:border-r { border-right: none !important; }
+  .md\:border-b-0 { border-bottom: 1px solid #1e293b !important; }
+  .md\:items-center { align-items: center !important; }
+}
+
 /* Mobile menu slide-in */
 @keyframes slideInLeft {
   from { transform: translateX(-100%); }
