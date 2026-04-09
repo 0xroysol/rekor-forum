@@ -122,7 +122,7 @@ export default async function Home() {
 
         {/* Welcome Banner */}
         <div
-          className="relative overflow-hidden p-8"
+          className="relative overflow-hidden p-5 sm:p-8"
           style={{
             background: "linear-gradient(135deg, #1a2130, rgba(31,132,78,0.15), #131820)",
             border: "1px solid #1e293b",
@@ -134,16 +134,16 @@ export default async function Home() {
             className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 opacity-30"
             style={{ background: "radial-gradient(circle, rgba(31,132,78,0.3) 0%, transparent 70%)" }}
           />
-          <div className="relative flex items-center justify-between">
+          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-[26px] font-bold" style={{ color: "#e2e8f0" }}>
+              <h2 className="text-[20px] sm:text-[26px] font-bold" style={{ color: "#e2e8f0" }}>
                 Rekor Forum&apos;a Hoş Geldiniz!
               </h2>
-              <p className="mt-1.5 text-[14px]" style={{ color: "#94a3b8" }}>
+              <p className="mt-1 sm:mt-1.5 text-[13px] sm:text-[14px]" style={{ color: "#94a3b8" }}>
                 Türkiye&apos;nin en aktif spor tartışma platformu
               </p>
             </div>
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <Link
                 href="/konu/olustur"
                 className="px-4 py-2 text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
