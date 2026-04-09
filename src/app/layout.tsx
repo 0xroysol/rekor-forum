@@ -4,7 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { AuthProvider } from "@/providers/auth-provider";
 import { HeaderAuth } from "@/components/header-auth";
-import { ThemeToggle } from "@/components/theme-toggle";
+// ThemeToggle removed — dark mode only (light mode needs full inline-style refactor)
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { CookieConsent } from "@/components/cookie-consent";
 import { MobileMenu } from "@/components/mobile-menu";
@@ -54,8 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${dmSans.variable} h-full antialiased`} suppressHydrationWarning>
-      <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');})()` }} />
+    <html lang="tr" className={`${dmSans.variable} dark h-full antialiased`} data-theme="dark">
       <body className="min-h-full flex flex-col bg-bg-deep text-text-primary font-sans">
         {process.env.NEXT_PUBLIC_GA_ID && (
           <>
@@ -99,7 +98,7 @@ export default function RootLayout({
 
             {/* Right: theme toggle + auth */}
             <div className="flex items-center gap-1">
-              <ThemeToggle />
+              {/* ThemeToggle removed — dark mode only */}
               <HeaderAuth />
             </div>
           </div>
