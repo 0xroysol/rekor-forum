@@ -124,8 +124,6 @@ export default function RootLayout({
               <Link href="/kullanim-sartlari" className="hover:text-text-secondary transition-colors">Kullanım Şartları</Link>
               <span>·</span>
               <Link href="/kvkk" className="hover:text-text-secondary transition-colors">KVKK</Link>
-              <span>·</span>
-              <a href="#" className="hover:text-text-secondary transition-colors">İletişim</a>
             </div>
           </div>
         </footer>
