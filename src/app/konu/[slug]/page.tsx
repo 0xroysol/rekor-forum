@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { ReplyForm, PostActions, ViewCounter } from "@/components/thread-interactions";
 import { ReactionBar } from "@/components/reactions";
+import { PollCard } from "@/components/poll-card";
 import { BookmarkButton } from "@/components/bookmark-button";
 import ModDropdown from "@/components/mod-dropdown";
 import ReportModal from "@/components/report-modal";
@@ -80,6 +81,15 @@ export default async function ThreadPage({
       prefix: true,
       author: true,
       tags: { include: { tag: true } },
+      poll: {
+        include: {
+          options: {
+            include: { _count: { select: { votes: true } } },
+            orderBy: { position: "asc" as const },
+          },
+          votes: true,
+        },
+      },
       posts: {
         include: {
           author: {
@@ -211,6 +221,31 @@ export default async function ThreadPage({
           </div>
         )}
       </div>
+
+      {/* Poll */}
+      {thread.poll && (
+        <div className="mb-5">
+          <PollCard
+            poll={{
+              id: thread.poll.id,
+              question: thread.poll.question,
+              endsAt: thread.poll.endsAt ? thread.poll.endsAt.toISOString() : null,
+              options: thread.poll.options,
+            }}
+            totalVotes={thread.poll.options.reduce(
+              (sum: number, o: { _count: { votes: number } }) => sum + o._count.votes,
+              0
+            )}
+            userVotedOptionId={
+              currentUserId
+                ? thread.poll.votes.find(
+                    (v: { userId: string; optionId: string }) => v.userId === currentUserId
+                  )?.optionId ?? null
+                : null
+            }
+          />
+        </div>
+      )}
 
       {/* Posts */}
       <div className="space-y-3">

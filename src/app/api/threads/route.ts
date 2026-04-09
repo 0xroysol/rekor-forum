@@ -102,6 +102,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Create poll if provided
+    if (body.poll && body.poll.question && body.poll.options?.length >= 2) {
+      await tx.poll.create({
+        data: {
+          threadId: newThread.id,
+          question: body.poll.question,
+          endsAt: body.poll.duration ? new Date(Date.now() + body.poll.duration * 86400000) : null,
+          options: {
+            create: body.poll.options.map((text: string, i: number) => ({ text, position: i })),
+          },
+        },
+      });
+    }
+
     return newThread;
   });
 

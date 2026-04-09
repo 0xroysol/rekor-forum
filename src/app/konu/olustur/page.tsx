@@ -27,6 +27,10 @@ export default function CreateThreadPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
+  const [pollEnabled, setPollEnabled] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState("");
+  const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
+  const [pollDuration, setPollDuration] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const { dbUser } = useAuth();
@@ -77,6 +81,15 @@ export default function CreateThreadPage() {
         categoryId: selectedCategory,
         prefixId: selectedPrefix || null,
         tags: tagList,
+        ...(pollEnabled && pollQuestion && pollOptions.filter(Boolean).length >= 2
+          ? {
+              poll: {
+                question: pollQuestion,
+                options: pollOptions.filter(Boolean),
+                duration: pollDuration,
+              },
+            }
+          : {}),
       }),
     });
 
@@ -207,6 +220,96 @@ export default function CreateThreadPage() {
               İçerik
             </label>
             <RichTextEditor content={content} onChange={setContent} placeholder="Konunuzu detaylı yazın..." minHeight={250} />
+          </div>
+
+          {/* Poll Toggle */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setPollEnabled(!pollEnabled)}
+              className={`flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
+                pollEnabled
+                  ? "border-[#1f844e] bg-[#1f844e]/10 text-[#1f844e]"
+                  : "border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0]"
+              }`}
+            >
+              <span>📊</span> Anket Ekle
+            </button>
+
+            {pollEnabled && (
+              <div className="mt-3 space-y-3 rounded-lg border border-[#1e293b] bg-[#0d1017] p-4">
+                {/* Poll Question */}
+                <div>
+                  <label className="mb-1 block text-sm text-[#94a3b8]">Soru</label>
+                  <input
+                    type="text"
+                    value={pollQuestion}
+                    onChange={(e) => setPollQuestion(e.target.value)}
+                    placeholder="Anket sorunuz..."
+                    className="w-full rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                  />
+                </div>
+
+                {/* Poll Options */}
+                <div>
+                  <label className="mb-1 block text-sm text-[#94a3b8]">Seçenekler</label>
+                  <div className="space-y-2">
+                    {pollOptions.map((opt, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={opt}
+                          onChange={(e) => {
+                            const next = [...pollOptions];
+                            next[i] = e.target.value;
+                            setPollOptions(next);
+                          }}
+                          placeholder={`Seçenek ${i + 1}`}
+                          className="flex-1 rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                        />
+                        {pollOptions.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPollOptions(pollOptions.filter((_, j) => j !== i))
+                            }
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-[#64748b] hover:bg-[#1e2738] hover:text-[#ef4444]"
+                          >
+                            &times;
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {pollOptions.length < 10 && (
+                    <button
+                      type="button"
+                      onClick={() => setPollOptions([...pollOptions, ""])}
+                      className="mt-2 text-sm text-[#1f844e] hover:underline"
+                    >
+                      + Seçenek ekle
+                    </button>
+                  )}
+                </div>
+
+                {/* Poll Duration */}
+                <div>
+                  <label className="mb-1 block text-sm text-[#94a3b8]">Süre</label>
+                  <select
+                    value={pollDuration ?? ""}
+                    onChange={(e) =>
+                      setPollDuration(e.target.value ? Number(e.target.value) : null)
+                    }
+                    className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                  >
+                    <option value="">Süresiz</option>
+                    <option value="1">1 Gün</option>
+                    <option value="3">3 Gün</option>
+                    <option value="7">7 Gün</option>
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Tags Input */}

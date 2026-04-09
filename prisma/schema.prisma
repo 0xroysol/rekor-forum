@@ -31,6 +31,11 @@ model User {
   postCount   Int      @default(0)
   rankId      String?
   title       String?
+  coverImage  String?
+  favoriteTeam String?
+  location    String?
+  twitterUrl  String?
+  instagramUrl String?
   isOnline    Boolean  @default(false)
   lastSeen    DateTime @default(now())
   createdAt   DateTime @default(now())
@@ -128,6 +133,7 @@ model Thread {
   posts     Post[]
   tags      ThreadTag[]
   bookmarks Bookmark[]
+  poll      Poll?
 
   @@index([categoryId])
   @@index([authorId])
@@ -280,4 +286,39 @@ model News {
   @@index([createdAt])
   @@index([category])
   @@index([slug])
+}
+
+model Poll {
+  id        String   @id @default(cuid())
+  threadId  String   @unique
+  question  String
+  endsAt    DateTime?
+  createdAt DateTime @default(now())
+
+  thread  Thread       @relation(fields: [threadId], references: [id])
+  options PollOption[]
+  votes   PollVote[]
+}
+
+model PollOption {
+  id       String @id @default(cuid())
+  pollId   String
+  text     String
+  position Int    @default(0)
+
+  poll  Poll       @relation(fields: [pollId], references: [id])
+  votes PollVote[]
+}
+
+model PollVote {
+  id        String   @id @default(cuid())
+  pollId    String
+  optionId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  poll   Poll       @relation(fields: [pollId], references: [id])
+  option PollOption @relation(fields: [optionId], references: [id])
+
+  @@unique([pollId, userId])
 }

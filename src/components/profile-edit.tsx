@@ -4,11 +4,40 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/providers/auth-provider";
 import { createClient } from "@/lib/supabase/client";
 
+const TEAM_OPTIONS = [
+  "Seçim yapmadım",
+  "Galatasaray",
+  "Fenerbahçe",
+  "Beşiktaş",
+  "Trabzonspor",
+  "Başakşehir",
+  "Alanyaspor",
+  "Antalyaspor",
+  "Göztepe",
+  "Kasımpaşa",
+  "Konyaspor",
+  "Sivasspor",
+  "Hatayspor",
+  "Samsunspor",
+  "Rizespor",
+  "Kayserispor",
+  "Gaziantep",
+  "Bodrum",
+  "Eyüpspor",
+  "Gençlerbirliği",
+  "Karagümrük",
+];
+
 interface ProfileEditProps {
   username: string;
   currentDisplayName: string | null;
   currentBio: string | null;
   currentAvatar: string | null;
+  currentCoverImage?: string | null;
+  currentFavoriteTeam?: string | null;
+  currentLocation?: string | null;
+  currentTwitterUrl?: string | null;
+  currentInstagramUrl?: string | null;
 }
 
 export function ProfileEditButton({
@@ -16,17 +45,29 @@ export function ProfileEditButton({
   currentDisplayName,
   currentBio,
   currentAvatar,
+  currentCoverImage,
+  currentFavoriteTeam,
+  currentLocation,
+  currentTwitterUrl,
+  currentInstagramUrl,
 }: ProfileEditProps) {
   const { dbUser, refreshDbUser } = useAuth();
   const [open, setOpen] = useState(false);
   const [displayName, setDisplayName] = useState(currentDisplayName || "");
   const [bio, setBio] = useState(currentBio || "");
   const [avatar, setAvatar] = useState(currentAvatar || "");
+  const [coverImage, setCoverImage] = useState(currentCoverImage || "");
+  const [favoriteTeam, setFavoriteTeam] = useState(currentFavoriteTeam || "Seçim yapmadım");
+  const [location, setLocation] = useState(currentLocation || "");
+  const [twitterUrl, setTwitterUrl] = useState(currentTwitterUrl || "");
+  const [instagramUrl, setInstagramUrl] = useState(currentInstagramUrl || "");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const coverFileRef = useRef<HTMLInputElement>(null);
 
   // Only show if viewing own profile
   if (!dbUser || dbUser.username !== username) return null;
@@ -55,6 +96,30 @@ export function ProfileEditButton({
     setUploading(false);
   }
 
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingCover(true);
+    const supabase = createClient();
+    const ext = file.name.split(".").pop();
+    const path = `covers/${dbUser!.id}-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) {
+      setError("Kapak görseli yüklenirken hata oluştu");
+      setUploadingCover(false);
+      return;
+    }
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setCoverImage(data.publicUrl);
+    setUploadingCover(false);
+  }
+
   async function handleSave() {
     setLoading(true);
     setError("");
@@ -63,7 +128,16 @@ export function ProfileEditButton({
     const res = await fetch("/api/auth/profile", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ displayName, bio, avatar }),
+      body: JSON.stringify({
+        displayName,
+        bio,
+        avatar,
+        coverImage,
+        favoriteTeam: favoriteTeam === "Seçim yapmadım" ? null : favoriteTeam,
+        location: location || null,
+        twitterUrl: twitterUrl || null,
+        instagramUrl: instagramUrl || null,
+      }),
     });
 
     if (!res.ok) {
@@ -172,6 +246,86 @@ export function ProfileEditButton({
                   placeholder="Kendiniz hakkında kısa bir bilgi..."
                   rows={3}
                   className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none resize-none"
+                />
+              </div>
+
+              {/* Cover Image */}
+              <div>
+                <label className="mb-1.5 block text-sm" style={{ color: "#94a3b8" }}>Kapak Görseli</label>
+                <div className="flex items-center gap-3">
+                  {coverImage && (
+                    <div
+                      className="h-16 w-28 rounded-md overflow-hidden"
+                      style={{ border: "1px solid #1e293b" }}
+                    >
+                      <img src={coverImage} alt="" className="h-full w-full object-cover" />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => coverFileRef.current?.click()}
+                    disabled={uploadingCover}
+                    className="rounded-md px-3 py-1.5 text-sm transition-colors hover:bg-bg-hover disabled:opacity-50"
+                    style={{ border: "1px solid #1e293b", color: "#94a3b8" }}
+                  >
+                    {uploadingCover ? "Yükleniyor..." : coverImage ? "Değiştir" : "Yükle"}
+                  </button>
+                  <input
+                    ref={coverFileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCoverUpload}
+                  />
+                </div>
+              </div>
+
+              {/* Favorite Team */}
+              <div>
+                <label className="mb-1.5 block text-sm" style={{ color: "#94a3b8" }}>Favori Takım</label>
+                <select
+                  value={favoriteTeam}
+                  onChange={(e) => setFavoriteTeam(e.target.value)}
+                  className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                >
+                  {TEAM_OPTIONS.map((team) => (
+                    <option key={team} value={team}>{team}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="mb-1.5 block text-sm" style={{ color: "#94a3b8" }}>Konum</label>
+                <input
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Şehir, Ülke"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                />
+              </div>
+
+              {/* Twitter URL */}
+              <div>
+                <label className="mb-1.5 block text-sm" style={{ color: "#94a3b8" }}>Twitter / X</label>
+                <input
+                  type="url"
+                  value={twitterUrl}
+                  onChange={(e) => setTwitterUrl(e.target.value)}
+                  placeholder="https://x.com/kullaniciadi"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                />
+              </div>
+
+              {/* Instagram URL */}
+              <div>
+                <label className="mb-1.5 block text-sm" style={{ color: "#94a3b8" }}>Instagram</label>
+                <input
+                  type="url"
+                  value={instagramUrl}
+                  onChange={(e) => setInstagramUrl(e.target.value)}
+                  placeholder="https://instagram.com/kullaniciadi"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
                 />
               </div>
             </div>

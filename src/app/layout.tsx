@@ -38,6 +38,13 @@ export const metadata: Metadata = {
     images: ["/api/og"],
   },
   robots: { index: true, follow: true },
+  manifest: "/manifest.json",
+  themeColor: "#1f844e",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Rekor Forum",
+  },
 };
 
 export default function RootLayout({

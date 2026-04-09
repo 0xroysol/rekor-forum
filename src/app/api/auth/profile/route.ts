@@ -13,7 +13,7 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { displayName, bio, avatar } = body;
+  const { displayName, bio, avatar, coverImage, favoriteTeam, location, twitterUrl, instagramUrl } = body;
 
   const dbUser = await prisma.user.findUnique({
     where: { email: user.email! },
@@ -29,6 +29,11 @@ export async function PUT(request: Request) {
       ...(displayName !== undefined ? { displayName } : {}),
       ...(bio !== undefined ? { bio } : {}),
       ...(avatar !== undefined ? { avatar } : {}),
+      ...(coverImage !== undefined ? { coverImage } : {}),
+      ...(favoriteTeam !== undefined ? { favoriteTeam } : {}),
+      ...(location !== undefined ? { location } : {}),
+      ...(twitterUrl !== undefined ? { twitterUrl } : {}),
+      ...(instagramUrl !== undefined ? { instagramUrl } : {}),
     },
     include: { rank: true },
   });
