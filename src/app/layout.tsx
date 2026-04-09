@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import Link from "next/link";
+import Script from "next/script";
 import { AuthProvider } from "@/providers/auth-provider";
 import { HeaderAuth } from "@/components/header-auth";
 import { ScrollToTop } from "@/components/scroll-to-top";
+import { CookieConsent } from "@/components/cookie-consent";
 import { MobileMenu } from "@/components/mobile-menu";
 import { ToastProvider } from "@/components/toast";
 import { LiveTicker } from "@/components/live-ticker";
@@ -17,9 +19,25 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Rekor Forum — Spor & Bahis Tartışma Platformu",
-  description:
-    "Türkiye'nin en büyük spor ve bahis tartışma forumu. Canlı skorlar, tahminler ve daha fazlası.",
+  metadataBase: new URL("https://rekor-forum.vercel.app"),
+  title: { default: "Rekor Forum — Spor & Bahis Tartışma Platformu", template: "%s | Rekor Forum" },
+  description: "Türkiye'nin en aktif spor ve bahis topluluğu. Maç analizleri, kupon paylaşımları, canlı skorlar ve spor haberleri.",
+  openGraph: {
+    type: "website",
+    locale: "tr_TR",
+    url: "https://rekor-forum.vercel.app",
+    siteName: "Rekor Forum",
+    title: "Rekor Forum — Spor & Bahis Tartışma Platformu",
+    description: "Türkiye'nin en aktif spor ve bahis topluluğu.",
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: "Rekor Forum" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rekor Forum",
+    description: "Türkiye'nin en aktif spor ve bahis topluluğu.",
+    images: ["/api/og"],
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -30,6 +48,14 @@ export default function RootLayout({
   return (
     <html lang="tr" className={`${dmSans.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-bg-deep text-text-primary font-sans">
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`} strategy="afterInteractive" />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');`}
+            </Script>
+          </>
+        )}
         <AuthProvider>
         <ToastProvider>
         {/* Header */}
@@ -96,6 +122,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        <CookieConsent />
         <ScrollToTop />
         </ToastProvider>
         </AuthProvider>
