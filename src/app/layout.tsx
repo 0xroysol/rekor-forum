@@ -4,6 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { AuthProvider } from "@/providers/auth-provider";
 import { HeaderAuth } from "@/components/header-auth";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { ScrollToTop } from "@/components/scroll-to-top";
 import { CookieConsent } from "@/components/cookie-consent";
 import { MobileMenu } from "@/components/mobile-menu";
@@ -53,7 +54,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${dmSans.variable} dark h-full antialiased`}>
+    <html lang="tr" className={`${dmSans.variable} h-full antialiased`} suppressHydrationWarning>
+      <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);if(t==='dark')document.documentElement.classList.add('dark');else document.documentElement.classList.remove('dark');})()` }} />
       <body className="min-h-full flex flex-col bg-bg-deep text-text-primary font-sans">
         {process.env.NEXT_PUBLIC_GA_ID && (
           <>
@@ -90,12 +92,16 @@ export default function RootLayout({
             <nav className="hidden items-center gap-1 md:flex">
               <Link href="/" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Ana Sayfa</Link>
               <Link href="/haberler" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Haberler</Link>
+              <Link href="/tahminler" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Tahminler</Link>
               <LiveNavLink />
               <Link href="/mesajlar" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Mesajlar</Link>
             </nav>
 
-            {/* Right: auth */}
-            <HeaderAuth />
+            {/* Right: theme toggle + auth */}
+            <div className="flex items-center gap-1">
+              <ThemeToggle />
+              <HeaderAuth />
+            </div>
           </div>
 
           {/* Live Score Ticker — client component, fetches from /api/live-scores */}

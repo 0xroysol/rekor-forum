@@ -5,6 +5,8 @@ import Link from "next/link";
 
 const navLinks = [
   { href: "/", label: "Ana Sayfa" },
+  { href: "/haberler", label: "Haberler" },
+  { href: "/tahminler", label: "Tahminler" },
   { href: "/canli-skorlar", label: "Canlı Skorlar" },
   { href: "/mesajlar", label: "Mesajlar" },
   { href: "/forum/yeni", label: "Yeni Konu" },

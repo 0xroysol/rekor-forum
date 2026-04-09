@@ -155,6 +155,39 @@
   --sidebar-ring: #1f844e;
 }
 
+[data-theme="light"] {
+  --bg-deep: #f8fafc;
+  --bg-base: #ffffff;
+  --bg-card: #ffffff;
+  --bg-elevated: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --accent-green: #1f844e;
+  --gold: #d97706;
+  --red: #dc2626;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #1f844e;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #dc2626;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #1f844e;
+}
+
 /* Ticker animation for live score bar */
 @keyframes ticker {
   0% {

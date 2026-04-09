@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAndCreateNews } from "@/lib/news/fetcher";
+import { createMatchThreads } from "@/lib/news/match-threads";
 
 export const maxDuration = 60;
 
@@ -17,8 +18,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const count = await fetchAndCreateNews(2);
-    return NextResponse.json({ success: true, created: count });
+    const [newsCount, threadCount] = await Promise.all([
+      fetchAndCreateNews(2),
+      createMatchThreads().catch((err) => {
+        console.error("Match thread creation error:", err);
+        return 0;
+      }),
+    ]);
+    return NextResponse.json({ success: true, newsCreated: newsCount, threadsCreated: threadCount });
   } catch (error) {
     console.error("News fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch news" }, { status: 500 });

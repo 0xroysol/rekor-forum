@@ -50,6 +50,8 @@ model User {
   reports       Report[]       @relation("Reporter")
   sentMessages  Message[]      @relation("Sender")
   conversations ConversationParticipant[]
+  predictions   Prediction[]
+  predictionPoints Int @default(0)
 
   @@index([username])
   @@index([email])
@@ -321,4 +323,21 @@ model PollVote {
   option PollOption @relation(fields: [optionId], references: [id])
 
   @@unique([pollId, userId])
+}
+
+model Prediction {
+  id           String   @id @default(cuid())
+  userId       String
+  matchId      String
+  homeScore    Int
+  awayScore    Int
+  points       Int      @default(0)
+  isProcessed  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, matchId])
+  @@index([matchId])
+  @@index([userId])
 }
