@@ -70,11 +70,10 @@ export default function RootLayout({
         <header className="sticky top-0 z-50 bg-bg-base/95 backdrop-blur-md">
           {/* Top bar */}
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5">
-            {/* Mobile Menu */}
-            <MobileMenu />
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5">
+            {/* Left: Mobile Menu + Logo */}
+            <div className="flex items-center gap-2">
+              <MobileMenu />
+              <Link href="/" className="flex items-center gap-2.5">
               <div
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold text-white"
                 style={{ background: "linear-gradient(135deg, #1f844e, #0f5132)" }}
@@ -86,6 +85,7 @@ export default function RootLayout({
                 <span className="text-white">Forum</span>
               </span>
             </Link>
+            </div>
 
             {/* Nav Links */}
             <nav className="hidden items-center gap-1 md:flex">
