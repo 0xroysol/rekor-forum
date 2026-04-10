@@ -32,7 +32,7 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Protected routes — redirect to /giris if not logged in
-  const protectedPaths = ["/mesajlar", "/konu/olustur", "/yonetim", "/tahminler"];
+  const protectedPaths = ["/mesajlar", "/konu/olustur", "/yonetim", "/tahminler", "/ayarlar"];
   const isProtected =
     protectedPaths.some((p) => pathname.startsWith(p)) ||
     (pathname.match(/^\/profil\/[^/]+\/duzenle/) !== null) ||

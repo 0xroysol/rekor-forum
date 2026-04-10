@@ -97,43 +97,56 @@ export function HeaderAuth() {
 
         {dropdownOpen && (
           <div
-            className="absolute right-0 top-full mt-1 w-48 overflow-hidden py-1 z-50"
             style={{
+              position: "absolute",
+              right: 0,
+              top: "100%",
+              marginTop: 4,
+              width: 200,
               backgroundColor: "#131820",
               border: "1px solid #1e293b",
-              borderRadius: "12px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+              borderRadius: 8,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              zIndex: 9000,
+              overflow: "hidden",
+              paddingTop: 4,
+              paddingBottom: 4,
             }}
           >
+            {/* User info */}
+            <div style={{ padding: "8px 16px", borderBottom: "1px solid #1e293b" }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>{dbUser.username}</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>{dbUser.role}</div>
+            </div>
             <Link
               href={`/profil/${dbUser.username}`}
               onClick={() => setDropdownOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-sm transition-colors duration-150 hover:bg-bg-hover"
-              style={{ color: "#e2e8f0" }}
+              style={{ display: "block", padding: "10px 16px", fontSize: 13, color: "#e2e8f0", textDecoration: "none" }}
+              className="hover:bg-bg-hover"
             >
               Profilim
             </Link>
             <Link
               href="/kaydedilenler"
               onClick={() => setDropdownOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-sm transition-colors duration-150 hover:bg-bg-hover"
-              style={{ color: "#e2e8f0" }}
+              style={{ display: "block", padding: "10px 16px", fontSize: 13, color: "#e2e8f0", textDecoration: "none" }}
+              className="hover:bg-bg-hover"
             >
               Kaydedilenler
             </Link>
             <Link
               href="/takip-ettiklerim"
               onClick={() => setDropdownOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-sm transition-colors duration-150 hover:bg-bg-hover"
-              style={{ color: "#e2e8f0" }}
+              style={{ display: "block", padding: "10px 16px", fontSize: 13, color: "#e2e8f0", textDecoration: "none" }}
+              className="hover:bg-bg-hover"
             >
               Takip Ettiklerim
             </Link>
             <Link
-              href="#"
+              href="/ayarlar"
               onClick={() => setDropdownOpen(false)}
-              className="flex items-center gap-2 px-3 py-2 text-sm transition-colors duration-150 hover:bg-bg-hover"
-              style={{ color: "#e2e8f0" }}
+              style={{ display: "block", padding: "10px 16px", fontSize: 13, color: "#e2e8f0", textDecoration: "none" }}
+              className="hover:bg-bg-hover"
             >
               Ayarlar
             </Link>
