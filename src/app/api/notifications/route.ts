@@ -19,18 +19,22 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
+    const countOnly = searchParams.get("countOnly") === "true";
 
-    const [notifications, unreadCount] = await Promise.all([
-      prisma.notification.findMany({
-        where: { userId: dbUser.id },
-        orderBy: { createdAt: "desc" },
-        take: limit,
-      }),
-      prisma.notification.count({
-        where: { userId: dbUser.id, isRead: false },
-      }),
-    ]);
+    const unreadCount = await prisma.notification.count({
+      where: { userId: dbUser.id, isRead: false },
+    });
+
+    if (countOnly) {
+      return NextResponse.json({ unreadCount });
+    }
+
+    const limit = parseInt(searchParams.get("limit") || "50", 10);
+    const notifications = await prisma.notification.findMany({
+      where: { userId: dbUser.id },
+      orderBy: [{ isRead: "asc" }, { createdAt: "desc" }],
+      take: limit,
+    });
 
     return NextResponse.json({ notifications, unreadCount });
   } catch (error) {
