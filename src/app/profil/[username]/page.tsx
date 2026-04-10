@@ -4,16 +4,17 @@ import { ProfileEditButton } from "@/components/profile-edit";
 import SendMessageButton from "@/components/send-message-button";
 import UserStats from "@/components/user-stats";
 import type { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
   const user = await prisma.user.findUnique({ where: { username }, select: { username: true, displayName: true, bio: true } });
-  if (!user) return { title: "Kullanıcı Bulunamadı - Rekor Forum" };
+  if (!user) return { title: `Kullanıcı Bulunamadı - ${BRAND.name}` };
   const name = user.displayName || user.username;
   return {
-    title: `${name} - Rekor Forum Profil`,
-    description: user.bio || `${name} Rekor Forum üyesi`,
-    openGraph: { title: `${name} - Rekor Forum`, siteName: "Rekor Forum" },
+    title: `${name} - ${BRAND.name} Profil`,
+    description: user.bio || `${name} ${BRAND.name} üyesi`,
+    openGraph: { title: `${name} - ${BRAND.name}`, siteName: BRAND.name },
   };
 }
 
@@ -28,7 +29,7 @@ function formatDate(date: Date) {
 const roleColors: Record<string, string> = {
   ADMIN: "border-[#ef4444] text-[#ef4444]",
   MOD: "border-[#e8a935] text-[#e8a935]",
-  USER: "border-[#1f844e] text-[#1f844e]",
+  USER: "border-accent-green text-accent-green",
 };
 
 const roleLabels: Record<string, string> = {
@@ -116,7 +117,7 @@ export default async function ProfilPage({
             {/* Online indicator */}
             <span
               className={`absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-[#131820] ${
-                user.isOnline ? "bg-[#1f844e]" : "bg-[#64748b]"
+                user.isOnline ? "bg-accent-green" : "bg-[#64748b]"
               }`}
             />
           </div>
@@ -334,7 +335,7 @@ export default async function ProfilPage({
                     className="rounded-md bg-[#0d1017] px-4 py-3"
                   >
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="text-xs text-[#1f844e]">
+                      <span className="text-xs text-accent-green">
                         {post.thread.title}
                       </span>
                       <span className="text-xs text-[#64748b]">

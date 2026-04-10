@@ -1,4 +1,6 @@
-export const metadata = { title: "Forum Kuralları - Rekor Forum" };
+import { BRAND } from "@/config/brand";
+
+export const metadata = { title: `Forum Kuralları - ${BRAND.name}` };
 
 export default function KurallarPage() {
   return (
@@ -50,7 +52,7 @@ export default function KurallarPage() {
           </ul>
 
           <p className="text-sm leading-relaxed mb-3 mt-6" style={{ color: "#64748b" }}>
-            Yardım ve destek için: iletisim@rekorforum.com
+            Yardım ve destek için: {BRAND.contactEmail}
           </p>
         </div>
       </div>

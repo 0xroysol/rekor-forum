@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 
 export const metadata: Metadata = {
-  title: "Takip Ettiklerim | Rekor Forum",
+  title: `Takip Ettiklerim | ${BRAND.name}`,
 };
 
 const PREFIX_COLORS: Record<string, string> = {
@@ -112,7 +113,7 @@ export default async function TakipEttiklerimPage() {
             className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-[#1e293b] items-center bg-[#131820] hover:bg-[#1e2738] transition-colors"
           >
             <div className="col-span-12 md:col-span-6 flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-[#1f844e] flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-accent-green flex-shrink-0">
                 {thread.author.username.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">

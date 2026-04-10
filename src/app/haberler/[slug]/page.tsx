@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 
 const CATEGORY_GRADIENTS: Record<string, { bg: string; icon: string }> = {
   futbol: { bg: "linear-gradient(135deg, #1f844e, #0d4228)", icon: "⚽" },
@@ -38,9 +39,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     where: { slug },
     select: { title: true, summary: true },
   });
-  if (!news) return { title: "Haber Bulunamadı - Rekor Forum" };
+  if (!news) return { title: `Haber Bulunamadı - ${BRAND.name}` };
   return {
-    title: `${news.title} - Rekor Forum`,
+    title: `${news.title} - ${BRAND.name}`,
     description: news.summary ?? undefined,
   };
 }

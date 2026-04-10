@@ -173,7 +173,7 @@ export function MatchDetailPanel({
             <p className="text-xs" style={{ color: "#64748b" }}>İstatistikler yüklenemedi.</p>
             <button
               onClick={() => { setLoading(true); setError(false); fetch(`/api/live-scores/match?id=${matchId}&sport=${sport}&status=${status}`).then((r) => r.json()).then((d) => { setData(d); setLoading(false); }).catch(() => { setError(true); setLoading(false); }); }}
-              className="mt-2 text-xs px-3 py-1 rounded-md" style={{ color: "#1f844e", border: "1px solid #1e293b" }}
+              className="mt-2 text-xs px-3 py-1 rounded-md" style={{ color: "var(--accent-green)", border: "1px solid #1e293b" }}
             >
               Tekrar Dene
             </button>

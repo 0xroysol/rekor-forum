@@ -46,7 +46,7 @@ export function HeaderAuth() {
         <Link
           href="/kayit"
           className="rounded-md px-3 py-1.5 text-sm font-semibold text-white transition-all duration-150 hover:brightness-110"
-          style={{ backgroundColor: "#1f844e" }}
+          style={{ backgroundColor: "var(--accent-green)" }}
         >
           Kayıt Ol
         </Link>
@@ -84,7 +84,7 @@ export function HeaderAuth() {
           ) : (
             <div
               className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold"
-              style={{ backgroundColor: "#1f844e30", color: "#1f844e" }}
+              style={{ backgroundColor: "#1f844e30", color: "var(--accent-green)" }}
             >
               {dbUser.username.charAt(0).toUpperCase()}
             </div>

@@ -107,7 +107,7 @@ export default function NotificationBell() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderBottom: "1px solid #1e293b", flexShrink: 0 }}>
           <span style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0" }}>Bildirimler</span>
           {unread > 0 && (
-            <button onClick={markAllRead} style={{ fontSize: 12, color: "#1f844e", background: "none", border: "none", cursor: "pointer" }}>
+            <button onClick={markAllRead} style={{ fontSize: 12, color: "var(--accent-green)", background: "none", border: "none", cursor: "pointer" }}>
               Tümünü Okundu İşaretle
             </button>
           )}
@@ -129,12 +129,12 @@ export default function NotificationBell() {
                 style={{
                   display: "flex", gap: 10, width: "100%", padding: "12px 16px",
                   textAlign: "left", borderBottom: "1px solid #1e293b", cursor: "pointer",
-                  background: n.isRead ? "transparent" : "rgba(31,132,78,0.05)",
+                  background: n.isRead ? "transparent" : "color-mix(in srgb, var(--accent-green) 5%, transparent)",
                   borderLeft: n.isRead ? "2px solid transparent" : "2px solid #1f844e",
                   border: "none", borderBottomStyle: "solid" as const, borderBottomWidth: 1, borderBottomColor: "#1e293b",
                   borderLeftStyle: "solid" as const, borderLeftWidth: 2,
                   borderLeftColor: n.isRead ? "transparent" : "#1f844e",
-                  backgroundColor: n.isRead ? "transparent" : "rgba(31,132,78,0.05)",
+                  backgroundColor: n.isRead ? "transparent" : "color-mix(in srgb, var(--accent-green) 5%, transparent)",
                 }}
               >
                 <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }}>{ICONS[n.type] || "🔔"}</span>
@@ -144,7 +144,7 @@ export default function NotificationBell() {
                   </div>
                   <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>{timeAgo(n.createdAt)}</div>
                 </div>
-                {!n.isRead && <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#1f844e", flexShrink: 0, marginTop: 6 }} />}
+                {!n.isRead && <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "var(--accent-green)", flexShrink: 0, marginTop: 6 }} />}
               </button>
             ))
           )}

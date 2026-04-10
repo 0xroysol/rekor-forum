@@ -22,7 +22,7 @@ export function AuthGate({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#1f844e", borderTopColor: "transparent" }} />
+        <div className="h-8 w-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--accent-green)", borderTopColor: "transparent" }} />
       </div>
     );
   }
@@ -39,7 +39,7 @@ export function AuthGate({
           <Link
             href="/giris"
             className="rounded-lg px-6 py-2.5 text-sm font-medium text-white transition-colors hover:brightness-110"
-            style={{ backgroundColor: "#1f844e" }}
+            style={{ backgroundColor: "var(--accent-green)" }}
           >
             Giriş Yap
           </Link>

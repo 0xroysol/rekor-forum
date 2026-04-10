@@ -35,7 +35,7 @@ export function LiveNavLink() {
           animation: "livePulse 1.5s ease-in-out infinite",
           boxShadow: "0 0 4px rgba(239,68,68,0.5)",
         } : {
-          backgroundColor: "#1f844e",
+          backgroundColor: "var(--accent-green)",
         }}
       />
       Canlı Skorlar

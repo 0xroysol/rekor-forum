@@ -1,4 +1,6 @@
-export const metadata = { title: "KVKK Aydınlatma Metni - Rekor Forum" };
+import { BRAND } from "@/config/brand";
+
+export const metadata = { title: `KVKK Aydınlatma Metni - ${BRAND.name}` };
 
 export default function KVKKPage() {
   return (
@@ -14,7 +16,7 @@ export default function KVKKPage() {
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Veri Sorumlusu</h2>
           <p className="text-sm leading-relaxed mb-3" style={{ color: "#94a3b8" }}>
-            Kişisel verileriniz, veri sorumlusu sıfatıyla Rekor Forum tarafından işlenmektedir.
+            Kişisel verileriniz, veri sorumlusu sıfatıyla {BRAND.name} tarafından işlenmektedir.
           </p>
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>İşlenen Kişisel Veriler</h2>
@@ -57,7 +59,7 @@ export default function KVKKPage() {
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Başvuru</h2>
           <p className="text-sm leading-relaxed mb-3" style={{ color: "#94a3b8" }}>
-            Yukarıdaki haklarınızı kullanmak için iletisim@rekorforum.com adresine yazılı başvuru yapabilirsiniz. Başvurularınız en geç 30 gün içinde cevaplanacaktır.
+            Yukarıdaki haklarınızı kullanmak için {BRAND.contactEmail} adresine yazılı başvuru yapabilirsiniz. Başvurularınız en geç 30 gün içinde cevaplanacaktır.
           </p>
         </div>
       </div>

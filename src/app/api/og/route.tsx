@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { BRAND } from "@/config/brand";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
       (
         <div
           style={{
-            background: "linear-gradient(135deg, #1f844e, #0f5132)",
+            background: `linear-gradient(135deg, ${BRAND.logoGradientFrom}, ${BRAND.logoGradientTo})`,
             width: "100%",
             height: "100%",
             display: "flex",
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
               color: "white",
             }}
           >
-            R
+            {BRAND.logoLetter}
           </span>
         </div>
       ),
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
       >
         <div
           style={{
-            background: "linear-gradient(135deg, #1f844e, #0f5132)",
+            background: `linear-gradient(135deg, ${BRAND.logoGradientFrom}, ${BRAND.logoGradientTo})`,
             width: 80,
             height: 80,
             borderRadius: 16,
@@ -70,7 +71,7 @@ export async function GET(request: NextRequest) {
             fontWeight: 800,
           }}
         >
-          R
+          {BRAND.logoLetter}
         </div>
         <div
           style={{
@@ -80,10 +81,10 @@ export async function GET(request: NextRequest) {
             marginTop: 24,
           }}
         >
-          Rekor Forum
+          {BRAND.name}
         </div>
         <div style={{ fontSize: 20, color: "#94a3b8", marginTop: 8 }}>
-          Spor Tartışma Platformu
+          {BRAND.description}
         </div>
       </div>
     ),

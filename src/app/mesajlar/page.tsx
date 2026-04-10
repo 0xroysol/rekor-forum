@@ -328,7 +328,7 @@ export default function MesajlarPage() {
     return (
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
         </div>
       </div>
     );
@@ -341,7 +341,7 @@ export default function MesajlarPage() {
         <div className="rounded-xl border border-[#1e293b] bg-[#131820] p-12 text-center">
           <p className="text-[#94a3b8]">
             Mesajlari goruntulemek icin{" "}
-            <Link href="/giris" className="text-[#1f844e] hover:underline">
+            <Link href="/giris" className="text-accent-green hover:underline">
               giris yapin
             </Link>
             .
@@ -357,7 +357,7 @@ export default function MesajlarPage() {
         <h1 className="text-2xl font-bold text-[#e2e8f0]">Mesajlar</h1>
         <button
           onClick={() => setShowNewModal(true)}
-          className="rounded-md bg-[#1f844e] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80"
+          className="rounded-md bg-accent-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-green/80"
         >
           Yeni Mesaj
         </button>
@@ -371,14 +371,14 @@ export default function MesajlarPage() {
               placeholder="Konusma ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
           <div className="border-t border-[#1e293b]" />
           <div className="flex-1 overflow-y-auto">
             {loadingConvos ? (
               <div className="flex items-center justify-center py-8">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
               </div>
             ) : filteredConversations.length === 0 ? (
               <div className="px-4 py-8 text-center text-sm text-[#64748b]">
@@ -416,7 +416,7 @@ export default function MesajlarPage() {
                       </p>
                     </div>
                     {unread > 0 && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1f844e] text-[10px] font-bold text-white">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-green text-[10px] font-bold text-white">
                         {unread}
                       </span>
                     )}
@@ -454,7 +454,7 @@ export default function MesajlarPage() {
               <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
                 {loadingMessages && messages.length === 0 ? (
                   <div className="flex flex-1 items-center justify-center">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="flex flex-1 items-center justify-center text-sm text-[#64748b]">
@@ -471,7 +471,7 @@ export default function MesajlarPage() {
                         <div
                           className={`max-w-[70%] rounded-xl px-4 py-2.5 ${
                             isMe
-                              ? "bg-[#1f844e] text-white"
+                              ? "bg-accent-green text-white"
                               : "bg-[#1a2130] text-[#94a3b8]"
                           }`}
                         >
@@ -501,12 +501,12 @@ export default function MesajlarPage() {
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     rows={1}
-                    className="min-h-[40px] flex-1 resize-none rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+                    className="min-h-[40px] flex-1 resize-none rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
                   />
                   <button
                     onClick={handleSend}
                     disabled={!newMessage.trim() || sending}
-                    className="h-10 rounded-md bg-[#1f844e] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+                    className="h-10 rounded-md bg-accent-green px-6 text-sm font-medium text-white transition-colors hover:bg-accent-green/80 disabled:opacity-50"
                   >
                     Gonder
                   </button>
@@ -567,7 +567,7 @@ export default function MesajlarPage() {
                     setNewMsgSearch(e.target.value);
                     setNewMsgSelectedUser(null);
                   }}
-                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
                   autoFocus
                 />
                 {newMsgSearching && (
@@ -649,7 +649,7 @@ export default function MesajlarPage() {
                 value={newMsgContent}
                 onChange={(e) => setNewMsgContent(e.target.value)}
                 rows={4}
-                className="w-full resize-none rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+                className="w-full resize-none rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
               />
             </div>
 
@@ -669,7 +669,7 @@ export default function MesajlarPage() {
               <button
                 onClick={handleNewMsgSend}
                 disabled={!newMsgSelectedUser || !newMsgContent.trim() || newMsgSending}
-                className="rounded-md bg-[#1f844e] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+                className="rounded-md bg-accent-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-green/80 disabled:opacity-50"
               >
                 {newMsgSending ? "Gonderiliyor..." : "Gonder"}
               </button>

@@ -146,7 +146,7 @@ export default function CreateThreadPage() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] transition-colors focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             >
               <option value="">Kategori seçin...</option>
               {categories.map((cat) => (
@@ -210,7 +210,7 @@ export default function CreateThreadPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Konunuz için açıklayıcı bir başlık girin..."
-              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
 
@@ -229,7 +229,7 @@ export default function CreateThreadPage() {
               onClick={() => setPollEnabled(!pollEnabled)}
               className={`flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
                 pollEnabled
-                  ? "border-[#1f844e] bg-[#1f844e]/10 text-[#1f844e]"
+                  ? "border-accent-green bg-accent-green/10 text-accent-green"
                   : "border-[#1e293b] text-[#94a3b8] hover:text-[#e2e8f0]"
               }`}
             >
@@ -246,7 +246,7 @@ export default function CreateThreadPage() {
                     value={pollQuestion}
                     onChange={(e) => setPollQuestion(e.target.value)}
                     placeholder="Anket sorunuz..."
-                    className="w-full rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                    className="w-full rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none"
                   />
                 </div>
 
@@ -265,7 +265,7 @@ export default function CreateThreadPage() {
                             setPollOptions(next);
                           }}
                           placeholder={`Seçenek ${i + 1}`}
-                          className="flex-1 rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                          className="flex-1 rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none"
                         />
                         {pollOptions.length > 2 && (
                           <button
@@ -285,7 +285,7 @@ export default function CreateThreadPage() {
                     <button
                       type="button"
                       onClick={() => setPollOptions([...pollOptions, ""])}
-                      className="mt-2 text-sm text-[#1f844e] hover:underline"
+                      className="mt-2 text-sm text-accent-green hover:underline"
                     >
                       + Seçenek ekle
                     </button>
@@ -300,7 +300,7 @@ export default function CreateThreadPage() {
                     onChange={(e) =>
                       setPollDuration(e.target.value ? Number(e.target.value) : null)
                     }
-                    className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                    className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#131820] px-3 py-2 text-sm text-[#e2e8f0] focus:border-accent-green focus:outline-none"
                   >
                     <option value="">Süresiz</option>
                     <option value="1">1 Gün</option>
@@ -322,7 +322,7 @@ export default function CreateThreadPage() {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="Etiketleri virgülle ayırın: futbol, süper lig, fenerbahçe"
-              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-4 py-2.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] transition-colors focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
             <p className="mt-1 text-[11px] text-[#64748b]">
               En fazla 5 etiket ekleyebilirsiniz.
@@ -341,7 +341,7 @@ export default function CreateThreadPage() {
               type="button"
               onClick={handleSubmit}
               disabled={loading || !dbUser}
-              className="rounded-md bg-[#1f844e] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+              className="rounded-md bg-accent-green px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-green/80 disabled:opacity-50"
             >
               {loading ? "Oluşturuluyor..." : "Konuyu Oluştur"}
             </button>

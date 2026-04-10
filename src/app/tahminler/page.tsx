@@ -358,9 +358,9 @@ export default function TahminlerPage() {
             <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 16 }}>
               <div style={{ fontWeight: 600, color: "#e2e8f0", marginBottom: 8 }}>Puanlama Sistemi:</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div>• Tam skor bilme (örn: 2-1 tahmin, sonuç 2-1) → <span style={{ color: "#1f844e", fontWeight: 700 }}>10 puan</span></div>
-                <div>• Doğru gol farkı (örn: 2-1 tahmin, sonuç 3-2) → <span style={{ color: "#1f844e", fontWeight: 700 }}>5 puan</span></div>
-                <div>• Doğru maç sonucu (galibiyet/beraberlik/mağlubiyet) → <span style={{ color: "#1f844e", fontWeight: 700 }}>3 puan</span></div>
+                <div>• Tam skor bilme (örn: 2-1 tahmin, sonuç 2-1) → <span style={{ color: "var(--accent-green)", fontWeight: 700 }}>10 puan</span></div>
+                <div>• Doğru gol farkı (örn: 2-1 tahmin, sonuç 3-2) → <span style={{ color: "var(--accent-green)", fontWeight: 700 }}>5 puan</span></div>
+                <div>• Doğru maç sonucu (galibiyet/beraberlik/mağlubiyet) → <span style={{ color: "var(--accent-green)", fontWeight: 700 }}>3 puan</span></div>
                 <div>• Yanlış tahmin → <span style={{ color: "#64748b", fontWeight: 700 }}>0 puan</span></div>
               </div>
             </div>

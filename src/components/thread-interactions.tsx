@@ -29,7 +29,7 @@ export function ReplyForm({ threadId, isLocked }: { threadId: string; isLocked: 
       <div className="mt-6 rounded-xl border border-[#1e293b] overflow-hidden">
         <div className="px-4 py-4 bg-[#131820] text-center text-sm text-[#64748b]">
           Yanıt yazmak için{" "}
-          <Link href="/giris" className="text-[#1f844e] hover:underline">giriş yapın</Link>.
+          <Link href="/giris" className="text-accent-green hover:underline">giriş yapın</Link>.
         </div>
       </div>
     );
@@ -74,7 +74,7 @@ export function ReplyForm({ threadId, isLocked }: { threadId: string; isLocked: 
           <button
             onClick={handleSubmit}
             disabled={loading || !content.trim()}
-            className="px-6 py-2.5 rounded-xl text-white font-semibold text-sm bg-[#1f844e] hover:brightness-110 transition-all disabled:opacity-50"
+            className="px-6 py-2.5 rounded-xl text-white font-semibold text-sm bg-accent-green hover:brightness-110 transition-all disabled:opacity-50"
           >
             {loading ? "Gönderiliyor..." : "Yanıt Gönder"}
           </button>
@@ -147,7 +147,7 @@ export function PostActions({
           value={editContent}
           onChange={(e) => setEditContent(e.target.value)}
           rows={4}
-          className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-[#1f844e] resize-y"
+          className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green resize-y"
         />
         <div className="mt-2 flex items-center gap-2 justify-end">
           <button
@@ -159,7 +159,7 @@ export function PostActions({
           <button
             onClick={handleSaveEdit}
             disabled={loading}
-            className="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-[#1f844e] hover:brightness-110 disabled:opacity-50"
+            className="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-accent-green hover:brightness-110 disabled:opacity-50"
           >
             {loading ? "Kaydediliyor..." : "Kaydet"}
           </button>

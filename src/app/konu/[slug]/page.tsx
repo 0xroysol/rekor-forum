@@ -10,6 +10,7 @@ import ReportModal from "@/components/report-modal";
 import { createClient } from "@/lib/supabase/server";
 import { renderPostContent } from "@/components/editor/sanitize";
 import type { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -17,12 +18,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     where: { slug },
     include: { posts: { take: 1, orderBy: { createdAt: "asc" } } },
   });
-  if (!thread) return { title: "Konu Bulunamadı - Rekor Forum" };
+  if (!thread) return { title: `Konu Bulunamadı - ${BRAND.name}` };
   const desc = thread.posts[0]?.content.slice(0, 160) || "";
   return {
-    title: `${thread.title} - Rekor Forum`,
+    title: `${thread.title} - ${BRAND.name}`,
     description: desc,
-    openGraph: { title: `${thread.title} - Rekor Forum`, description: desc, siteName: "Rekor Forum" },
+    openGraph: { title: `${thread.title} - ${BRAND.name}`, description: desc, siteName: BRAND.name },
   };
 }
 
@@ -267,7 +268,7 @@ export default async function ThreadPage({
                 {/* Author Panel */}
                 {!isDeleted && (
                   <div className="md:w-44 flex-shrink-0 bg-[#1a2130] p-4 flex flex-row md:flex-col items-center md:items-center gap-3 md:gap-2 border-b md:border-b-0 md:border-r border-[#1e293b]">
-                    <div className="w-12 h-12 rounded-full bg-[#131820] flex items-center justify-center text-lg font-bold text-[#1f844e] flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-[#131820] flex items-center justify-center text-lg font-bold text-accent-green flex-shrink-0">
                       {post.author.avatar ? (
                         <img
                           src={post.author.avatar}

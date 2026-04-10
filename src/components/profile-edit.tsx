@@ -186,7 +186,7 @@ export function ProfileEditButton({
                 </div>
               )}
               {success && (
-                <div className="rounded-md border border-[#1f844e]/30 bg-[#1f844e]/10 px-3 py-2 text-sm text-[#1f844e]">
+                <div className="rounded-md border border-accent-green/30 bg-accent-green/10 px-3 py-2 text-sm text-accent-green">
                   Profil güncellendi!
                 </div>
               )}
@@ -202,7 +202,7 @@ export function ProfileEditButton({
                     {avatar ? (
                       <img src={avatar} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <span className="text-lg font-bold" style={{ color: "#1f844e" }}>
+                      <span className="text-lg font-bold" style={{ color: "var(--accent-green)" }}>
                         {username.charAt(0).toUpperCase()}
                       </span>
                     )}
@@ -233,7 +233,7 @@ export function ProfileEditButton({
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Görünen isminiz"
-                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none"
                 />
               </div>
 
@@ -245,7 +245,7 @@ export function ProfileEditButton({
                   onChange={(e) => setBio(e.target.value)}
                   placeholder="Kendiniz hakkında kısa bir bilgi..."
                   rows={3}
-                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none resize-none"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none resize-none"
                 />
               </div>
 
@@ -285,7 +285,7 @@ export function ProfileEditButton({
                 <select
                   value={favoriteTeam}
                   onChange={(e) => setFavoriteTeam(e.target.value)}
-                  className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                  className="w-full appearance-none rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:border-accent-green focus:outline-none"
                 >
                   {TEAM_OPTIONS.map((team) => (
                     <option key={team} value={team}>{team}</option>
@@ -301,7 +301,7 @@ export function ProfileEditButton({
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Şehir, Ülke"
-                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none"
                 />
               </div>
 
@@ -313,7 +313,7 @@ export function ProfileEditButton({
                   value={twitterUrl}
                   onChange={(e) => setTwitterUrl(e.target.value)}
                   placeholder="https://x.com/kullaniciadi"
-                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none"
                 />
               </div>
 
@@ -325,7 +325,7 @@ export function ProfileEditButton({
                   value={instagramUrl}
                   onChange={(e) => setInstagramUrl(e.target.value)}
                   placeholder="https://instagram.com/kullaniciadi"
-                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none"
+                  className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none"
                 />
               </div>
             </div>
@@ -343,7 +343,7 @@ export function ProfileEditButton({
                 onClick={handleSave}
                 disabled={loading}
                 className="rounded-md px-4 py-2 text-sm font-medium text-white transition-colors hover:brightness-110 disabled:opacity-50"
-                style={{ backgroundColor: "#1f844e" }}
+                style={{ backgroundColor: "var(--accent-green)" }}
               >
                 {loading ? "Kaydediliyor..." : "Kaydet"}
               </button>

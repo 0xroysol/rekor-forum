@@ -12,6 +12,7 @@ import { ToastProvider } from "@/components/toast";
 import { LiveTicker } from "@/components/live-ticker";
 import { LiveNavLink } from "@/components/live-nav-link";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { BRAND } from "@/config/brand";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -21,31 +22,30 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rekorforum.com"),
-  title: { default: "Rekor Forum — Spor Tartışma Platformu", template: "%s | Rekor Forum" },
-  description: "Türkiye'nin en aktif spor topluluğu. Maç analizleri, kupon paylaşımları, canlı skorlar ve spor haberleri.",
+  metadataBase: new URL(`https://${BRAND.domain}`),
+  title: { default: BRAND.metaTitle, template: `%s | ${BRAND.name}` },
+  description: BRAND.metaDescription,
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    url: "https://rekorforum.com",
-    siteName: "Rekor Forum",
-    title: "Rekor Forum — Spor Tartışma Platformu",
-    description: "Türkiye'nin en aktif spor topluluğu.",
-    images: [{ url: "/api/og", width: 1200, height: 630, alt: "Rekor Forum" }],
+    url: `https://${BRAND.domain}`,
+    siteName: BRAND.name,
+    title: BRAND.metaTitle,
+    description: BRAND.metaDescription,
+    images: [{ url: "/api/og", width: 1200, height: 630, alt: BRAND.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rekor Forum",
-    description: "Türkiye'nin en aktif spor topluluğu.",
+    title: BRAND.name,
+    description: BRAND.metaDescription,
     images: ["/api/og"],
   },
   robots: { index: true, follow: true },
-  manifest: "/manifest.json",
-  themeColor: "#1f844e",
+  themeColor: BRAND.accent,
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Rekor Forum",
+    title: BRAND.name,
   },
 };
 
@@ -54,8 +54,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const brandFirstWord = BRAND.name.split(" ")[0];
+  const brandSecondWord = BRAND.name.split(" ")[1] || "";
+
   return (
-    <html lang="tr" className={`${dmSans.variable} dark h-full antialiased`} data-theme="dark">
+    <html
+      lang="tr"
+      className={`${dmSans.variable} dark h-full antialiased`}
+      data-theme="dark"
+      style={{
+        "--brand-accent": BRAND.accent,
+        "--brand-accent-hover": BRAND.accentHover,
+        "--brand-gold": BRAND.gold,
+      } as React.CSSProperties}
+    >
       <body className="min-h-full flex flex-col bg-bg-deep text-text-primary font-sans">
         {process.env.NEXT_PUBLIC_GA_ID && (
           <>
@@ -77,13 +89,13 @@ export default function RootLayout({
               <Link href="/" className="flex items-center gap-1.5 md:gap-2.5 min-w-0">
                 <div
                   className="flex h-7 w-7 md:h-8 md:w-8 items-center justify-center rounded-lg text-xs md:text-sm font-bold text-white flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #1f844e, #0f5132)" }}
+                  style={{ background: `linear-gradient(135deg, ${BRAND.logoGradientFrom}, ${BRAND.logoGradientTo})` }}
                 >
-                  R
+                  {BRAND.logoLetter}
                 </div>
                 <span className="text-[15px] md:text-lg font-bold tracking-tight whitespace-nowrap">
-                  <span style={{ color: "#1f844e" }}>Rekor</span>
-                  <span className="text-white">Forum</span>
+                  <span style={{ color: BRAND.accent }}>{brandFirstWord}</span>
+                  <span className="text-white">{brandSecondWord}</span>
                 </span>
               </Link>
             </div>
@@ -118,7 +130,7 @@ export default function RootLayout({
         <footer className="border-t" style={{ borderColor: "#1e293b" }}>
           <div className="mx-auto max-w-7xl px-5 py-6 text-center">
             <p className="text-sm text-text-muted">
-              &copy; 2026 Rekor Forum. Tüm hakları saklıdır.
+              &copy; 2026 {BRAND.name}. Tüm hakları saklıdır.
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-text-muted">
               <Link href="/kurallar" className="hover:text-text-secondary transition-colors">Kurallar</Link>

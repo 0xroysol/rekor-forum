@@ -1,4 +1,6 @@
-export const metadata = { title: "Gizlilik Politikası - Rekor Forum" };
+import { BRAND } from "@/config/brand";
+
+export const metadata = { title: `Gizlilik Politikası - ${BRAND.name}` };
 
 export default function GizlilikPage() {
   return (
@@ -10,7 +12,7 @@ export default function GizlilikPage() {
         <div className="px-6 py-6 prose-sm" style={{ color: "#94a3b8" }}>
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Toplanan Veriler</h2>
           <p className="text-sm leading-relaxed mb-3" style={{ color: "#94a3b8" }}>
-            Rekor Forum olarak kayıt sırasında kullanıcı adı, e-posta adresi ve şifrenizi toplarız. Ayrıca platform kullanımınız sırasında IP adresi, tarayıcı bilgileri ve çerez verileri otomatik olarak kaydedilir.
+            {BRAND.name} olarak kayıt sırasında kullanıcı adı, e-posta adresi ve şifrenizi toplarız. Ayrıca platform kullanımınız sırasında IP adresi, tarayıcı bilgileri ve çerez verileri otomatik olarak kaydedilir.
           </p>
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>Verilerin Kullanımı</h2>
@@ -41,7 +43,7 @@ export default function GizlilikPage() {
 
           <h2 className="text-base font-semibold mt-6 mb-2" style={{ color: "#e2e8f0" }}>İletişim</h2>
           <p className="text-sm leading-relaxed mb-3" style={{ color: "#94a3b8" }}>
-            Gizlilik politikamızla ilgili sorularınız için iletisim@rekorforum.com adresinden bize ulaşabilirsiniz.
+            Gizlilik politikamızla ilgili sorularınız için {BRAND.contactEmail} adresinden bize ulaşabilirsiniz.
           </p>
         </div>
       </div>

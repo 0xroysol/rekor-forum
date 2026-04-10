@@ -195,8 +195,8 @@ export default function CanliSkorlarPage() {
         <div className="flex items-center justify-between px-3 h-8" style={{ borderBottom: "1px solid #1e293b" }}>
           <div className="flex items-center gap-2">
             {liveCount > 0 && (
-              <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: "#1f844e" }}>
-                <span className="relative flex h-1.5 w-1.5"><span className="absolute h-full w-full animate-ping rounded-full opacity-75" style={{ backgroundColor: "#1f844e" }} /><span className="relative h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#1f844e" }} /></span>
+              <span className="flex items-center gap-1 text-[11px] font-medium" style={{ color: "var(--accent-green)" }}>
+                <span className="relative flex h-1.5 w-1.5"><span className="absolute h-full w-full animate-ping rounded-full opacity-75" style={{ backgroundColor: "var(--accent-green)" }} /><span className="relative h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "var(--accent-green)" }} /></span>
                 {liveCount} canlı
               </span>
             )}
@@ -361,13 +361,13 @@ function MRow({ m, fav, onFav, active, onSelect, hasGoal }: { m: SportMatch; fav
       <div className="flex-shrink-0 flex items-center justify-center" style={{ width: 48 }}>
         {live && <span className="flex items-center gap-0.5 text-[11px] font-bold" style={{ color: "#ef4444" }}>{m.minute}&apos;<span className="h-1.5 w-1.5 rounded-full animate-pulse inline-block" style={{ backgroundColor: "#ef4444" }} /></span>}
         {ht && <span className="text-[11px] font-bold" style={{ color: "#e8a935" }}>DA</span>}
-        {ft && <span className="text-[11px] font-semibold" style={{ color: "#1f844e" }}>MS</span>}
+        {ft && <span className="text-[11px] font-semibold" style={{ color: "var(--accent-green)" }}>MS</span>}
         {up && <span className="text-[11px]" style={{ color: "#94a3b8" }}>{formatTime(m.startTime)}</span>}
         {post && <span className="text-[10px]" style={{ color: "#64748b" }}>ERT</span>}
       </div>
       <div className="flex-1 flex items-center justify-end gap-1 min-w-0 pr-1"><span className="text-[13px] truncate" style={{ color: hw ? "#e2e8f0" : "#94a3b8", fontWeight: hw ? 700 : 500 }}>{m.homeTeam}</span>{m.homeLogo && <img src={m.homeLogo} alt="" className="h-4 w-4 object-contain flex-shrink-0" />}</div>
       <div className={`flex-shrink-0 flex items-center justify-center gap-0.5 font-mono font-bold rounded ${hasGoal ? "goal-flash" : ""}`} style={{ width: 52, fontSize: live || ht ? "15px" : "14px", color: live || ht ? "#ef4444" : ft ? "#e2e8f0" : "#64748b" }}>
-        {hasGoal && <span className="goal-text text-[10px]" style={{ color: "#1f844e", position: "absolute", left: -2, top: -8 }}>⚽</span>}
+        {hasGoal && <span className="goal-text text-[10px]" style={{ color: "var(--accent-green)", position: "absolute", left: -2, top: -8 }}>⚽</span>}
         {up ? <span className="text-[12px]" style={{ color: "#64748b" }}>-:-</span> : <>{m.homeScore ?? 0}:{m.awayScore ?? 0}</>}
       </div>
       <div className="flex-1 flex items-center gap-1 min-w-0 pl-1">{m.awayLogo && <img src={m.awayLogo} alt="" className="h-4 w-4 object-contain flex-shrink-0" />}<span className="text-[13px] truncate" style={{ color: aw ? "#e2e8f0" : "#94a3b8", fontWeight: aw ? 700 : 500 }}>{m.awayTeam}</span></div>

@@ -95,13 +95,13 @@ type TabId = "dashboard" | "reports" | "users" | "threads" | "posts" | "categori
 const roleColors: Record<string, string> = {
   ADMIN: "border-[#ef4444] text-[#ef4444]",
   MOD: "border-[#e8a935] text-[#e8a935]",
-  USER: "border-[#1f844e] text-[#1f844e]",
+  USER: "border-accent-green text-accent-green",
 };
 
 const statusColors: Record<string, string> = {
   PENDING: "border-[#e8a935] text-[#e8a935]",
   REVIEWED: "border-[#3b82f6] text-[#3b82f6]",
-  RESOLVED: "border-[#1f844e] text-[#1f844e]",
+  RESOLVED: "border-accent-green text-accent-green",
 };
 
 const statusLabels: Record<string, string> = {
@@ -574,7 +574,7 @@ export default function YonetimPage() {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex items-center justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
         </div>
       </div>
     );
@@ -635,7 +635,7 @@ export default function YonetimPage() {
         <>
           {statsLoading && !stats ? (
             <div className="flex items-center justify-center py-20">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
             </div>
           ) : stats ? (
             <>
@@ -646,7 +646,7 @@ export default function YonetimPage() {
                   <p className="mt-1 text-2xl font-bold text-[#e2e8f0]">
                     {stats.totalUsers.toLocaleString("tr-TR")}
                   </p>
-                  <span className="text-xs text-[#1f844e]">
+                  <span className="text-xs text-accent-green">
                     +{stats.todayUsers} bugun
                   </span>
                 </div>
@@ -811,7 +811,7 @@ export default function YonetimPage() {
           <div className="overflow-x-auto p-4">
             {reportsLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
               </div>
             ) : reports.length === 0 ? (
               <p className="py-12 text-center text-sm text-[#64748b]">
@@ -880,7 +880,7 @@ export default function YonetimPage() {
                                 onClick={() =>
                                   handleReportAction(report.id, "RESOLVED")
                                 }
-                                className="rounded px-2 py-1 text-xs text-[#1f844e] transition-colors hover:bg-[#1f844e]/10 disabled:opacity-50"
+                                className="rounded px-2 py-1 text-xs text-accent-green transition-colors hover:bg-accent-green/10 disabled:opacity-50"
                               >
                                 Coz
                               </button>
@@ -906,7 +906,7 @@ export default function YonetimPage() {
                                 onClick={() =>
                                   handleReportAction(report.id, "RESOLVED")
                                 }
-                                className="rounded px-2 py-1 text-xs text-[#1f844e] transition-colors hover:bg-[#1f844e]/10 disabled:opacity-50"
+                                className="rounded px-2 py-1 text-xs text-accent-green transition-colors hover:bg-accent-green/10 disabled:opacity-50"
                               >
                                 Coz
                               </button>
@@ -972,13 +972,13 @@ export default function YonetimPage() {
               placeholder="Kullanici ara..."
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
-              className="w-64 rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-64 rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
           <div className="overflow-x-auto p-4">
             {usersLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
               </div>
             ) : users.length === 0 ? (
               <p className="py-12 text-center text-sm text-[#64748b]">
@@ -1052,7 +1052,7 @@ export default function YonetimPage() {
                                 handleRoleChange(user.id, e.target.value)
                               }
                               disabled={userActionLoading === user.id}
-                              className="rounded border border-[#1e293b] bg-[#0d1017] px-2 py-1 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none disabled:opacity-50"
+                              className="rounded border border-[#1e293b] bg-[#0d1017] px-2 py-1 text-xs text-[#e2e8f0] focus:border-accent-green focus:outline-none disabled:opacity-50"
                             >
                               <option value="USER">USER</option>
                               <option value="MOD">MOD</option>
@@ -1065,7 +1065,7 @@ export default function YonetimPage() {
                                 <button
                                   disabled={userActionLoading === user.id}
                                   onClick={() => handleUnbanUser(user.id)}
-                                  className="rounded px-2 py-1 text-xs text-[#1f844e] transition-colors hover:bg-[#1f844e]/10 disabled:opacity-50"
+                                  className="rounded px-2 py-1 text-xs text-accent-green transition-colors hover:bg-accent-green/10 disabled:opacity-50"
                                 >
                                   Yasagi Kaldir
                                 </button>
@@ -1125,7 +1125,7 @@ export default function YonetimPage() {
               placeholder="Baslik veya yazar ara..."
               value={threadSearch}
               onChange={(e) => setThreadSearch(e.target.value)}
-              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
             <div className="flex flex-wrap gap-2">
               <select
@@ -1134,7 +1134,7 @@ export default function YonetimPage() {
                   setThreadCategoryFilter(e.target.value);
                   setThreadPage(1);
                 }}
-                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-accent-green focus:outline-none"
               >
                 <option value="">Tum Kategoriler</option>
                 {threadCategories.map((cat) => (
@@ -1149,7 +1149,7 @@ export default function YonetimPage() {
                   setThreadStatusFilter(e.target.value);
                   setThreadPage(1);
                 }}
-                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-accent-green focus:outline-none"
               >
                 <option value="">Tumu</option>
                 <option value="active">Aktif</option>
@@ -1162,7 +1162,7 @@ export default function YonetimPage() {
                   setThreadSort(e.target.value);
                   setThreadPage(1);
                 }}
-                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-accent-green focus:outline-none"
               >
                 <option value="">En Yeni</option>
                 <option value="oldest">En Eski</option>
@@ -1200,7 +1200,7 @@ export default function YonetimPage() {
           <div className="overflow-x-auto p-4">
             {threadsLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
               </div>
             ) : threads.length === 0 ? (
               <p className="py-12 text-center text-sm text-[#64748b]">
@@ -1274,7 +1274,7 @@ export default function YonetimPage() {
                             Kilitli
                           </span>
                         ) : (
-                          <span className="inline-flex items-center rounded-full border border-[#1f844e] px-2 py-0.5 text-xs font-medium text-[#1f844e]">
+                          <span className="inline-flex items-center rounded-full border border-accent-green px-2 py-0.5 text-xs font-medium text-accent-green">
                             Aktif
                           </span>
                         )}
@@ -1356,7 +1356,7 @@ export default function YonetimPage() {
               placeholder="Icerik veya yazar ara..."
               value={postSearch}
               onChange={(e) => setPostSearch(e.target.value)}
-              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
             <div className="flex flex-wrap gap-2">
               <select
@@ -1365,7 +1365,7 @@ export default function YonetimPage() {
                   setPostDateRange(e.target.value);
                   setPostPage(1);
                 }}
-                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-accent-green focus:outline-none"
               >
                 <option value="">Tumu</option>
                 <option value="today">Bugun</option>
@@ -1378,7 +1378,7 @@ export default function YonetimPage() {
                   setPostSort(e.target.value);
                   setPostPage(1);
                 }}
-                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-accent-green focus:outline-none"
               >
                 <option value="">En Yeni</option>
                 <option value="oldest">En Eski</option>
@@ -1405,7 +1405,7 @@ export default function YonetimPage() {
           <div className="overflow-x-auto p-4">
             {postsLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
               </div>
             ) : posts.length === 0 ? (
               <p className="py-12 text-center text-sm text-[#64748b]">
@@ -1539,7 +1539,7 @@ export default function YonetimPage() {
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
               rows={8}
-              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
             <div className="mt-4 flex items-center justify-end gap-2">
               <button
@@ -1554,7 +1554,7 @@ export default function YonetimPage() {
               <button
                 disabled={postActionLoading}
                 onClick={() => handlePostEdit(editingPost.id, editContent)}
-                className="rounded-md bg-[#1f844e] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+                className="rounded-md bg-accent-green px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-green/80 disabled:opacity-50"
               >
                 Kaydet
               </button>
@@ -1568,14 +1568,14 @@ export default function YonetimPage() {
         <div className="rounded-xl border border-[#1e293b] bg-[#131820]">
           <div className="flex items-center justify-between border-b border-[#1e293b] bg-[#1a2130] px-5 py-3">
             <h2 className="text-sm font-semibold text-[#e2e8f0]">Kategoriler</h2>
-            <button className="rounded-md bg-[#1f844e] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1f844e]/80">
+            <button className="rounded-md bg-accent-green px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-green/80">
               Yeni Kategori
             </button>
           </div>
           <div className="flex flex-col gap-2 p-4">
             {categoriesLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-accent-green border-t-transparent" />
               </div>
             ) : categories.length === 0 ? (
               <p className="py-12 text-center text-sm text-[#64748b]">

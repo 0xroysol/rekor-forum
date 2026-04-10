@@ -46,7 +46,7 @@ export function CookieConsent() {
       <p className="text-sm text-text-secondary" style={{ flex: 1, minWidth: 200 }}>
         Bu web sitesi deneyiminizi iyileştirmek için çerezler kullanmaktadır. Sitemizi
         kullanarak çerez politikamızı kabul etmiş olursunuz.{" "}
-        <Link href="/gizlilik" className="underline" style={{ color: "#1f844e" }}>
+        <Link href="/gizlilik" className="underline" style={{ color: "var(--accent-green)" }}>
           Çerez Politikası
         </Link>
       </p>
@@ -61,7 +61,7 @@ export function CookieConsent() {
         <button
           onClick={handleAccept}
           className="rounded-md px-4 py-2 text-sm font-medium"
-          style={{ background: "#1f844e", color: "white" }}
+          style={{ background: "var(--accent-green)", color: "white" }}
         >
           Kabul Et
         </button>

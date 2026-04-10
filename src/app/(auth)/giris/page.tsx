@@ -35,7 +35,7 @@ export default function GirisPage() {
       <div className="w-full max-w-sm rounded-xl border border-[#1e293b] bg-[#131820] p-6">
         {/* Logo */}
         <div className="mb-4 flex items-center justify-center gap-1.5">
-          <span className="text-lg font-bold text-[#1f844e]">REKOR</span>
+          <span className="text-lg font-bold text-accent-green">REKOR</span>
           <span className="text-lg font-bold text-white">FORUM</span>
         </div>
 
@@ -62,7 +62,7 @@ export default function GirisPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
 
@@ -77,7 +77,7 @@ export default function GirisPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
 
@@ -100,7 +100,7 @@ export default function GirisPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-[#1f844e] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+            className="w-full rounded-md bg-accent-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-green/80 disabled:opacity-50"
           >
             {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
           </button>
@@ -109,7 +109,7 @@ export default function GirisPage() {
             Hesabın yok mu?{" "}
             <Link
               href="/kayit"
-              className="font-medium text-[#1f844e] transition-colors hover:text-[#1f844e]/80"
+              className="font-medium text-accent-green transition-colors hover:text-accent-green/80"
             >
               Kayıt ol
             </Link>

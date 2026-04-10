@@ -118,7 +118,7 @@ export function ReactionBar({
               onMouseLeave={() => setHoveredEmoji(null)}
               className={`flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors hover:bg-[#1e2738] ${
                 isActive
-                  ? "bg-[rgba(31,132,78,0.12)] border border-[rgba(31,132,78,0.3)]"
+                  ? "bg-accent-green/12 border border-accent-green/30"
                   : "border border-transparent"
               }`}
             >

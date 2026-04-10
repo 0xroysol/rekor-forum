@@ -253,7 +253,7 @@ export default function HaberlerPage() {
               <div className="text-center">
                 <p className="text-sm font-medium mb-3" style={{ color: "#e2e8f0" }}>Tüm haberleri okumak için giriş yapın</p>
                 <div className="flex items-center justify-center gap-3">
-                  <Link href="/giris" className="rounded-lg px-5 py-2 text-sm font-medium text-white hover:brightness-110" style={{ backgroundColor: "#1f844e" }}>Giriş Yap</Link>
+                  <Link href="/giris" className="rounded-lg px-5 py-2 text-sm font-medium text-white hover:brightness-110" style={{ backgroundColor: "var(--accent-green)" }}>Giriş Yap</Link>
                   <Link href="/kayit" className="rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#1e2738]" style={{ color: "#94a3b8", border: "1px solid #1e293b" }}>Kayıt Ol</Link>
                 </div>
               </div>
@@ -270,7 +270,7 @@ export default function HaberlerPage() {
               disabled={loading}
               className="px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 hover:brightness-110 disabled:opacity-50"
               style={{
-                backgroundColor: "#1f844e",
+                backgroundColor: "var(--accent-green)",
                 color: "#fff",
               }}
             >

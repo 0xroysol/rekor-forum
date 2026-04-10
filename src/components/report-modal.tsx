@@ -81,7 +81,7 @@ export default function ReportModal({ type, targetId }: ReportModalProps) {
                 className={`mb-4 px-3 py-2 rounded-lg text-sm ${
                   message.error
                     ? "bg-[#ef4444]/10 text-[#ef4444]"
-                    : "bg-[#1f844e]/10 text-[#1f844e]"
+                    : "bg-accent-green/10 text-accent-green"
                 }`}
               >
                 {message.text}
@@ -100,7 +100,7 @@ export default function ReportModal({ type, targetId }: ReportModalProps) {
                     value={r}
                     checked={reason === r}
                     onChange={() => setReason(r)}
-                    className="accent-[#1f844e]"
+                    className="accent-accent-green"
                   />
                   <span className="text-sm text-[#e2e8f0]">{r}</span>
                 </label>
@@ -112,7 +112,7 @@ export default function ReportModal({ type, targetId }: ReportModalProps) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Ek açıklama (isteğe bağlı)"
               rows={3}
-              className="w-full px-3 py-2 rounded-lg bg-[#1a2130] border border-[#1e293b] text-[#e2e8f0] text-sm placeholder-[#64748b] mb-4 resize-none focus:outline-none focus:border-[#1f844e]"
+              className="w-full px-3 py-2 rounded-lg bg-[#1a2130] border border-[#1e293b] text-[#e2e8f0] text-sm placeholder-[#64748b] mb-4 resize-none focus:outline-none focus:border-accent-green"
             />
 
             <div className="flex gap-2 justify-end">
@@ -130,7 +130,7 @@ export default function ReportModal({ type, targetId }: ReportModalProps) {
               <button
                 onClick={handleSubmit}
                 disabled={!reason || loading}
-                className="px-4 py-2 text-sm rounded-lg bg-[#1f844e] text-white hover:bg-[#166d3b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm rounded-lg bg-accent-green text-white hover:bg-[#166d3b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Gönderiliyor..." : "Gönder"}
               </button>

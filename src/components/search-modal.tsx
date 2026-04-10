@@ -129,7 +129,7 @@ export function SearchModal() {
                     <div style={{ padding: "8px 16px", fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", borderBottom: "1px solid #1e293b" }}>Kullanıcılar</div>
                     {users.map((u) => (
                       <button key={u.id} onClick={() => navigateTo(`/profil/${u.username}`)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 16px", textAlign: "left", borderBottom: "1px solid #1e293b", color: "#e2e8f0", fontSize: 14, backgroundColor: "transparent", border: "none", cursor: "pointer" }}>
-                        <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: "rgba(31,132,78,0.2)", color: "#1f844e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: "50%", backgroundColor: "color-mix(in srgb, var(--accent-green) 20%, transparent)", color: "var(--accent-green)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
                           {u.username.charAt(0).toUpperCase()}
                         </div>
                         <span>{u.username}</span>
@@ -139,7 +139,7 @@ export function SearchModal() {
                 )}
 
                 {(threads.length > 0 || users.length > 0) && (
-                  <button onClick={() => navigateTo(`/ara?q=${encodeURIComponent(query)}`)} style={{ display: "block", width: "100%", padding: "10px 16px", textAlign: "center", color: "#1f844e", fontSize: 13, fontWeight: 500, backgroundColor: "transparent", border: "none", cursor: "pointer" }}>
+                  <button onClick={() => navigateTo(`/ara?q=${encodeURIComponent(query)}`)} style={{ display: "block", width: "100%", padding: "10px 16px", textAlign: "center", color: "var(--accent-green)", fontSize: 13, fontWeight: 500, backgroundColor: "transparent", border: "none", cursor: "pointer" }}>
                     Tüm sonuçları gör →
                   </button>
                 )}

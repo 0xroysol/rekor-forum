@@ -49,7 +49,7 @@ export default function KayitPage() {
       <div className="w-full max-w-sm rounded-xl border border-[#1e293b] bg-[#131820] p-6">
         {/* Logo */}
         <div className="mb-4 flex items-center justify-center gap-1.5">
-          <span className="text-lg font-bold text-[#1f844e]">REKOR</span>
+          <span className="text-lg font-bold text-accent-green">REKOR</span>
           <span className="text-lg font-bold text-white">FORUM</span>
         </div>
 
@@ -75,7 +75,7 @@ export default function KayitPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
 
@@ -90,7 +90,7 @@ export default function KayitPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
 
@@ -105,7 +105,7 @@ export default function KayitPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
           </div>
 
@@ -120,7 +120,7 @@ export default function KayitPage() {
               value={passwordConfirm}
               onChange={(e) => setPasswordConfirm(e.target.value)}
               required
-              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+              className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green/30"
             />
             {password && passwordConfirm && password !== passwordConfirm && (
               <p className="text-xs text-[#ef4444]">Şifreler eşleşmiyor</p>
@@ -132,12 +132,12 @@ export default function KayitPage() {
               type="checkbox"
               checked={termsAccepted}
               onChange={(e) => setTermsAccepted(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-[#1e293b] bg-[#0d1017] accent-[#1f844e]"
+              className="mt-0.5 h-4 w-4 rounded border-[#1e293b] bg-[#0d1017] accent-accent-green"
             />
             <span className="text-xs text-[#94a3b8]">
-              <Link href="/kurallar" className="text-[#1f844e] hover:underline">Forum kurallarını</Link>
+              <Link href="/kurallar" className="text-accent-green hover:underline">Forum kurallarını</Link>
               {" ve "}
-              <Link href="/kullanim-sartlari" className="text-[#1f844e] hover:underline">kullanım şartlarını</Link>
+              <Link href="/kullanim-sartlari" className="text-accent-green hover:underline">kullanım şartlarını</Link>
               {" "}okudum, kabul ediyorum.
             </span>
           </label>
@@ -145,7 +145,7 @@ export default function KayitPage() {
           <button
             type="submit"
             disabled={loading || !termsAccepted}
-            className="w-full rounded-md bg-[#1f844e] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+            className="w-full rounded-md bg-accent-green px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-green/80 disabled:opacity-50"
           >
             {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
           </button>
@@ -154,7 +154,7 @@ export default function KayitPage() {
             Zaten üye misiniz?{" "}
             <Link
               href="/giris"
-              className="font-medium text-[#1f844e] transition-colors hover:text-[#1f844e]/80"
+              className="font-medium text-accent-green transition-colors hover:text-accent-green/80"
             >
               Giriş yap
             </Link>

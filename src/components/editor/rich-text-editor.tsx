@@ -175,7 +175,7 @@ function RichTextEditor({
       </div>
 
       {/* Editor */}
-      <div className="bg-[#0d1017] focus-within:border-[#1f844e]">
+      <div className="bg-[#0d1017] focus-within:border-accent-green">
         <div className="p-4">
           <EditorContent editor={editor} />
         </div>
@@ -278,7 +278,7 @@ function ToolbarButton({
       title={title}
       className={`w-8 h-8 rounded flex items-center justify-center text-xs transition-colors ${
         active
-          ? "bg-[rgba(31,132,78,0.15)] text-[#1f844e]"
+          ? "bg-accent-green/15 text-accent-green"
           : "text-[#64748b] hover:bg-[#1e2738] hover:text-[#e2e8f0]"
       }`}
     >

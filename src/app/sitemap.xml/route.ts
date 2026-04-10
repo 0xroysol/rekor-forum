@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { BRAND } from "@/config/brand";
 
 export async function GET() {
   const categories = await prisma.category.findMany({ select: { slug: true } });
@@ -19,7 +20,7 @@ export async function GET() {
     select: { username: true },
   });
 
-  const baseUrl = "https://rekorforum.com";
+  const baseUrl = `https://${BRAND.domain}`;
 
   let xml = '<?xml version="1.0" encoding="UTF-8"?>';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';

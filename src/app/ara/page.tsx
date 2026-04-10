@@ -160,7 +160,7 @@ function SearchContent() {
                 href={`/profil/${u.username}`}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#1e293b] hover:bg-[#1e2738] transition-colors"
               >
-                <div className="w-7 h-7 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-[#1f844e] flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-accent-green flex-shrink-0">
                   {u.username.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-sm text-[#e2e8f0]">{u.username}</span>
@@ -202,7 +202,7 @@ function SearchContent() {
               className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-[#1e293b] items-center bg-[#131820] hover:bg-[#1e2738] transition-colors"
             >
               <div className="col-span-12 md:col-span-6 flex items-center gap-3 min-w-0">
-                <div className="w-8 h-8 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-[#1f844e] flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-accent-green flex-shrink-0">
                   {thread.author.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
@@ -286,7 +286,7 @@ function SearchContent() {
                   onClick={() => goToPage(p)}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                     p === page
-                      ? "bg-[#1f844e] text-white"
+                      ? "bg-accent-green text-white"
                       : "text-[#94a3b8] bg-[#131820] border border-[#1e293b] hover:bg-[#1e2738]"
                   }`}
                 >

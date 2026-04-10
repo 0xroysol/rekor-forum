@@ -87,7 +87,7 @@ export function LiveTicker() {
     return (
       <div className="border-t flex items-center justify-center h-8 text-xs" style={{ borderColor: "#1e293b", backgroundColor: "#0d1017" }}>
         <span style={{ color: "#64748b" }}>📡 Canlı skor takibi için </span>
-        <Link href="/giris" className="ml-1 font-medium hover:underline" style={{ color: "#1f844e" }}>giriş yapın</Link>
+        <Link href="/giris" className="ml-1 font-medium hover:underline" style={{ color: "var(--accent-green)" }}>giriş yapın</Link>
       </div>
     );
   }
@@ -130,7 +130,7 @@ export function LiveTicker() {
                     {item.minute}
                   </span>
                   {hasGoal && (
-                    <span className="goal-text" style={{ color: "#1f844e", fontWeight: 700, fontSize: "11px" }}>
+                    <span className="goal-text" style={{ color: "var(--accent-green)", fontWeight: 700, fontSize: "11px" }}>
                       ⚽ GOL!
                     </span>
                   )}

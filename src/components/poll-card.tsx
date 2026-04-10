@@ -239,7 +239,7 @@ export function PollCard({ poll, totalVotes, userVotedOptionId }: PollCardProps)
                       width: 10,
                       height: 10,
                       borderRadius: "50%",
-                      backgroundColor: "#1f844e",
+                      backgroundColor: "var(--accent-green)",
                     }}
                   />
                 )}

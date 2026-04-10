@@ -189,7 +189,7 @@ export default function ModDropdown({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-[#1a2130] border border-[#1e293b] text-[#e2e8f0] text-sm mb-4 focus:outline-none focus:border-[#1f844e]"
+              className="w-full px-3 py-2 rounded-lg bg-[#1a2130] border border-[#1e293b] text-[#e2e8f0] text-sm mb-4 focus:outline-none focus:border-accent-green"
             >
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -209,7 +209,7 @@ export default function ModDropdown({
               </button>
               <button
                 onClick={handleMove}
-                className="px-4 py-2 text-sm rounded-lg bg-[#1f844e] text-white hover:bg-[#166d3b] transition-colors"
+                className="px-4 py-2 text-sm rounded-lg bg-accent-green text-white hover:bg-[#166d3b] transition-colors"
                 disabled={loading || selectedCategory === categoryId}
               >
                 Taşı

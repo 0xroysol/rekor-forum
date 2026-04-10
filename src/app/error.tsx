@@ -11,7 +11,7 @@ export default function Error({ reset }: { reset: () => void }) {
       <button
         onClick={() => reset()}
         className="rounded-xl px-6 py-2.5 text-sm font-medium text-white transition-colors hover:brightness-110"
-        style={{ backgroundColor: "#1f844e" }}
+        style={{ backgroundColor: "var(--accent-green)" }}
       >
         Tekrar Dene
       </button>

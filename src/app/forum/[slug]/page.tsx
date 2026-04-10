@@ -2,16 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import type { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 // CasinoGate removed
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const category = await prisma.category.findUnique({ where: { slug }, select: { name: true, description: true } });
-  if (!category) return { title: "Kategori Bulunamadı - Rekor Forum" };
+  if (!category) return { title: `Kategori Bulunamadı - ${BRAND.name}` };
   return {
-    title: `${category.name} - Rekor Forum`,
+    title: `${category.name} - ${BRAND.name}`,
     description: category.description,
-    openGraph: { title: `${category.name} - Rekor Forum`, description: category.description, siteName: "Rekor Forum" },
+    openGraph: { title: `${category.name} - ${BRAND.name}`, description: category.description, siteName: BRAND.name },
   };
 }
 
@@ -141,7 +142,7 @@ export default async function CategoryPage({
         </div>
         <Link
           href="/konu/olustur"
-          className="px-4 py-2 rounded-xl text-white font-medium text-sm bg-[#1f844e] hover:brightness-110 transition-all"
+          className="px-4 py-2 rounded-xl text-white font-medium text-sm bg-accent-green hover:brightness-110 transition-all"
         >
           Yeni Konu
         </Link>
@@ -155,7 +156,7 @@ export default async function CategoryPage({
             href={`/forum/${slug}?sort=${sortBy}`}
             className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
               !prefixFilter
-                ? "bg-[#1f844e]/15 text-[#1f844e] border border-[#1f844e]/30"
+                ? "bg-accent-green/15 text-accent-green border border-accent-green/30"
                 : "text-[#64748b] border border-[#1e293b] hover:text-[#94a3b8]"
             }`}
           >
@@ -229,7 +230,7 @@ export default async function CategoryPage({
             className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-[#1e293b] items-center bg-[#1a2130] hover:bg-[#1e2738] transition-colors"
           >
             <div className="col-span-12 md:col-span-6 flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-[#1f844e] flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#1a2130] border border-[#1e293b] flex items-center justify-center text-xs font-semibold text-accent-green flex-shrink-0">
                 {thread.author.username.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
@@ -267,7 +268,7 @@ export default async function CategoryPage({
             className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-[#1e293b] items-center bg-[#131820] hover:bg-[#1e2738] transition-colors"
           >
             <div className="col-span-12 md:col-span-6 flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-[#1a2130] flex items-center justify-center text-xs font-semibold text-[#1f844e] flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#1a2130] flex items-center justify-center text-xs font-semibold text-accent-green flex-shrink-0">
                 {thread.author.username.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
@@ -333,7 +334,7 @@ export default async function CategoryPage({
                   href={`/forum/${slug}?page=${p}`}
                   className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                     p === page
-                      ? "bg-[#1f844e] text-white"
+                      ? "bg-accent-green text-white"
                       : "text-[#94a3b8] bg-[#131820] border border-[#1e293b] hover:bg-[#1e2738]"
                   }`}
                 >

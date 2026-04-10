@@ -19,7 +19,7 @@ export default function AyarlarPage() {
       <div className="flex items-center justify-center py-20">
         <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, padding: "32px", textAlign: "center", maxWidth: 400 }}>
           <p style={{ color: "#94a3b8", fontSize: 14 }}>Bu sayfayı görüntülemek için giriş yapın.</p>
-          <Link href="/giris" style={{ display: "inline-block", marginTop: 16, padding: "8px 24px", backgroundColor: "#1f844e", color: "#fff", borderRadius: 8, fontSize: 14, fontWeight: 500, textDecoration: "none" }}>Giriş Yap</Link>
+          <Link href="/giris" style={{ display: "inline-block", marginTop: 16, padding: "8px 24px", backgroundColor: "var(--accent-green)", color: "#fff", borderRadius: 8, fontSize: 14, fontWeight: 500, textDecoration: "none" }}>Giriş Yap</Link>
         </div>
       </div>
     );
@@ -88,7 +88,7 @@ export default function AyarlarPage() {
             </div>
           )}
           {message && (
-            <div style={{ padding: "8px 12px", borderRadius: 8, backgroundColor: "rgba(31,132,78,0.1)", border: "1px solid rgba(31,132,78,0.3)", color: "#1f844e", fontSize: 13 }}>
+            <div style={{ padding: "8px 12px", borderRadius: 8, backgroundColor: "color-mix(in srgb, var(--accent-green) 10%, transparent)", border: "1px solid var(--accent-green)4D", color: "var(--accent-green)", fontSize: 13 }}>
               {message}
             </div>
           )}
@@ -133,7 +133,7 @@ export default function AyarlarPage() {
           <button
             type="submit"
             disabled={loading}
-            style={{ padding: "10px 20px", borderRadius: 8, backgroundColor: "#1f844e", color: "#fff", fontSize: 14, fontWeight: 500, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1 }}
+            style={{ padding: "10px 20px", borderRadius: 8, backgroundColor: "var(--accent-green)", color: "#fff", fontSize: 14, fontWeight: 500, border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.5 : 1 }}
           >
             {loading ? "Güncelleniyor..." : "Şifreyi Güncelle"}
           </button>

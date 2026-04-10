@@ -1,5 +1,6 @@
 import Link from "next/link";
 import prisma from "@/lib/prisma";
+import { BRAND } from "@/config/brand";
 
 const NEWS_CATEGORY_ICONS: Record<string, string> = {
   futbol: "⚽",
@@ -124,7 +125,7 @@ export default async function Home() {
         <div
           className="relative overflow-hidden p-5 sm:p-8"
           style={{
-            background: "linear-gradient(135deg, #1a2130, rgba(31,132,78,0.15), #131820)",
+            background: `linear-gradient(135deg, #1a2130, ${BRAND.accent}26, #131820)`,
             border: "1px solid #1e293b",
             borderRadius: "12px",
           }}
@@ -132,22 +133,22 @@ export default async function Home() {
           {/* Decorative radial glow */}
           <div
             className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 opacity-30"
-            style={{ background: "radial-gradient(circle, rgba(31,132,78,0.3) 0%, transparent 70%)" }}
+            style={{ background: `radial-gradient(circle, ${BRAND.accent}4D 0%, transparent 70%)` }}
           />
           <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-[20px] sm:text-[26px] font-bold" style={{ color: "#e2e8f0" }}>
-                Rekor Forum&apos;a Hoş Geldiniz!
+                {BRAND.name}&apos;a Hoş Geldiniz!
               </h2>
               <p className="mt-1 sm:mt-1.5 text-[13px] sm:text-[14px]" style={{ color: "#94a3b8" }}>
-                Türkiye&apos;nin en aktif spor tartışma platformu
+                {BRAND.description}
               </p>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <Link
                 href="/konu/olustur"
                 className="px-4 py-2 text-sm font-medium text-white transition-all duration-150 hover:brightness-110"
-                style={{ backgroundColor: "#1f844e", borderRadius: "8px" }}
+                style={{ backgroundColor: BRAND.accent, borderRadius: "8px" }}
               >
                 Yeni Konu Aç
               </Link>
@@ -335,7 +336,7 @@ export default async function Home() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span style={{ color: "#64748b" }}>Çevrimiçi</span>
-                  <span className="font-semibold" style={{ color: "#1f844e" }}>{onlineUsers}</span>
+                  <span className="font-semibold" style={{ color: BRAND.accent }}>{onlineUsers}</span>
                 </div>
               </div>
             </div>
@@ -371,7 +372,7 @@ export default async function Home() {
                   <Link
                     href="/forum/super-lig-tartismalari"
                     className="block px-4 py-2 text-center text-[12px] font-medium transition-colors hover:bg-bg-hover"
-                    style={{ color: "#1f844e", borderTop: "1px solid #1e293b" }}
+                    style={{ color: BRAND.accent, borderTop: "1px solid #1e293b" }}
                   >
                     Tüm Maç Tartışmaları →
                   </Link>
@@ -431,7 +432,7 @@ export default async function Home() {
                     </span>
                     <div
                       className="flex-shrink-0 flex items-center justify-center rounded-full text-[10px] font-bold"
-                      style={{ width: "24px", height: "24px", backgroundColor: "#1f844e30", color: "#1f844e" }}
+                      style={{ width: "24px", height: "24px", backgroundColor: `${BRAND.accent}30`, color: BRAND.accent }}
                     >
                       {user.username.charAt(0)}
                     </div>
@@ -537,7 +538,7 @@ export default async function Home() {
                 <Link
                   href="/haberler"
                   className="block px-4 py-2 text-center text-[12px] font-medium transition-colors hover:bg-bg-hover"
-                  style={{ color: "#1f844e", borderTop: "1px solid #1e293b" }}
+                  style={{ color: BRAND.accent, borderTop: "1px solid #1e293b" }}
                 >
                   Tüm Haberler →
                 </Link>
@@ -547,7 +548,7 @@ export default async function Home() {
             {/* Çevrimiçi Üyeler */}
             <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: "12px", overflow: "hidden" }}>
               <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid #1e293b" }}>
-                <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: "#1f844e" }} />
+                <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: BRAND.accent }} />
                 <span className="text-[13px] font-semibold" style={{ color: "#94a3b8" }}>
                   Çevrimiçi Üyeler ({onlineUsers})
                 </span>
@@ -558,7 +559,7 @@ export default async function Home() {
                     key={user.id}
                     href={`/profil/${user.username}`}
                     className="text-[11px] px-2 py-1 rounded-md transition-colors duration-150 hover:bg-bg-hover"
-                    style={{ color: "#1f844e", backgroundColor: "#1f844e15" }}
+                    style={{ color: BRAND.accent, backgroundColor: `${BRAND.accent}15` }}
                   >
                     {user.username}
                   </Link>
