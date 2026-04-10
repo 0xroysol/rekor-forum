@@ -326,6 +326,36 @@ export default function TahminlerPage() {
               )}
             </div>
           )}
+
+          {/* Scoring info */}
+          <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, padding: 20, marginTop: 24 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0", marginBottom: 12 }}>🎯 Nasıl Puan Kazanırsınız?</h3>
+            <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 16, lineHeight: 1.6 }}>
+              Maçların skorlarını tahmin edin, doğru tahminlerinizle puan kazanın ve liderlik tablosunda yerinizi alın!
+            </p>
+
+            <div style={{ fontSize: 13, color: "#94a3b8", marginBottom: 16 }}>
+              <div style={{ fontWeight: 600, color: "#e2e8f0", marginBottom: 8 }}>Puanlama Sistemi:</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <div>• Tam skor bilme (örn: 2-1 tahmin, sonuç 2-1) → <span style={{ color: "#1f844e", fontWeight: 700 }}>10 puan</span></div>
+                <div>• Doğru gol farkı (örn: 2-1 tahmin, sonuç 3-2) → <span style={{ color: "#1f844e", fontWeight: 700 }}>5 puan</span></div>
+                <div>• Doğru maç sonucu (galibiyet/beraberlik/mağlubiyet) → <span style={{ color: "#1f844e", fontWeight: 700 }}>3 puan</span></div>
+                <div>• Yanlış tahmin → <span style={{ color: "#64748b", fontWeight: 700 }}>0 puan</span></div>
+              </div>
+            </div>
+
+            <div style={{ fontSize: 13, color: "#94a3b8" }}>
+              <div style={{ fontWeight: 600, color: "#e2e8f0", marginBottom: 8 }}>Kurallar:</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, lineHeight: 1.6 }}>
+                <div>• Maç başlamadan önce tahmininizi girmelisiniz</div>
+                <div>• Maç başladıktan sonra tahmin değiştirilemez</div>
+                <div>• Her maç için sadece bir tahmin yapabilirsiniz</div>
+                <div>• Puanlar maç bittikten sonra otomatik hesaplanır</div>
+                <div>• En çok puan toplayan kullanıcılar liderlik tablosunda yer alır</div>
+                <div>• 100+ puan toplayan kullanıcılar <span style={{ color: "#e2e8f0" }}>&quot;Tahmin Kralı 🔮&quot;</span> rozetini kazanır</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Leaderboard */}
