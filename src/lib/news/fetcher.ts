@@ -4,12 +4,9 @@ import { rewriteNews } from "./gemini";
 
 // Only trusted Turkish sports news sources — NO betting/tüyo sites
 const RSS_FEEDS = [
-  { url: "https://www.ntvspor.net/rss", source: "NTV Spor", category: "genel" },
   { url: "https://www.trthaber.com/spor_articles.rss", source: "TRT Spor", category: "genel" },
   { url: "https://www.hurriyet.com.tr/rss/spor", source: "Hürriyet Spor", category: "genel" },
   { url: "https://www.fotomac.com.tr/rss/anasayfa.xml", source: "Fotomaç", category: "futbol" },
-  { url: "https://www.fanatik.com.tr/rss", source: "Fanatik", category: "futbol" },
-  { url: "https://www.milliyet.com.tr/rss/rssNew/SporRss.xml", source: "Milliyet Spor", category: "genel" },
 ];
 
 // Words that indicate betting/gambling content — skip these

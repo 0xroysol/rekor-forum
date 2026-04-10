@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const [newsCount, threadCount] = await Promise.all([
-      fetchAndCreateNews(2),
+      fetchAndCreateNews(5),
       createMatchThreads().catch((err) => {
         console.error("Match thread creation error:", err);
         return 0;
