@@ -62,19 +62,19 @@ export function HeaderAuth() {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 md:gap-2">
       {/* Search */}
       <SearchModal />
       {/* Notifications */}
       <NotificationBell />
-      {/* Messages */}
-      <Link href="/mesajlar" className="flex h-8 w-8 items-center justify-center rounded-md transition-all duration-150 hover:bg-bg-hover" style={{ color: "#64748b" }}>
+      {/* Messages — hidden on mobile (in bottom tab) */}
+      <Link href="/mesajlar" className="hidden md:flex h-8 w-8 items-center justify-center rounded-md transition-all duration-150 hover:bg-bg-hover" style={{ color: "#64748b" }}>
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       </Link>
-      {/* Divider */}
-      <div className="mx-1 h-5 w-px" style={{ backgroundColor: "#1e293b" }} />
-      {/* User dropdown */}
-      <div className="relative" ref={dropdownRef}>
+      {/* Divider — hidden on mobile */}
+      <div className="hidden md:block mx-1 h-5 w-px" style={{ backgroundColor: "#1e293b" }} />
+      {/* User dropdown — hidden on mobile (profile in bottom tab) */}
+      <div className="relative hidden md:block" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="flex items-center gap-2 rounded-md px-2 py-1 transition-all duration-150 hover:bg-bg-hover"

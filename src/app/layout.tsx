@@ -70,22 +70,22 @@ export default function RootLayout({
         {/* Header */}
         <header className="sticky top-0 z-50 bg-bg-base/95 backdrop-blur-md">
           {/* Top bar */}
-          <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5">
+          <div className="mx-auto flex h-12 md:h-14 max-w-7xl items-center justify-between px-3 md:px-5">
             {/* Left: Mobile Menu + Logo */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
               <MobileMenu />
-              <Link href="/" className="flex items-center gap-2.5">
-              <div
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold text-white"
-                style={{ background: "linear-gradient(135deg, #1f844e, #0f5132)" }}
-              >
-                R
-              </div>
-              <span className="text-lg font-bold tracking-tight">
-                <span style={{ color: "#1f844e" }}>Rekor</span>
-                <span className="text-white">Forum</span>
-              </span>
-            </Link>
+              <Link href="/" className="flex items-center gap-1.5 md:gap-2.5 min-w-0">
+                <div
+                  className="flex h-7 w-7 md:h-8 md:w-8 items-center justify-center rounded-lg text-xs md:text-sm font-bold text-white flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #1f844e, #0f5132)" }}
+                >
+                  R
+                </div>
+                <span className="text-[15px] md:text-lg font-bold tracking-tight whitespace-nowrap">
+                  <span style={{ color: "#1f844e" }}>Rekor</span>
+                  <span className="text-white">Forum</span>
+                </span>
+              </Link>
             </div>
 
             {/* Nav Links */}
