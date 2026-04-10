@@ -15,6 +15,7 @@ interface SportMatch {
   awayLogo?: string;
   homeScore: number | null;
   awayScore: number | null;
+  minute: string | null;
   status: "live" | "ft" | "upcoming" | "ht" | "postponed";
   startTime: string;
 }
@@ -43,6 +44,7 @@ export default function TahminlerPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,11 +58,11 @@ export default function TahminlerPage() {
 
       const matchData = await matchRes.json();
       const allMatches: SportMatch[] = Array.isArray(matchData) ? matchData : matchData.matches || [];
-      // Filter: upcoming football only
-      const upcoming = allMatches.filter(
-        (m) => m.sport === "football" && m.status === "upcoming"
+      // Filter: football matches (upcoming + live + finished today)
+      const footballMatches = allMatches.filter(
+        (m) => m.sport === "football" && (m.status === "upcoming" || m.status === "live" || m.status === "ht" || m.status === "ft")
       );
-      setMatches(upcoming);
+      setMatches(footballMatches);
 
       if (predRes.ok) {
         const predData = await predRes.json();
@@ -110,6 +112,7 @@ export default function TahminlerPage() {
       },
     }));
     setSubmitted(false);
+    setDirty(true);
   }
 
   async function handleSubmit() {
@@ -142,6 +145,7 @@ export default function TahminlerPage() {
         setError(data.error || "Tahminler kaydedilemedi.");
       } else {
         setSubmitted(true);
+        setDirty(false);
         // Refresh saved predictions
         const predRes = await fetch("/api/predictions");
         if (predRes.ok) {
@@ -211,6 +215,8 @@ export default function TahminlerPage() {
                   const saved = isSaved(match.id);
                   const hasPrediction = savedPredictions.some((p) => p.matchId === match.id);
                   const matchDate = new Date(match.startTime);
+                  const isStarted = match.status !== "upcoming";
+                  const isFinished = match.status === "ft";
 
                   return (
                     <div
@@ -221,10 +227,14 @@ export default function TahminlerPage() {
                         backgroundColor: saved ? "rgba(31, 132, 78, 0.08)" : "transparent",
                       }}
                     >
-                      {/* Date/Time */}
-                      <div className="hidden w-16 shrink-0 text-xs text-text-muted sm:block">
-                        <div>{matchDate.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit" })}</div>
-                        <div>{matchDate.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</div>
+                      {/* Date/Time + Status */}
+                      <div className="hidden w-16 shrink-0 text-xs sm:block" style={{ color: isStarted ? (isFinished ? "#1f844e" : "#ef4444") : "#64748b" }}>
+                        {isFinished ? <div style={{ fontWeight: 600 }}>MS</div> : isStarted ? <div style={{ fontWeight: 700 }}>{match.minute}&apos; 🔴</div> : (
+                          <>
+                            <div>{matchDate.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit" })}</div>
+                            <div>{matchDate.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</div>
+                          </>
+                        )}
                       </div>
 
                       {/* Home team */}
@@ -235,7 +245,18 @@ export default function TahminlerPage() {
                         )}
                       </div>
 
-                      {/* Score inputs */}
+                      {/* Score inputs or real score */}
+                      {isStarted ? (
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <div style={{ width: 40, height: 36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: isFinished ? "#e2e8f0" : "#ef4444" }}>
+                            {match.homeScore ?? 0}
+                          </div>
+                          <span className="text-base font-bold" style={{ color: "#64748b" }}>:</span>
+                          <div style={{ width: 40, height: 36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, color: isFinished ? "#e2e8f0" : "#ef4444" }}>
+                            {match.awayScore ?? 0}
+                          </div>
+                        </div>
+                      ) : (
                       <div className="flex items-center gap-1.5 shrink-0">
                         <input
                           type="number"
@@ -283,6 +304,7 @@ export default function TahminlerPage() {
                           placeholder="-"
                         />
                       </div>
+                      )}
 
                       {/* Away team */}
                       <div className="flex flex-1 items-center gap-2">
@@ -306,23 +328,22 @@ export default function TahminlerPage() {
           ))}
 
           {/* Submit button */}
-          {isLoggedIn && matches.length > 0 && (
+          {isLoggedIn && matches.some(m => m.status === "upcoming") && (
             <div className="flex items-center gap-3">
               <button
                 onClick={handleSubmit}
-                disabled={submitting}
-                className="rounded-lg px-6 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ backgroundColor: "var(--accent-green)" }}
+                disabled={submitting || (submitted && !dirty)}
+                className="rounded-lg px-6 py-2.5 text-sm font-medium transition-opacity disabled:opacity-60"
+                style={{
+                  backgroundColor: submitted && !dirty ? "#1a2130" : "#1f844e",
+                  color: submitted && !dirty ? "#94a3b8" : "#fff",
+                  cursor: submitted && !dirty ? "default" : "pointer",
+                }}
               >
-                {submitting ? "Kaydediliyor..." : "Tahminleri Kaydet"}
+                {submitting ? "Kaydediliyor..." : submitted && !dirty ? "✓ Tahminler Kaydedildi" : dirty ? "Tahminleri Güncelle" : savedPredictions.length > 0 ? "Tahminleri Güncelle" : "Tahminleri Kaydet"}
               </button>
-              {submitted && (
-                <span className="text-sm font-medium" style={{ color: "var(--accent-green)" }}>
-                  Tahminleriniz kaydedildi!
-                </span>
-              )}
               {error && (
-                <span className="text-sm text-red">{error}</span>
+                <span className="text-sm" style={{ color: "#ef4444" }}>{error}</span>
               )}
             </div>
           )}
