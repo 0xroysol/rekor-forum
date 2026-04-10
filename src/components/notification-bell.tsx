@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 
@@ -170,12 +171,12 @@ export default function NotificationBell() {
         )}
       </button>
 
-      {open && (
-        <>
+      {open && typeof document !== "undefined" && createPortal(
+        <div style={{ position: "fixed", inset: 0, zIndex: 99998 }}>
         {/* Overlay */}
-        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 9998 }} />
+        <div onClick={() => setOpen(false)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }} />
         {/* Dropdown */}
-        <div style={{ position: "fixed", top: 52, left: 8, right: 8, maxWidth: 380, marginLeft: "auto", zIndex: 9999, backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}>
+        <div style={{ position: "absolute", top: 52, left: 8, right: 8, maxWidth: 380, marginLeft: "auto", backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}>
           <div className="px-4 py-3 border-b border-[#1e293b] flex items-center justify-between">
             <span className="text-sm font-semibold text-[#e2e8f0]">Bildirimler</span>
             {unreadCount > 0 && (
@@ -225,7 +226,8 @@ export default function NotificationBell() {
             )}
           </div>
         </div>
-        </>
+        </div>,
+        document.body
       )}
     </div>
   );
