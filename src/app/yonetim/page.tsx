@@ -74,18 +74,19 @@ interface ThreadItem {
   isPinned: boolean;
   isLocked: boolean;
   viewCount: number;
+  replyCount: number;
   createdAt: string;
-  author: { id: string; username: string; avatar: string | null };
-  category: { id: string; name: string; slug: string };
-  _count: { posts: number };
+  author: { username: string };
+  category: { name: string };
 }
 
 interface PostItem {
   id: string;
   content: string;
   createdAt: string;
-  author: { id: string; username: string; avatar: string | null };
-  thread: { id: string; title: string; slug: string };
+  authorId: string;
+  author: { username: string };
+  thread: { title: string; slug: string };
   _count?: { reactions: number };
 }
 
@@ -334,7 +335,7 @@ export default function YonetimPage() {
       if (res.ok) {
         const data = await res.json();
         setThreads(data.threads);
-        setThreadTotalPages(data.pagination?.totalPages ?? 1);
+        setThreadTotalPages(data.totalPages ?? 1);
       }
     } catch {
       // silently fail
@@ -356,7 +357,7 @@ export default function YonetimPage() {
       if (res.ok) {
         const data = await res.json();
         setPosts(data.posts);
-        setPostTotalPages(data.pagination?.totalPages ?? 1);
+        setPostTotalPages(data.totalPages ?? 1);
       }
     } catch {
       // silently fail
@@ -1255,7 +1256,7 @@ export default function YonetimPage() {
                         {thread.author.username}
                       </td>
                       <td className="py-3 text-sm text-[#94a3b8]">
-                        {thread._count.posts}
+                        {thread.replyCount}
                       </td>
                       <td className="py-3 text-sm text-[#94a3b8]">
                         {thread.viewCount}
@@ -1488,7 +1489,7 @@ export default function YonetimPage() {
                           </button>
                           <button
                             disabled={postActionLoading}
-                            onClick={() => handlePostWarn(post.author.id)}
+                            onClick={() => handlePostWarn(post.authorId)}
                             title="Kullaniciyi Uyar"
                             className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#e8a935]/10 disabled:opacity-50"
                           >
