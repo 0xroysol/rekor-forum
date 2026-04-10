@@ -91,69 +91,39 @@ function ChatApp({ user }: { user: { id: string; username: string; role: string 
       .catch(() => setLoadingMsgs(false));
   }, [activeRoom]);
 
-  // Supabase Realtime subscription
+  // Supabase Broadcast + Presence subscription
   useEffect(() => {
-    const channel = supabase
-      .channel(`chat:${activeRoom}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "ChatMessage",
-          filter: `roomId=eq.${activeRoom}`,
-        },
-        (payload) => {
-          // Fetch the full message with user data
-          fetch(`/api/chat?room=${activeRoom}&latest=${payload.new.id}`)
-            .then((r) => r.json())
-            .then((d) => {
-              if (d.messages?.length) {
-                setMessages((prev) => {
-                  // Avoid duplicates
-                  const ids = new Set(prev.map((m) => m.id));
-                  const newMsgs = d.messages.filter((m: ChatMsg) => !ids.has(m.id));
-                  if (newMsgs.length === 0) return prev;
-                  return [...prev, ...newMsgs];
-                });
-                // Auto-scroll if near bottom
-                if (isNearBottomRef.current) {
-                  setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-                }
-              }
-            })
-            .catch(() => {});
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "ChatMessage",
-        },
-        (payload) => {
-          setMessages((prev) => prev.filter((m) => m.id !== payload.old.id));
-        }
-      )
-      .subscribe();
+    // Single channel for broadcast messages + presence
+    const channel = supabase.channel(`chat-room:${activeRoom}`, {
+      config: { broadcast: { self: false } },
+    });
 
-    // Presence for online count
-    const presenceChannel = supabase.channel(`presence:${activeRoom}`);
-    presenceChannel
+    channel
+      .on("broadcast", { event: "new-message" }, ({ payload }) => {
+        const msg = payload as ChatMsg;
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+        if (isNearBottomRef.current) {
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+        }
+      })
+      .on("broadcast", { event: "delete-message" }, ({ payload }) => {
+        setMessages((prev) => prev.filter((m) => m.id !== payload.id));
+      })
       .on("presence", { event: "sync" }, () => {
-        const state = presenceChannel.presenceState();
+        const state = channel.presenceState();
         setOnlineCount(Object.keys(state).length);
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await presenceChannel.track({ userId: user.id, username: user.username });
+          await channel.track({ userId: user.id, username: user.username });
         }
       });
 
     return () => {
       supabase.removeChannel(channel);
-      supabase.removeChannel(presenceChannel);
     };
   }, [activeRoom, user.id, user.username]);
 

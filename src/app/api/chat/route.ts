@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient as createServiceClient } from "@supabase/supabase-js";
 import prisma from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/utils/rate-limit";
+
+// Server-side Supabase client for broadcasting (uses service role)
+function getBroadcastClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
 
 const USER_SELECT = {
   id: true,
@@ -77,6 +86,13 @@ export async function POST(request: NextRequest) {
     include: { user: { select: USER_SELECT } },
   });
 
+  // Broadcast to all clients in the room
+  const sb = getBroadcastClient();
+  const channel = sb.channel(`chat-room:${roomId}`);
+  await channel.subscribe();
+  await channel.send({ type: "broadcast", event: "new-message", payload: message });
+  sb.removeChannel(channel);
+
   return NextResponse.json({ message });
 }
 
@@ -95,6 +111,17 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
+  const msg = await prisma.chatMessage.findUnique({ where: { id }, select: { roomId: true } });
   await prisma.chatMessage.delete({ where: { id } });
+
+  // Broadcast deletion
+  if (msg) {
+    const sb = getBroadcastClient();
+    const channel = sb.channel(`chat-room:${msg.roomId}`);
+    await channel.subscribe();
+    await channel.send({ type: "broadcast", event: "delete-message", payload: { id } });
+    sb.removeChannel(channel);
+  }
+
   return NextResponse.json({ ok: true });
 }
