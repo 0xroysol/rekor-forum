@@ -172,9 +172,10 @@ export default function NotificationBell() {
 
       {open && (
         <>
-        {/* Mobile overlay */}
-        <div className="fixed inset-0 md:hidden" style={{ zIndex: 9998, background: "rgba(0,0,0,0.5)" }} onClick={() => setOpen(false)} />
-        <div className="fixed left-2 right-2 top-14 md:absolute md:right-0 md:left-auto md:top-auto mt-0 md:mt-2 md:w-80 bg-[#131820] border border-[#1e293b] rounded-xl shadow-lg overflow-hidden" style={{ zIndex: 9999 }}>
+        {/* Overlay */}
+        <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 9998 }} />
+        {/* Dropdown */}
+        <div style={{ position: "fixed", top: 52, left: 8, right: 8, maxWidth: 380, marginLeft: "auto", zIndex: 9999, backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}>
           <div className="px-4 py-3 border-b border-[#1e293b] flex items-center justify-between">
             <span className="text-sm font-semibold text-[#e2e8f0]">Bildirimler</span>
             {unreadCount > 0 && (

@@ -75,7 +75,7 @@ export function SearchModal() {
           style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: 10001, backgroundColor: "rgba(0,0,0,0.8)" }}
           onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
         >
-          <div style={{ maxWidth: 560, margin: "0 auto", padding: "60px 16px 16px", height: "100%" }}>
+          <div style={{ maxWidth: 560, margin: "0 auto", padding: "16px", paddingTop: "max(16px, env(safe-area-inset-top, 16px))" }} onClick={(e) => e.stopPropagation()}>
             {/* Search input */}
             <form onSubmit={handleSubmit} style={{ position: "relative" }}>
               <input

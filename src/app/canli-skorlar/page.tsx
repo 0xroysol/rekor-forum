@@ -206,26 +206,26 @@ export default function CanliSkorlarPage() {
         </div>
 
         {/* ═══ Sport Tab Bar — Flashscore style ═══ */}
-        <div className="flex items-center overflow-x-auto" style={{ backgroundColor: "#131820", borderBottom: "1px solid #1e293b" }}>
+        {/* Sport Tabs */}
+        <div style={{ display: "flex", backgroundColor: "#131820", borderBottom: "1px solid #1e293b", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           {SPORT_TABS.map(t => {
             const count = t.key === "favorites" ? favCount : t.key === "football" ? fbCount : bbCount;
             const isActive = sportTab === t.key;
             return (
               <button key={t.key} onClick={() => { setSportTab(t.key); if (t.key !== "football") setLeague(null); setSelected(null); }}
-                className="flex items-center gap-1.5 px-4 py-2 text-[12px] font-medium whitespace-nowrap transition-colors hover:bg-[#1e2738]"
-                style={{ color: isActive ? "#e2e8f0" : "#64748b", borderBottom: isActive ? "2px solid #1f844e" : "2px solid transparent", letterSpacing: "0.3px" }}>
+                style={{ flex: "0 0 auto", display: "flex", alignItems: "center", gap: 4, padding: "8px 12px", fontSize: 12, fontWeight: 500, whiteSpace: "nowrap", color: isActive ? "#e2e8f0" : "#64748b", borderBottom: isActive ? "2px solid #1f844e" : "2px solid transparent", background: "none", border: "none", borderBottomStyle: "solid", cursor: "pointer" }}>
                 <span>{t.icon}</span>
-                <span className="uppercase">{t.label}</span>
-                {count > 0 && <span className="text-[10px]" style={{ color: isActive ? "#94a3b8" : "#64748b" }}>({count})</span>}
+                <span style={{ textTransform: "uppercase", letterSpacing: "0.3px" }}>{t.label}</span>
+                {count > 0 && <span style={{ fontSize: 10, color: isActive ? "#94a3b8" : "#64748b" }}>({count})</span>}
               </button>
             );
           })}
-          {/* Coming soon sports */}
+          {/* Coming soon — hidden on mobile */}
           {COMING_SOON.map(s => (
-            <div key={s.label} className="flex items-center gap-1 px-3 py-2 whitespace-nowrap" style={{ opacity: 0.35, cursor: "default" }}>
-              <span className="text-[12px]">{s.icon}</span>
-              <span className="text-[11px] uppercase" style={{ color: "#64748b", letterSpacing: "0.3px" }}>{s.label}</span>
-              <span className="text-[9px] italic" style={{ color: "#64748b" }}>Yakında</span>
+            <div key={s.label} className="hidden md:flex" style={{ alignItems: "center", gap: 4, padding: "8px 10px", opacity: 0.35, whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: 12 }}>{s.icon}</span>
+              <span style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase" }}>{s.label}</span>
+              <span style={{ fontSize: 9, fontStyle: "italic", color: "#64748b" }}>Yakında</span>
             </div>
           ))}
         </div>
