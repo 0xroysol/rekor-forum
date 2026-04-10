@@ -5,13 +5,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 
-const navLinks = [
-  { href: "/", label: "Ana Sayfa", icon: "🏠" },
-  { href: "/haberler", label: "Haberler", icon: "📰" },
-  { href: "/tahminler", label: "Tahminler", icon: "🎯" },
-  { href: "/canli-skorlar", label: "Canlı Skorlar", icon: "⚽" },
-  { href: "/mesajlar", label: "Mesajlar", icon: "💬" },
-  { href: "/konu/olustur", label: "Yeni Konu", icon: "✏️" },
+const NAV_LINKS = [
+  { href: "/", label: "Ana Sayfa" },
+  { href: "/haberler", label: "Haberler" },
+  { href: "/tahminler", label: "Tahminler" },
+  { href: "/canli-skorlar", label: "Canlı Skorlar" },
+  { href: "/mesajlar", label: "Mesajlar" },
+];
+
+const FORUM_LINKS = [
+  { href: "/forum/super-lig-tartismalari", label: "Süper Lig Tartışmaları" },
+  { href: "/forum/uefa-avrupa-kupalari", label: "UEFA & Avrupa Kupaları" },
+  { href: "/forum/transfer-soylentileri", label: "Transfer Söylentileri" },
+  { href: "/forum/mac-tahminleri", label: "Maç Tahminleri" },
+  { href: "/forum/kupon-paylasimlari", label: "Kupon Paylaşımları" },
+  { href: "/forum/slot-oyunlari", label: "Slot Oyunları" },
+  { href: "/forum/casino-stratejileri", label: "Casino Stratejileri" },
+  { href: "/forum/serbest-kursu", label: "Serbest Kürsü" },
 ];
 
 export function MobileMenu() {
@@ -19,6 +29,7 @@ export function MobileMenu() {
   const { dbUser, logout } = useAuth();
   const router = useRouter();
 
+  // Lock body scroll
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -28,8 +39,10 @@ export function MobileMenu() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  const close = () => setOpen(false);
+
   const handleLogout = async () => {
-    setOpen(false);
+    close();
     await logout();
     router.push("/");
     router.refresh();
@@ -40,135 +53,159 @@ export function MobileMenu() {
       {/* Hamburger button */}
       <button
         onClick={() => setOpen(true)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-bg-hover"
-        aria-label="Menüyü aç"
+        className="flex h-9 w-9 items-center justify-center rounded-lg"
         style={{ color: "#94a3b8" }}
       >
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
 
-      {/* Full screen overlay + panel */}
+      {/* Menu overlay + panel */}
       {open && (
-        <div className="fixed inset-0" style={{ zIndex: 999 }}>
-          {/* Dark overlay — click to close */}
+        <>
+          {/* Overlay — covers entire screen */}
           <div
-            className="absolute inset-0"
-            style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
-            onClick={() => setOpen(false)}
+            onClick={close}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(0,0,0,0.8)",
+              zIndex: 9999,
+            }}
           />
 
-          {/* Slide-in panel */}
+          {/* Panel */}
           <div
-            className="absolute left-0 top-0 h-full flex flex-col"
             style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
               width: 280,
+              height: "100vh",
               backgroundColor: "#131820",
-              borderRight: "1px solid #1e293b",
-              animation: "slideInLeft 200ms ease-out",
+              zIndex: 10000,
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            {/* Header: logo + close */}
-            <div className="flex h-14 items-center justify-between px-5 flex-shrink-0" style={{ borderBottom: "1px solid #1e293b" }}>
-              <Link href="/" onClick={() => setOpen(false)} className="text-lg font-bold tracking-tight">
+            {/* Header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                height: 48,
+                padding: "0 20px",
+                borderBottom: "1px solid #1e293b",
+                flexShrink: 0,
+              }}
+            >
+              <Link href="/" onClick={close} style={{ fontSize: 18, fontWeight: 700 }}>
                 <span style={{ color: "#1f844e" }}>Rekor</span>
-                <span className="text-white">Forum</span>
+                <span style={{ color: "#e2e8f0" }}>Forum</span>
               </Link>
               <button
-                onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-lg font-bold transition-colors hover:bg-[#1e2738]"
-                style={{ color: "#94a3b8" }}
+                onClick={close}
+                style={{ color: "#94a3b8", fontSize: 20, fontWeight: 700, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center" }}
               >
                 ✕
               </button>
             </div>
 
-            {/* Nav links */}
-            <nav className="flex-1 overflow-y-auto py-2">
-              {navLinks.map((link) => (
+            {/* Nav Links */}
+            <div style={{ flexShrink: 0 }}>
+              {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 transition-colors hover:bg-[#1e2738]"
+                  onClick={close}
                   style={{
+                    display: "flex",
+                    alignItems: "center",
                     height: 48,
                     padding: "0 20px",
                     fontSize: 15,
                     color: "#e2e8f0",
                     borderBottom: "1px solid #1e293b",
+                    textDecoration: "none",
                   }}
                 >
-                  <span className="text-base">{link.icon}</span>
-                  <span>{link.label}</span>
+                  {link.label}
                 </Link>
               ))}
-            </nav>
+            </div>
 
-            {/* Bottom: user section */}
-            <div className="flex-shrink-0" style={{ borderTop: "1px solid #1e293b" }}>
+            {/* Separator + Forum Categories */}
+            <div style={{ padding: "12px 20px 8px", flexShrink: 0 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                Forum Kategorileri
+              </span>
+            </div>
+            <div style={{ flexShrink: 0 }}>
+              {FORUM_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={close}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    height: 44,
+                    padding: "0 20px",
+                    fontSize: 14,
+                    color: "#94a3b8",
+                    borderBottom: "1px solid #1e293b",
+                    textDecoration: "none",
+                  }}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Spacer */}
+            <div style={{ flex: 1 }} />
+
+            {/* Bottom: auth section */}
+            <div style={{ padding: 16, borderTop: "1px solid #1e293b", flexShrink: 0 }}>
               {dbUser ? (
-                <div className="p-4">
-                  {/* User info */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <div
-                      className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold flex-shrink-0"
-                      style={{ backgroundColor: "#1f844e30", color: "#1f844e" }}
-                    >
-                      {dbUser.avatar ? (
-                        <img src={dbUser.avatar} alt="" className="h-9 w-9 rounded-full object-cover" />
-                      ) : (
-                        dbUser.username.charAt(0).toUpperCase()
-                      )}
+                <>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", backgroundColor: "rgba(31,132,78,0.2)", color: "#1f844e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, flexShrink: 0 }}>
+                      {dbUser.avatar ? <img src={dbUser.avatar} alt="" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }} /> : dbUser.username.charAt(0).toUpperCase()}
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate" style={{ color: "#e2e8f0" }}>{dbUser.username}</div>
-                      <div className="text-xs" style={{ color: "#64748b" }}>{dbUser.role}</div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{dbUser.username}</div>
+                      <div style={{ fontSize: 12, color: "#64748b" }}>{dbUser.role}</div>
                     </div>
                   </div>
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/profil/${dbUser.username}`}
-                      onClick={() => setOpen(false)}
-                      className="flex-1 rounded-lg py-2 text-center text-sm font-medium transition-colors hover:bg-[#1e2738]"
-                      style={{ color: "#94a3b8", border: "1px solid #1e293b" }}
-                    >
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <Link href={`/profil/${dbUser.username}`} onClick={close} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", height: 40, borderRadius: 8, fontSize: 14, fontWeight: 500, color: "#94a3b8", border: "1px solid #1e293b", textDecoration: "none" }}>
                       Profilim
                     </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex-1 rounded-lg py-2 text-center text-sm font-medium transition-colors hover:bg-[#ef4444]/10"
-                      style={{ color: "#ef4444", border: "1px solid #1e293b" }}
-                    >
+                    <button onClick={handleLogout} style={{ flex: 1, height: 40, borderRadius: 8, fontSize: 14, fontWeight: 500, color: "#ef4444", border: "1px solid #1e293b", backgroundColor: "transparent", cursor: "pointer" }}>
                       Çıkış Yap
                     </button>
                   </div>
-                </div>
+                </>
               ) : (
-                <div className="p-4 flex gap-2">
-                  <Link
-                    href="/giris"
-                    onClick={() => setOpen(false)}
-                    className="flex-1 rounded-lg py-2.5 text-center text-sm font-medium text-white transition-colors hover:brightness-110"
-                    style={{ backgroundColor: "#1f844e" }}
-                  >
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Link href="/giris" onClick={close} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", height: 40, borderRadius: 8, fontSize: 14, fontWeight: 500, color: "#fff", backgroundColor: "#1f844e", textDecoration: "none" }}>
                     Giriş Yap
                   </Link>
-                  <Link
-                    href="/kayit"
-                    onClick={() => setOpen(false)}
-                    className="flex-1 rounded-lg py-2.5 text-center text-sm font-medium transition-colors hover:bg-[#1e2738]"
-                    style={{ color: "#94a3b8", border: "1px solid #1e293b" }}
-                  >
+                  <Link href="/kayit" onClick={close} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", height: 40, borderRadius: 8, fontSize: 14, fontWeight: 500, color: "#94a3b8", border: "1px solid #1e293b", textDecoration: "none" }}>
                     Kayıt Ol
                   </Link>
                 </div>
               )}
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
