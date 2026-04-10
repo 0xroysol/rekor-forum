@@ -86,7 +86,13 @@ export function ProfileEditButton({
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      setError("Avatar yüklenirken hata oluştu");
+      console.error("Avatar upload error:", uploadError);
+      // If bucket doesn't exist, try creating it or show detailed error
+      if (uploadError.message?.includes("not found") || uploadError.message?.includes("Bucket")) {
+        setError("Depolama alanı henüz oluşturulmamış. Lütfen yöneticiyle iletişime geçin.");
+      } else {
+        setError(`Avatar yüklenirken hata: ${uploadError.message}`);
+      }
       setUploading(false);
       return;
     }
