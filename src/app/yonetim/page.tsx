@@ -67,7 +67,29 @@ interface CategoryItem {
   _count?: { threads: number };
 }
 
-type TabId = "dashboard" | "reports" | "users" | "categories";
+interface ThreadItem {
+  id: string;
+  title: string;
+  slug: string;
+  isPinned: boolean;
+  isLocked: boolean;
+  viewCount: number;
+  createdAt: string;
+  author: { id: string; username: string; avatar: string | null };
+  category: { id: string; name: string; slug: string };
+  _count: { posts: number };
+}
+
+interface PostItem {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: { id: string; username: string; avatar: string | null };
+  thread: { id: string; title: string; slug: string };
+  _count?: { reactions: number };
+}
+
+type TabId = "dashboard" | "reports" | "users" | "threads" | "posts" | "categories";
 
 const roleColors: Record<string, string> = {
   ADMIN: "border-[#ef4444] text-[#ef4444]",
@@ -116,6 +138,10 @@ function formatRelative(dateStr: string) {
   return formatDate(dateStr);
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, "").slice(0, 80);
+}
+
 export default function YonetimPage() {
   const { dbUser, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("dashboard");
@@ -145,6 +171,34 @@ export default function YonetimPage() {
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
+  // Threads state
+  const [threads, setThreads] = useState<ThreadItem[]>([]);
+  const [threadsLoading, setThreadsLoading] = useState(false);
+  const [threadSearch, setThreadSearch] = useState("");
+  const [threadSearchDebounced, setThreadSearchDebounced] = useState("");
+  const [threadCategoryFilter, setThreadCategoryFilter] = useState("");
+  const [threadStatusFilter, setThreadStatusFilter] = useState("");
+  const [threadSort, setThreadSort] = useState("");
+  const [threadPage, setThreadPage] = useState(1);
+  const [threadTotalPages, setThreadTotalPages] = useState(1);
+  const [threadSelectedIds, setThreadSelectedIds] = useState<Set<string>>(new Set());
+  const [threadActionLoading, setThreadActionLoading] = useState(false);
+  const [threadCategories, setThreadCategories] = useState<CategoryItem[]>([]);
+
+  // Posts state
+  const [posts, setPosts] = useState<PostItem[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [postSearch, setPostSearch] = useState("");
+  const [postSearchDebounced, setPostSearchDebounced] = useState("");
+  const [postDateRange, setPostDateRange] = useState("");
+  const [postSort, setPostSort] = useState("");
+  const [postPage, setPostPage] = useState(1);
+  const [postTotalPages, setPostTotalPages] = useState(1);
+  const [postSelectedIds, setPostSelectedIds] = useState<Set<string>>(new Set());
+  const [postActionLoading, setPostActionLoading] = useState(false);
+  const [editingPost, setEditingPost] = useState<PostItem | null>(null);
+  const [editContent, setEditContent] = useState("");
+
   // Debounce user search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -153,6 +207,24 @@ export default function YonetimPage() {
     }, 400);
     return () => clearTimeout(timer);
   }, [userSearch]);
+
+  // Debounce thread search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setThreadSearchDebounced(threadSearch);
+      setThreadPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [threadSearch]);
+
+  // Debounce post search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPostSearchDebounced(postSearch);
+      setPostPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [postSearch]);
 
   // Fetch stats
   const fetchStats = useCallback(async () => {
@@ -235,6 +307,64 @@ export default function YonetimPage() {
     }
   }, []);
 
+  // Fetch thread categories (for filter dropdown)
+  const fetchThreadCategories = useCallback(async () => {
+    try {
+      const res = await fetch("/api/categories");
+      if (res.ok) {
+        const data = await res.json();
+        setThreadCategories(data);
+      }
+    } catch {
+      // silently fail
+    }
+  }, []);
+
+  // Fetch threads
+  const fetchThreads = useCallback(async () => {
+    setThreadsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("page", String(threadPage));
+      if (threadSearchDebounced) params.set("search", threadSearchDebounced);
+      if (threadCategoryFilter) params.set("categoryId", threadCategoryFilter);
+      if (threadStatusFilter) params.set("status", threadStatusFilter);
+      if (threadSort) params.set("sort", threadSort);
+      const res = await fetch(`/api/admin/threads?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setThreads(data.threads);
+        setThreadTotalPages(data.pagination?.totalPages ?? 1);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setThreadsLoading(false);
+    }
+  }, [threadSearchDebounced, threadCategoryFilter, threadStatusFilter, threadSort, threadPage]);
+
+  // Fetch posts
+  const fetchPosts = useCallback(async () => {
+    setPostsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("page", String(postPage));
+      if (postSearchDebounced) params.set("search", postSearchDebounced);
+      if (postDateRange) params.set("dateRange", postDateRange);
+      if (postSort) params.set("sort", postSort);
+      const res = await fetch(`/api/admin/posts?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPosts(data.posts);
+        setPostTotalPages(data.pagination?.totalPages ?? 1);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setPostsLoading(false);
+    }
+  }, [postSearchDebounced, postDateRange, postSort, postPage]);
+
   // Fetch on tab change
   useEffect(() => {
     if (!dbUser || (dbUser.role !== "MOD" && dbUser.role !== "ADMIN")) return;
@@ -242,7 +372,12 @@ export default function YonetimPage() {
     if (activeTab === "reports") fetchReports();
     if (activeTab === "users") fetchUsers();
     if (activeTab === "categories") fetchCategories();
-  }, [activeTab, dbUser, fetchStats, fetchReports, fetchUsers, fetchCategories]);
+    if (activeTab === "threads") {
+      fetchThreads();
+      fetchThreadCategories();
+    }
+    if (activeTab === "posts") fetchPosts();
+  }, [activeTab, dbUser, fetchStats, fetchReports, fetchUsers, fetchCategories, fetchThreads, fetchPosts, fetchThreadCategories]);
 
   // Report actions
   async function handleReportAction(
@@ -320,6 +455,119 @@ export default function YonetimPage() {
     }
   }
 
+  // Thread actions
+  async function handleThreadAction(action: string, threadIds: string[]) {
+    if (action === "delete" && !window.confirm("Bu konulari silmek istediginize emin misiniz?")) return;
+    setThreadActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/threads", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, threadIds }),
+      });
+      if (res.ok) {
+        setThreadSelectedIds(new Set());
+        fetchThreads();
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setThreadActionLoading(false);
+    }
+  }
+
+  function toggleThreadSelect(id: string) {
+    setThreadSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllThreads() {
+    if (threadSelectedIds.size === threads.length) {
+      setThreadSelectedIds(new Set());
+    } else {
+      setThreadSelectedIds(new Set(threads.map((t) => t.id)));
+    }
+  }
+
+  // Post actions
+  async function handlePostAction(action: string, postIds: string[]) {
+    if (action === "delete" && !window.confirm("Bu icerigi silmek istediginize emin misiniz?")) return;
+    setPostActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/posts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, postIds }),
+      });
+      if (res.ok) {
+        setPostSelectedIds(new Set());
+        fetchPosts();
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setPostActionLoading(false);
+    }
+  }
+
+  async function handlePostEdit(postId: string, content: string) {
+    setPostActionLoading(true);
+    try {
+      const res = await fetch("/api/admin/posts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "edit", postId, content }),
+      });
+      if (res.ok) {
+        setEditingPost(null);
+        setEditContent("");
+        fetchPosts();
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setPostActionLoading(false);
+    }
+  }
+
+  async function handlePostWarn(userId: string) {
+    const message = window.prompt("Uyari mesaji:");
+    if (!message) return;
+    setPostActionLoading(true);
+    try {
+      await fetch("/api/admin/posts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "warn", userId, message }),
+      });
+    } catch {
+      // silently fail
+    } finally {
+      setPostActionLoading(false);
+    }
+  }
+
+  function togglePostSelect(id: string) {
+    setPostSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllPosts() {
+    if (postSelectedIds.size === posts.length) {
+      setPostSelectedIds(new Set());
+    } else {
+      setPostSelectedIds(new Set(posts.map((p) => p.id)));
+    }
+  }
+
   // Auth check
   if (authLoading) {
     return (
@@ -350,6 +598,8 @@ export default function YonetimPage() {
     { id: "dashboard", label: "Genel Bakis" },
     { id: "reports", label: "Raporlar", badge: stats?.pendingReports },
     { id: "users", label: "Kullanicilar" },
+    { id: "threads", label: "Konular" },
+    { id: "posts", label: "Mesajlar" },
     { id: "categories", label: "Kategoriler" },
   ];
 
@@ -859,6 +1109,456 @@ export default function YonetimPage() {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ==================== THREADS TAB ==================== */}
+      {activeTab === "threads" && (
+        <div className="rounded-xl border border-[#1e293b] bg-[#131820]">
+          <div className="border-b border-[#1e293b] bg-[#1a2130] px-5 py-3">
+            <h2 className="text-sm font-semibold text-[#e2e8f0]">Konular</h2>
+          </div>
+          {/* Search & Filters */}
+          <div className="flex flex-col gap-3 border-b border-[#1e293b] px-5 py-3">
+            <input
+              placeholder="Baslik veya yazar ara..."
+              value={threadSearch}
+              onChange={(e) => setThreadSearch(e.target.value)}
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={threadCategoryFilter}
+                onChange={(e) => {
+                  setThreadCategoryFilter(e.target.value);
+                  setThreadPage(1);
+                }}
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+              >
+                <option value="">Tum Kategoriler</option>
+                {threadCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={threadStatusFilter}
+                onChange={(e) => {
+                  setThreadStatusFilter(e.target.value);
+                  setThreadPage(1);
+                }}
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+              >
+                <option value="">Tumu</option>
+                <option value="active">Aktif</option>
+                <option value="locked">Kilitli</option>
+                <option value="pinned">Sabitlenmis</option>
+              </select>
+              <select
+                value={threadSort}
+                onChange={(e) => {
+                  setThreadSort(e.target.value);
+                  setThreadPage(1);
+                }}
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+              >
+                <option value="">En Yeni</option>
+                <option value="oldest">En Eski</option>
+                <option value="mostReplies">En Cok Yanit</option>
+                <option value="mostViews">En Cok Goruntuleme</option>
+              </select>
+            </div>
+          </div>
+          {/* Bulk Actions */}
+          {threadSelectedIds.size > 0 && (
+            <div className="flex items-center gap-2 border-b border-[#1e293b] px-5 py-2">
+              <span className="text-xs text-[#94a3b8]">
+                {threadSelectedIds.size} secili
+              </span>
+              <button
+                disabled={threadActionLoading}
+                onClick={() =>
+                  handleThreadAction("delete", Array.from(threadSelectedIds))
+                }
+                className="rounded px-2 py-1 text-xs text-[#ef4444] transition-colors hover:bg-[#ef4444]/10 disabled:opacity-50"
+              >
+                Secilenleri Sil
+              </button>
+              <button
+                disabled={threadActionLoading}
+                onClick={() =>
+                  handleThreadAction("lock", Array.from(threadSelectedIds))
+                }
+                className="rounded px-2 py-1 text-xs text-[#e8a935] transition-colors hover:bg-[#e8a935]/10 disabled:opacity-50"
+              >
+                Secilenleri Kilitle
+              </button>
+            </div>
+          )}
+          <div className="overflow-x-auto p-4">
+            {threadsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+              </div>
+            ) : threads.length === 0 ? (
+              <p className="py-12 text-center text-sm text-[#64748b]">
+                Konu bulunamadi
+              </p>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#1e293b] text-left text-xs text-[#64748b]">
+                    <th className="pb-3 font-medium">
+                      <input
+                        type="checkbox"
+                        checked={threadSelectedIds.size === threads.length && threads.length > 0}
+                        onChange={toggleAllThreads}
+                        className="h-3.5 w-3.5 rounded border-[#1e293b] bg-[#0d1017]"
+                      />
+                    </th>
+                    <th className="pb-3 font-medium">Baslik</th>
+                    <th className="pb-3 font-medium">Kategori</th>
+                    <th className="pb-3 font-medium">Yazar</th>
+                    <th className="pb-3 font-medium">Yanit</th>
+                    <th className="pb-3 font-medium">Goruntuleme</th>
+                    <th className="pb-3 font-medium">Tarih</th>
+                    <th className="pb-3 font-medium">Durum</th>
+                    <th className="pb-3 text-right font-medium">Islem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {threads.map((thread) => (
+                    <tr
+                      key={thread.id}
+                      className="border-b border-[#1e293b] last:border-0 transition-colors hover:bg-[#1e2738]"
+                    >
+                      <td className="py-3">
+                        <input
+                          type="checkbox"
+                          checked={threadSelectedIds.has(thread.id)}
+                          onChange={() => toggleThreadSelect(thread.id)}
+                          className="h-3.5 w-3.5 rounded border-[#1e293b] bg-[#0d1017]"
+                        />
+                      </td>
+                      <td className="py-3">
+                        <span className="text-sm font-medium text-[#e2e8f0] max-w-[200px] truncate inline-block">
+                          {thread.title}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <span className="inline-flex items-center rounded-full border border-[#1e293b] px-2 py-0.5 text-xs text-[#94a3b8]">
+                          {thread.category.name}
+                        </span>
+                      </td>
+                      <td className="py-3 text-sm text-[#94a3b8]">
+                        {thread.author.username}
+                      </td>
+                      <td className="py-3 text-sm text-[#94a3b8]">
+                        {thread._count.posts}
+                      </td>
+                      <td className="py-3 text-sm text-[#94a3b8]">
+                        {thread.viewCount}
+                      </td>
+                      <td className="py-3 text-sm text-[#94a3b8]">
+                        {formatDate(thread.createdAt)}
+                      </td>
+                      <td className="py-3">
+                        {thread.isPinned ? (
+                          <span className="inline-flex items-center rounded-full border border-[#3b82f6] px-2 py-0.5 text-xs font-medium text-[#3b82f6]">
+                            Sabitli
+                          </span>
+                        ) : thread.isLocked ? (
+                          <span className="inline-flex items-center rounded-full border border-[#e8a935] px-2 py-0.5 text-xs font-medium text-[#e8a935]">
+                            Kilitli
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full border border-[#1f844e] px-2 py-0.5 text-xs font-medium text-[#1f844e]">
+                            Aktif
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            disabled={threadActionLoading}
+                            onClick={() =>
+                              handleThreadAction("pin", [thread.id])
+                            }
+                            title={thread.isPinned ? "Sabitlemeyi Kaldir" : "Sabitle"}
+                            className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#3b82f6]/10 disabled:opacity-50"
+                          >
+                            📌
+                          </button>
+                          <button
+                            disabled={threadActionLoading}
+                            onClick={() =>
+                              handleThreadAction("lock", [thread.id])
+                            }
+                            title={thread.isLocked ? "Kilidi Ac" : "Kilitle"}
+                            className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#e8a935]/10 disabled:opacity-50"
+                          >
+                            🔒
+                          </button>
+                          <button
+                            disabled={threadActionLoading}
+                            onClick={() =>
+                              handleThreadAction("delete", [thread.id])
+                            }
+                            title="Sil"
+                            className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#ef4444]/10 disabled:opacity-50"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          {/* Pagination */}
+          {threadTotalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 border-t border-[#1e293b] px-5 py-3">
+              <button
+                disabled={threadPage <= 1}
+                onClick={() => setThreadPage((p) => p - 1)}
+                className="rounded px-3 py-1 text-xs text-[#94a3b8] transition-colors hover:bg-[#1a2130] disabled:opacity-50"
+              >
+                Onceki
+              </button>
+              <span className="text-xs text-[#64748b]">
+                {threadPage} / {threadTotalPages}
+              </span>
+              <button
+                disabled={threadPage >= threadTotalPages}
+                onClick={() => setThreadPage((p) => p + 1)}
+                className="rounded px-3 py-1 text-xs text-[#94a3b8] transition-colors hover:bg-[#1a2130] disabled:opacity-50"
+              >
+                Sonraki
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==================== POSTS TAB ==================== */}
+      {activeTab === "posts" && (
+        <div className="rounded-xl border border-[#1e293b] bg-[#131820]">
+          <div className="border-b border-[#1e293b] bg-[#1a2130] px-5 py-3">
+            <h2 className="text-sm font-semibold text-[#e2e8f0]">Mesajlar</h2>
+          </div>
+          {/* Search & Filters */}
+          <div className="flex flex-col gap-3 border-b border-[#1e293b] px-5 py-3">
+            <input
+              placeholder="Icerik veya yazar ara..."
+              value={postSearch}
+              onChange={(e) => setPostSearch(e.target.value)}
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+            <div className="flex flex-wrap gap-2">
+              <select
+                value={postDateRange}
+                onChange={(e) => {
+                  setPostDateRange(e.target.value);
+                  setPostPage(1);
+                }}
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+              >
+                <option value="">Tumu</option>
+                <option value="today">Bugun</option>
+                <option value="week">Son 7 Gun</option>
+                <option value="month">Son 30 Gun</option>
+              </select>
+              <select
+                value={postSort}
+                onChange={(e) => {
+                  setPostSort(e.target.value);
+                  setPostPage(1);
+                }}
+                className="rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-1.5 text-xs text-[#e2e8f0] focus:border-[#1f844e] focus:outline-none"
+              >
+                <option value="">En Yeni</option>
+                <option value="oldest">En Eski</option>
+              </select>
+            </div>
+          </div>
+          {/* Bulk Actions */}
+          {postSelectedIds.size > 0 && (
+            <div className="flex items-center gap-2 border-b border-[#1e293b] px-5 py-2">
+              <span className="text-xs text-[#94a3b8]">
+                {postSelectedIds.size} secili
+              </span>
+              <button
+                disabled={postActionLoading}
+                onClick={() =>
+                  handlePostAction("delete", Array.from(postSelectedIds))
+                }
+                className="rounded px-2 py-1 text-xs text-[#ef4444] transition-colors hover:bg-[#ef4444]/10 disabled:opacity-50"
+              >
+                Secilenleri Sil
+              </button>
+            </div>
+          )}
+          <div className="overflow-x-auto p-4">
+            {postsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#1f844e] border-t-transparent" />
+              </div>
+            ) : posts.length === 0 ? (
+              <p className="py-12 text-center text-sm text-[#64748b]">
+                Mesaj bulunamadi
+              </p>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#1e293b] text-left text-xs text-[#64748b]">
+                    <th className="pb-3 font-medium">
+                      <input
+                        type="checkbox"
+                        checked={postSelectedIds.size === posts.length && posts.length > 0}
+                        onChange={toggleAllPosts}
+                        className="h-3.5 w-3.5 rounded border-[#1e293b] bg-[#0d1017]"
+                      />
+                    </th>
+                    <th className="pb-3 font-medium">Icerik</th>
+                    <th className="pb-3 font-medium">Konu</th>
+                    <th className="pb-3 font-medium">Yazar</th>
+                    <th className="pb-3 font-medium">Tepki</th>
+                    <th className="pb-3 font-medium">Tarih</th>
+                    <th className="pb-3 text-right font-medium">Islem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {posts.map((post) => (
+                    <tr
+                      key={post.id}
+                      className="border-b border-[#1e293b] last:border-0 transition-colors hover:bg-[#1e2738]"
+                    >
+                      <td className="py-3">
+                        <input
+                          type="checkbox"
+                          checked={postSelectedIds.has(post.id)}
+                          onChange={() => togglePostSelect(post.id)}
+                          className="h-3.5 w-3.5 rounded border-[#1e293b] bg-[#0d1017]"
+                        />
+                      </td>
+                      <td className="py-3">
+                        <span className="text-sm text-[#94a3b8] max-w-[250px] truncate inline-block">
+                          {stripHtml(post.content)}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <span className="text-sm text-[#e2e8f0] max-w-[150px] truncate inline-block">
+                          {post.thread.title}
+                        </span>
+                      </td>
+                      <td className="py-3 text-sm text-[#94a3b8]">
+                        {post.author.username}
+                      </td>
+                      <td className="py-3 text-sm text-[#94a3b8]">
+                        {post._count?.reactions ?? 0}
+                      </td>
+                      <td className="py-3 text-sm text-[#94a3b8]">
+                        {formatDate(post.createdAt)}
+                      </td>
+                      <td className="py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            disabled={postActionLoading}
+                            onClick={() => {
+                              setEditingPost(post);
+                              setEditContent(post.content);
+                            }}
+                            title="Duzenle"
+                            className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#3b82f6]/10 disabled:opacity-50"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            disabled={postActionLoading}
+                            onClick={() =>
+                              handlePostAction("delete", [post.id])
+                            }
+                            title="Sil"
+                            className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#ef4444]/10 disabled:opacity-50"
+                          >
+                            🗑️
+                          </button>
+                          <button
+                            disabled={postActionLoading}
+                            onClick={() => handlePostWarn(post.author.id)}
+                            title="Kullaniciyi Uyar"
+                            className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#e8a935]/10 disabled:opacity-50"
+                          >
+                            ⚠️
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          {/* Pagination */}
+          {postTotalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 border-t border-[#1e293b] px-5 py-3">
+              <button
+                disabled={postPage <= 1}
+                onClick={() => setPostPage((p) => p - 1)}
+                className="rounded px-3 py-1 text-xs text-[#94a3b8] transition-colors hover:bg-[#1a2130] disabled:opacity-50"
+              >
+                Onceki
+              </button>
+              <span className="text-xs text-[#64748b]">
+                {postPage} / {postTotalPages}
+              </span>
+              <button
+                disabled={postPage >= postTotalPages}
+                onClick={() => setPostPage((p) => p + 1)}
+                className="rounded px-3 py-1 text-xs text-[#94a3b8] transition-colors hover:bg-[#1a2130] disabled:opacity-50"
+              >
+                Sonraki
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Post Edit Modal */}
+      {editingPost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-lg rounded-xl border border-[#1e293b] bg-[#131820] p-6">
+            <h3 className="mb-4 text-sm font-semibold text-[#e2e8f0]">
+              Mesaji Duzenle
+            </h3>
+            <textarea
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              rows={8}
+              className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] placeholder:text-[#64748b] focus:border-[#1f844e] focus:outline-none focus:ring-1 focus:ring-[#1f844e]/30"
+            />
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                onClick={() => {
+                  setEditingPost(null);
+                  setEditContent("");
+                }}
+                className="rounded-md border border-[#1e293b] px-3 py-1.5 text-xs text-[#94a3b8] transition-colors hover:bg-[#1a2130]"
+              >
+                Iptal
+              </button>
+              <button
+                disabled={postActionLoading}
+                onClick={() => handlePostEdit(editingPost.id, editContent)}
+                className="rounded-md bg-[#1f844e] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1f844e]/80 disabled:opacity-50"
+              >
+                Kaydet
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
