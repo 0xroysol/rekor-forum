@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useAuth } from "@/providers/auth-provider";
-import { createClient } from "@/lib/supabase/client";
+// Upload handled via /api/upload-avatar (server-side, bypasses RLS)
 
 const TEAM_OPTIONS = [
   "Seçim yapmadım",
@@ -77,28 +77,22 @@ export function ProfileEditButton({
     if (!file) return;
 
     setUploading(true);
-    const supabase = createClient();
-    const ext = file.name.split(".").pop();
-    const path = `avatars/${dbUser!.id}-${Date.now()}.${ext}`;
+    setError("");
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("type", "avatar");
 
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
-      console.error("Avatar upload error:", uploadError);
-      // If bucket doesn't exist, try creating it or show detailed error
-      if (uploadError.message?.includes("not found") || uploadError.message?.includes("Bucket")) {
-        setError("Depolama alanı henüz oluşturulmamış. Lütfen yöneticiyle iletişime geçin.");
+    try {
+      const res = await fetch("/api/upload-avatar", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Avatar yüklenirken hata oluştu");
       } else {
-        setError(`Avatar yüklenirken hata: ${uploadError.message}`);
+        setAvatar(data.url);
       }
-      setUploading(false);
-      return;
+    } catch {
+      setError("Avatar yüklenirken bağlantı hatası");
     }
-
-    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-    setAvatar(data.publicUrl);
     setUploading(false);
   }
 
@@ -107,22 +101,22 @@ export function ProfileEditButton({
     if (!file) return;
 
     setUploadingCover(true);
-    const supabase = createClient();
-    const ext = file.name.split(".").pop();
-    const path = `covers/${dbUser!.id}-${Date.now()}.${ext}`;
+    setError("");
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("type", "cover");
 
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
-      setError("Kapak görseli yüklenirken hata oluştu");
-      setUploadingCover(false);
-      return;
+    try {
+      const res = await fetch("/api/upload-avatar", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Kapak görseli yüklenirken hata oluştu");
+      } else {
+        setCoverImage(data.url);
+      }
+    } catch {
+      setError("Kapak görseli yüklenirken bağlantı hatası");
     }
-
-    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-    setCoverImage(data.publicUrl);
     setUploadingCover(false);
   }
 
