@@ -22,6 +22,8 @@ async function main() {
   await prisma.message.deleteMany();
   await prisma.conversationParticipant.deleteMany();
   await prisma.conversation.deleteMany();
+  await prisma.chatMessage.deleteMany();
+  await prisma.chatRoom.deleteMany();
   await prisma.report.deleteMany();
   await prisma.user.deleteMany();
   await prisma.rank.deleteMany();
@@ -1561,6 +1563,18 @@ Rakamlar iyileşmeye işaret ediyor. Ama örneklem az henüz, kesin yorum yapmak
   ]);
 
   console.log("✅ Live matches created");
+
+  // ============================================================
+  // CHAT ROOMS
+  // ============================================================
+  await Promise.all([
+    prisma.chatRoom.create({ data: { name: "Genel Sohbet", slug: "genel", icon: "💬", description: "Her şey hakkında sohbet" } }),
+    prisma.chatRoom.create({ data: { name: "Maç Günü", slug: "mac-gunu", icon: "⚽", description: "Canlı maç tartışmaları" } }),
+    prisma.chatRoom.create({ data: { name: "Transfer", slug: "transfer", icon: "🔄", description: "Transfer dedikoduları" } }),
+    prisma.chatRoom.create({ data: { name: "Kupon", slug: "kupon", icon: "🎯", description: "Kupon paylaşımları ve tartışmaları" } }),
+  ]);
+  console.log("✅ Chat rooms created");
+
   console.log("🎉 Seeding completed successfully!");
 }
 

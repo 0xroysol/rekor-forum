@@ -107,6 +107,7 @@ export default function RootLayout({
               <Link href="/tahminler" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Tahminler</Link>
               <LiveNavLink />
               <Link href="/mesajlar" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Mesajlar</Link>
+              <Link href="/sohbet" className="rounded-md px-3 py-1.5 text-sm font-medium text-text-secondary transition-all duration-150 hover:bg-bg-hover hover:text-text-primary">Sohbet</Link>
             </nav>
 
             {/* Right: theme toggle + auth */}

@@ -158,6 +158,13 @@ export function MatchDetailPanel({
             {t === "events" ? "Olaylar" : t === "stats" ? "İstatistik" : "Kadro"}
           </button>
         ))}
+        <a
+          href="/sohbet"
+          className="flex-1 px-3 py-2 text-[12px] font-medium text-center transition-colors hover:text-[#e2e8f0]"
+          style={{ color: "#64748b", borderBottom: "2px solid transparent" }}
+        >
+          💬 Sohbet
+        </a>
       </div>
 
       {/* Content */}

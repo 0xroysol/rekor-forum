@@ -52,6 +52,7 @@ model User {
   conversations ConversationParticipant[]
   predictions   Prediction[]
   predictionPoints Int @default(0)
+  chatMessages  ChatMessage[]
 
   @@index([username])
   @@index([email])
@@ -323,6 +324,29 @@ model PollVote {
   option PollOption @relation(fields: [optionId], references: [id])
 
   @@unique([pollId, userId])
+}
+
+model ChatRoom {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  roomId    String   @default("genel")
+  content   String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([roomId, createdAt])
+  @@index([userId])
 }
 
 model Prediction {

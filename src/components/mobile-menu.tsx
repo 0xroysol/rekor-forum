@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/tahminler", label: "Tahminler" },
   { href: "/canli-skorlar", label: "Canlı Skorlar" },
   { href: "/mesajlar", label: "Mesajlar" },
+  { href: "/sohbet", label: "Sohbet" },
 ];
 
 export function MobileMenu() {
@@ -35,9 +36,8 @@ export function MobileMenu() {
         display: "flex", flexDirection: "column", overflowY: "auto",
       }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", height: 48, padding: "0 16px", borderBottom: "1px solid #1e293b", flexShrink: 0 }}>
-          <span style={{ fontSize: 16, fontWeight: 700 }}>
-            <span style={{ color: "var(--accent-green)" }}>Rekor</span>
-            <span style={{ color: "#e2e8f0" }}>Forum</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0" }}>
+            Menü
           </span>
           <button onClick={() => setOpen(false)} style={{ color: "#94a3b8", fontSize: 20, fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 4 }}>✕</button>
         </div>

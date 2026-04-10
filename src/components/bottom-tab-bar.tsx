@@ -8,7 +8,7 @@ const TABS = [
   { href: "/", label: "Ana Sayfa", icon: "🏠", auth: false },
   { href: "/haberler", label: "Haberler", icon: "📰", auth: true },
   { href: "/canli-skorlar", label: "Skorlar", icon: "⚽", auth: true },
-  { href: "/tahminler", label: "Tahmin", icon: "🎯", auth: true },
+  { href: "/sohbet", label: "Sohbet", icon: "💬", auth: true },
   { href: "/profil", label: "Profil", icon: "👤", auth: false },
 ];
 
@@ -56,7 +56,7 @@ export function BottomTabBar() {
               alignItems: "center",
               justifyContent: "center",
               gap: 2,
-              color: active ? "#1f844e" : "#64748b",
+              color: active ? "var(--accent-green)" : "#64748b",
               textDecoration: "none",
               touchAction: "manipulation",
               userSelect: "none",
