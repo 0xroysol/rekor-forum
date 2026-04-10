@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
 import prisma from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/utils/rate-limit";
-
-// Server-side Supabase client for broadcasting (uses service role)
-function getBroadcastClient() {
-  return createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
-}
 
 const USER_SELECT = {
   id: true,
@@ -21,22 +12,25 @@ const USER_SELECT = {
   rank: { select: { name: true, icon: true, color: true } },
 } as const;
 
-// GET /api/chat?room=genel&cursor=xxx&latest=id
+// GET /api/chat?room=genel&cursor=xxx&after=xxx
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const roomSlug = searchParams.get("room") || "genel";
   const cursor = searchParams.get("cursor");
-  const latestId = searchParams.get("latest");
+  const after = searchParams.get("after");
 
-  // Fetch a specific message by id (used by realtime callback)
-  if (latestId) {
-    const msg = await prisma.chatMessage.findUnique({
-      where: { id: latestId },
+  // Poll: fetch messages newer than a timestamp
+  if (after) {
+    const messages = await prisma.chatMessage.findMany({
+      where: { roomId: roomSlug, createdAt: { gt: new Date(after) } },
+      orderBy: { createdAt: "asc" },
+      take: 50,
       include: { user: { select: USER_SELECT } },
     });
-    return NextResponse.json({ messages: msg ? [msg] : [] });
+    return NextResponse.json({ messages });
   }
 
+  // Initial load or older messages (cursor-based)
   const limit = 100;
   const messages = await prisma.chatMessage.findMany({
     where: {
@@ -86,13 +80,6 @@ export async function POST(request: NextRequest) {
     include: { user: { select: USER_SELECT } },
   });
 
-  // Broadcast to all clients in the room
-  const sb = getBroadcastClient();
-  const channel = sb.channel(`chat-room:${roomId}`);
-  await channel.subscribe();
-  await channel.send({ type: "broadcast", event: "new-message", payload: message });
-  sb.removeChannel(channel);
-
   return NextResponse.json({ message });
 }
 
@@ -111,17 +98,6 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get("id");
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-  const msg = await prisma.chatMessage.findUnique({ where: { id }, select: { roomId: true } });
   await prisma.chatMessage.delete({ where: { id } });
-
-  // Broadcast deletion
-  if (msg) {
-    const sb = getBroadcastClient();
-    const channel = sb.channel(`chat-room:${msg.roomId}`);
-    await channel.subscribe();
-    await channel.send({ type: "broadcast", event: "delete-message", payload: { id } });
-    sb.removeChannel(channel);
-  }
-
   return NextResponse.json({ ok: true });
 }

@@ -64,7 +64,21 @@ function ChatApp({ user }: { user: { id: string; username: string; role: string 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
-  const supabase = createClient();
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+  const supabaseRef = useRef(createClient());
+
+  // Helper: add incoming messages to state, dedup, auto-scroll
+  const addMessages = useCallback((incoming: ChatMsg[]) => {
+    setMessages((prev) => {
+      const ids = new Set(prev.map((m) => m.id));
+      const fresh = incoming.filter((m) => !ids.has(m.id));
+      if (fresh.length === 0) return prev;
+      return [...prev, ...fresh];
+    });
+    if (isNearBottomRef.current) {
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    }
+  }, []);
 
   // Load rooms
   useEffect(() => {
@@ -83,38 +97,28 @@ function ChatApp({ user }: { user: { id: string; username: string; role: string 
       .then((d) => {
         setMessages(d.messages || []);
         setLoadingMsgs(false);
-        // Scroll to bottom on initial load
-        setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView();
-        }, 50);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView(), 50);
       })
       .catch(() => setLoadingMsgs(false));
   }, [activeRoom]);
 
-  // Supabase Broadcast + Presence subscription
+  // Supabase Broadcast channel + Presence
   useEffect(() => {
-    // Single channel for broadcast messages + presence
+    const supabase = supabaseRef.current;
     const channel = supabase.channel(`chat-room:${activeRoom}`, {
       config: { broadcast: { self: false } },
     });
+    channelRef.current = channel;
 
     channel
       .on("broadcast", { event: "new-message" }, ({ payload }) => {
-        const msg = payload as ChatMsg;
-        setMessages((prev) => {
-          if (prev.some((m) => m.id === msg.id)) return prev;
-          return [...prev, msg];
-        });
-        if (isNearBottomRef.current) {
-          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
-        }
+        addMessages([payload as ChatMsg]);
       })
       .on("broadcast", { event: "delete-message" }, ({ payload }) => {
         setMessages((prev) => prev.filter((m) => m.id !== payload.id));
       })
       .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState();
-        setOnlineCount(Object.keys(state).length);
+        setOnlineCount(Object.keys(channel.presenceState()).length);
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
@@ -123,9 +127,28 @@ function ChatApp({ user }: { user: { id: string; username: string; role: string 
       });
 
     return () => {
+      channelRef.current = null;
       supabase.removeChannel(channel);
     };
-  }, [activeRoom, user.id, user.username]);
+  }, [activeRoom, user.id, user.username, addMessages]);
+
+  // Polling fallback: fetch new messages every 3s in case broadcast misses
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessages((prev) => {
+        if (prev.length === 0) return prev;
+        const lastTime = prev[prev.length - 1].createdAt;
+        fetch(`/api/chat?room=${activeRoom}&after=${encodeURIComponent(lastTime)}`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.messages?.length) addMessages(d.messages);
+          })
+          .catch(() => {});
+        return prev;
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [activeRoom, addMessages]);
 
   // Track scroll position
   const handleScroll = useCallback(() => {
@@ -140,7 +163,6 @@ function ChatApp({ user }: { user: { id: string; username: string; role: string 
     const trimmed = input.trim();
     if (!trimmed || sending) return;
 
-    // Client-side rate limit
     const now = Date.now();
     if (now - lastSendTime < 3000) return;
 
@@ -155,21 +177,30 @@ function ChatApp({ user }: { user: { id: string; username: string; role: string 
 
     if (res.ok) {
       const { message } = await res.json();
-      setMessages((prev) => {
-        const ids = new Set(prev.map((m) => m.id));
-        if (ids.has(message.id)) return prev;
-        return [...prev, message];
-      });
+      addMessages([message]);
       setInput("");
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+
+      // Broadcast to other clients via the existing channel
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "new-message",
+        payload: message,
+      });
     }
     setSending(false);
   };
 
   // Delete message (mod/admin)
   const handleDelete = async (id: string) => {
-    await fetch(`/api/chat?id=${id}`, { method: "DELETE" });
-    setMessages((prev) => prev.filter((m) => m.id !== id));
+    const res = await fetch(`/api/chat?id=${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setMessages((prev) => prev.filter((m) => m.id !== id));
+      channelRef.current?.send({
+        type: "broadcast",
+        event: "delete-message",
+        payload: { id },
+      });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
