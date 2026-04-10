@@ -53,7 +53,7 @@ export function MobileMenu() {
   ) : null;
 
   return (
-    <div className="md:hidden" style={{ display: "flex", alignItems: "center" }}>
+    <div className="flex items-center md:hidden">
       <button onClick={() => setOpen(!open)} style={{ color: "#94a3b8", padding: 4, background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center" }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           {open ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M4 6h16M4 12h16M4 18h16" />}

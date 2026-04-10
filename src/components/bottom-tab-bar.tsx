@@ -30,7 +30,7 @@ export function BottomTabBar() {
 
   return (
     <nav
-      className="md:hidden"
+      className="flex md:hidden"
       style={{
         position: "fixed",
         bottom: 0,
@@ -39,10 +39,9 @@ export function BottomTabBar() {
         height: 56,
         backgroundColor: "#131820",
         borderTop: "1px solid #1e293b",
-        display: "flex",
         zIndex: 9998,
         WebkitTapHighlightColor: "transparent",
-      }}
+      } as React.CSSProperties}
     >
       {TABS.map((tab) => {
         const active = isActive(tab);
