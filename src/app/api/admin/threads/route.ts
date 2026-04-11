@@ -80,6 +80,14 @@ export async function PATCH(request: NextRequest) {
     }
   } else if (action === "move" && categoryId) {
     await prisma.thread.updateMany({ where: { id: { in: ids } }, data: { categoryId } });
+  } else if (action === "edit") {
+    const { title, content, prefixId } = body;
+    const id = ids[0];
+    if (title) await prisma.thread.update({ where: { id }, data: { title, categoryId: categoryId || undefined, prefixId: prefixId || null } });
+    if (content) {
+      const firstPost = await prisma.post.findFirst({ where: { threadId: id }, orderBy: { createdAt: "asc" } });
+      if (firstPost) await prisma.post.update({ where: { id: firstPost.id }, data: { content, editedAt: new Date() } });
+    }
   }
 
   return NextResponse.json({ ok: true });

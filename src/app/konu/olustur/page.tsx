@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RichTextEditor } from "@/components/editor/rich-text-editor";
 import { useAuth } from "@/providers/auth-provider";
 
@@ -35,11 +35,20 @@ export default function CreateThreadPage() {
   const [error, setError] = useState("");
   const { dbUser } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then((data) => setCategories(data))
+      .then((data: CategoryOption[]) => {
+        setCategories(data);
+        // Auto-select category from URL param
+        const kategoriSlug = searchParams.get("kategori");
+        if (kategoriSlug && !selectedCategory) {
+          const match = data.find((c) => c.slug === kategoriSlug);
+          if (match) setSelectedCategory(match.id);
+        }
+      })
       .catch(() => {});
 
     fetch("/api/prefixes")

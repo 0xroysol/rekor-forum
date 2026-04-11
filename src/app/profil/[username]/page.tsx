@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { ProfileEditButton } from "@/components/profile-edit";
 import SendMessageButton from "@/components/send-message-button";
 import UserStats from "@/components/user-stats";
+import { ProfileComments } from "@/components/profile-comments";
 import type { Metadata } from "next";
 import { BRAND } from "@/config/brand";
 
@@ -266,6 +267,9 @@ export default async function ProfilPage({
 
       {/* User Stats */}
       <UserStats userId={user.id} />
+
+      {/* Profile Comments */}
+      <ProfileComments username={user.username} profileUserId={user.id} />
 
       {/* Content Sections */}
       <div className="mt-6 space-y-6">

@@ -39,3 +39,22 @@ export async function GET() {
     return NextResponse.json({ error: "Sunucu hatasi olustu." }, { status: 500 });
   }
 }
+
+export async function PATCH(request: Request) {
+  const dbUser = await getAuthUser();
+  if (!dbUser || !isModOrAdmin(dbUser)) return NextResponse.json({ error: "Yetkisiz" }, { status: 403 });
+
+  const { id, name, description, icon, color, position, slug } = await request.json();
+  if (!id) return NextResponse.json({ error: "ID gerekli" }, { status: 400 });
+
+  const data: Record<string, unknown> = {};
+  if (name !== undefined) data.name = name;
+  if (description !== undefined) data.description = description;
+  if (icon !== undefined) data.icon = icon;
+  if (color !== undefined) data.color = color;
+  if (position !== undefined) data.position = position;
+  if (slug !== undefined) data.slug = slug;
+
+  await prisma.category.update({ where: { id }, data });
+  return NextResponse.json({ ok: true });
+}

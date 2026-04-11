@@ -341,6 +341,31 @@ export default async function Home() {
               </div>
             </div>
 
+            {/* Çevrimiçi Üyeler */}
+            <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: "12px", overflow: "hidden" }}>
+              <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid #1e293b" }}>
+                <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: BRAND.accent }} />
+                <span className="text-[13px] font-semibold" style={{ color: "#94a3b8" }}>
+                  Çevrimiçi Üyeler ({onlineUsers})
+                </span>
+              </div>
+              <div className="p-3 flex flex-wrap gap-1.5">
+                {onlineUsersList.map((user) => (
+                  <Link
+                    key={user.id}
+                    href={`/profil/${user.username}`}
+                    className="text-[11px] px-2 py-1 rounded-md transition-colors duration-150 hover:bg-bg-hover"
+                    style={{ color: BRAND.accent, backgroundColor: `${BRAND.accent}15` }}
+                  >
+                    {user.username}
+                  </Link>
+                ))}
+                {onlineUsersList.length === 0 && (
+                  <span className="text-xs" style={{ color: "#64748b" }}>Şu an kimse çevrimiçi değil</span>
+                )}
+              </div>
+            </div>
+
             {/* Bugünün Maç Tartışmaları */}
             {todayMatchThreads.length > 0 && (
               <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: "12px", overflow: "hidden" }}>
@@ -542,31 +567,6 @@ export default async function Home() {
                 >
                   Tüm Haberler →
                 </Link>
-              </div>
-            </div>
-
-            {/* Çevrimiçi Üyeler */}
-            <div style={{ backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: "12px", overflow: "hidden" }}>
-              <div className="px-4 py-3 flex items-center gap-2" style={{ borderBottom: "1px solid #1e293b" }}>
-                <span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: BRAND.accent }} />
-                <span className="text-[13px] font-semibold" style={{ color: "#94a3b8" }}>
-                  Çevrimiçi Üyeler ({onlineUsers})
-                </span>
-              </div>
-              <div className="p-3 flex flex-wrap gap-1.5">
-                {onlineUsersList.map((user) => (
-                  <Link
-                    key={user.id}
-                    href={`/profil/${user.username}`}
-                    className="text-[11px] px-2 py-1 rounded-md transition-colors duration-150 hover:bg-bg-hover"
-                    style={{ color: BRAND.accent, backgroundColor: `${BRAND.accent}15` }}
-                  >
-                    {user.username}
-                  </Link>
-                ))}
-                {onlineUsersList.length === 0 && (
-                  <span className="text-xs" style={{ color: "#64748b" }}>Şu an kimse çevrimiçi değil</span>
-                )}
               </div>
             </div>
 

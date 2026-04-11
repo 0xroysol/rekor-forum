@@ -141,7 +141,7 @@ export default async function CategoryPage({
           </div>
         </div>
         <Link
-          href="/konu/olustur"
+          href={`/konu/olustur?kategori=${slug}`}
           className="px-4 py-2 rounded-xl text-white font-medium text-sm bg-accent-green hover:brightness-110 transition-all"
         >
           Yeni Konu

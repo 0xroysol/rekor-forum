@@ -200,6 +200,34 @@ export default function YonetimPage() {
   const [editingPost, setEditingPost] = useState<PostItem | null>(null);
   const [editContent, setEditContent] = useState("");
 
+  // Thread edit modal
+  const [editingThread, setEditingThread] = useState<ThreadItem | null>(null);
+  const [editThreadTitle, setEditThreadTitle] = useState("");
+  const [editThreadContent, setEditThreadContent] = useState("");
+  const [editThreadCategory, setEditThreadCategory] = useState("");
+  const [editThreadPrefix, setEditThreadPrefix] = useState("");
+  const [editThreadSaving, setEditThreadSaving] = useState(false);
+
+  // Category edit modal
+  const [editingCategory, setEditingCategory] = useState<CategoryItem | null>(null);
+  const [editCatName, setEditCatName] = useState("");
+  const [editCatDesc, setEditCatDesc] = useState("");
+  const [editCatIcon, setEditCatIcon] = useState("");
+  const [editCatColor, setEditCatColor] = useState("");
+  const [editCatPosition, setEditCatPosition] = useState(0);
+  const [editCatSaving, setEditCatSaving] = useState(false);
+
+  // Ban modal
+  const [banTarget, setBanTarget] = useState<UserItem | null>(null);
+  const [banReason, setBanReason] = useState("");
+  const [banDuration, setBanDuration] = useState("1d");
+  const [banSaving, setBanSaving] = useState(false);
+
+  // Warn modal
+  const [warnTarget, setWarnTarget] = useState<UserItem | null>(null);
+  const [warnReason, setWarnReason] = useState("");
+  const [warnSaving, setWarnSaving] = useState(false);
+
   // Debounce user search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1070,13 +1098,20 @@ export default function YonetimPage() {
                                   Yasagi Kaldir
                                 </button>
                               ) : (
+                                <>
                                 <button
-                                  disabled={userActionLoading === user.id}
-                                  onClick={() => handleBanUser(user.id)}
-                                  className="rounded px-2 py-1 text-xs text-[#ef4444] transition-colors hover:bg-[#ef4444]/10 disabled:opacity-50"
+                                  onClick={() => { setWarnTarget(user); setWarnReason(""); }}
+                                  className="rounded px-2 py-1 text-xs text-[#e8a935] transition-colors hover:bg-[#e8a935]/10"
+                                >
+                                  Uyar
+                                </button>
+                                <button
+                                  onClick={() => { setBanTarget(user); setBanReason(""); setBanDuration("1d"); }}
+                                  className="rounded px-2 py-1 text-xs text-[#ef4444] transition-colors hover:bg-[#ef4444]/10"
                                 >
                                   Yasakla
                                 </button>
+                                </>
                               )}
                             </>
                           )}
@@ -1243,9 +1278,9 @@ export default function YonetimPage() {
                         />
                       </td>
                       <td className="py-3">
-                        <span className="text-sm font-medium text-[#e2e8f0] max-w-[200px] truncate inline-block">
+                        <a href={`/konu/${thread.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium max-w-[200px] truncate inline-block hover:underline" style={{ color: "var(--accent-green)" }}>
                           {thread.title}
-                        </span>
+                        </a>
                       </td>
                       <td className="py-3">
                         <span className="inline-flex items-center rounded-full border border-[#1e293b] px-2 py-0.5 text-xs text-[#94a3b8]">
@@ -1281,6 +1316,19 @@ export default function YonetimPage() {
                       </td>
                       <td className="py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => {
+                              setEditingThread(thread);
+                              setEditThreadTitle(thread.title);
+                              setEditThreadContent("");
+                              setEditThreadCategory(thread.category?.name || "");
+                              setEditThreadPrefix("");
+                            }}
+                            title="Düzenle"
+                            className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#1a2130]"
+                          >
+                            ✏️
+                          </button>
                           <button
                             disabled={threadActionLoading}
                             onClick={() =>
@@ -1446,14 +1494,14 @@ export default function YonetimPage() {
                         />
                       </td>
                       <td className="py-3">
-                        <span className="text-sm text-[#94a3b8] max-w-[250px] truncate inline-block">
+                        <a href={`/konu/${post.thread.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm max-w-[250px] truncate inline-block hover:underline" style={{ color: "#94a3b8" }}>
                           {stripHtml(post.content)}
-                        </span>
+                        </a>
                       </td>
                       <td className="py-3">
-                        <span className="text-sm text-[#e2e8f0] max-w-[150px] truncate inline-block">
+                        <a href={`/konu/${post.thread.slug}`} target="_blank" rel="noopener noreferrer" className="text-sm max-w-[150px] truncate inline-block hover:underline" style={{ color: "var(--accent-green)" }}>
                           {post.thread.title}
-                        </span>
+                        </a>
                       </td>
                       <td className="py-3 text-sm text-[#94a3b8]">
                         {post.author.username}
@@ -1613,7 +1661,7 @@ export default function YonetimPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="rounded px-2 py-1 text-xs text-[#94a3b8] transition-colors hover:bg-[#1a2130] hover:text-[#e2e8f0]">
+                    <button onClick={() => { setEditingCategory(cat); setEditCatName(cat.name); setEditCatDesc(cat.description || ""); setEditCatIcon(cat.icon); setEditCatColor(cat.color); setEditCatPosition(cat.position); }} className="rounded px-2 py-1 text-xs text-[#94a3b8] transition-colors hover:bg-[#1a2130] hover:text-[#e2e8f0]">
                       Duzenle
                     </button>
                     <button className="rounded px-2 py-1 text-xs text-[#ef4444] transition-colors hover:bg-[#ef4444]/10">
@@ -1623,6 +1671,159 @@ export default function YonetimPage() {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+      {/* Thread Edit Modal */}
+      {editingThread && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={() => setEditingThread(null)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+          <div style={{ position: "relative", width: 500, maxWidth: "90vw", backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, padding: 24 }}>
+            <h3 className="text-base font-semibold text-[#e2e8f0] mb-4">Konu Düzenle</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-[#94a3b8] mb-1 block">Başlık</label>
+                <input value={editThreadTitle} onChange={e => setEditThreadTitle(e.target.value)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+              </div>
+              <div>
+                <label className="text-xs text-[#94a3b8] mb-1 block">İçerik (ilk mesaj)</label>
+                <textarea value={editThreadContent} onChange={e => setEditThreadContent(e.target.value)} rows={4} placeholder="Boş bırakılırsa içerik değişmez" className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green resize-y" />
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-[#94a3b8] mb-1 block">Kategori</label>
+                  <select value={editThreadCategory} onChange={e => setEditThreadCategory(e.target.value)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0]">
+                    <option value="">Değiştirme</option>
+                    {threadCategories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={() => setEditingThread(null)} className="px-4 py-2 rounded-md text-sm text-[#94a3b8] hover:text-[#e2e8f0]">İptal</button>
+              <button disabled={editThreadSaving || !editThreadTitle.trim()} onClick={async () => {
+                setEditThreadSaving(true);
+                await fetch("/api/admin/threads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "edit", threadId: editingThread.id, title: editThreadTitle, content: editThreadContent || undefined, categoryId: editThreadCategory || undefined }) });
+                setEditingThread(null);
+                setEditThreadSaving(false);
+                fetchThreads();
+              }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-accent-green hover:brightness-110 disabled:opacity-50">
+                {editThreadSaving ? "Kaydediliyor..." : "Kaydet"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Edit Modal */}
+      {editingCategory && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={() => setEditingCategory(null)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+          <div style={{ position: "relative", width: 440, maxWidth: "90vw", backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, padding: 24 }}>
+            <h3 className="text-base font-semibold text-[#e2e8f0] mb-4">Kategori Düzenle</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-[#94a3b8] mb-1 block">Ad</label>
+                <input value={editCatName} onChange={e => setEditCatName(e.target.value)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+              </div>
+              <div>
+                <label className="text-xs text-[#94a3b8] mb-1 block">Açıklama</label>
+                <input value={editCatDesc} onChange={e => setEditCatDesc(e.target.value)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+              </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="text-xs text-[#94a3b8] mb-1 block">İkon</label>
+                  <input value={editCatIcon} onChange={e => setEditCatIcon(e.target.value)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-[#94a3b8] mb-1 block">Renk</label>
+                  <input value={editCatColor} onChange={e => setEditCatColor(e.target.value)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+                </div>
+                <div style={{ width: 80 }}>
+                  <label className="text-xs text-[#94a3b8] mb-1 block">Sıra</label>
+                  <input type="number" value={editCatPosition} onChange={e => setEditCatPosition(parseInt(e.target.value) || 0)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={() => setEditingCategory(null)} className="px-4 py-2 rounded-md text-sm text-[#94a3b8] hover:text-[#e2e8f0]">İptal</button>
+              <button disabled={editCatSaving || !editCatName.trim()} onClick={async () => {
+                setEditCatSaving(true);
+                await fetch("/api/admin/categories", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editingCategory.id, name: editCatName, description: editCatDesc, icon: editCatIcon, color: editCatColor, position: editCatPosition }) });
+                setEditingCategory(null);
+                setEditCatSaving(false);
+                fetchCategories();
+              }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-accent-green hover:brightness-110 disabled:opacity-50">
+                {editCatSaving ? "Kaydediliyor..." : "Kaydet"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ban Modal */}
+      {banTarget && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={() => setBanTarget(null)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+          <div style={{ position: "relative", width: 420, maxWidth: "90vw", backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, padding: 24 }}>
+            <h3 className="text-base font-semibold text-[#e2e8f0] mb-1">Kullanıcıyı Yasakla</h3>
+            <p className="text-sm text-[#94a3b8] mb-4">@{banTarget.username}</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-[#94a3b8] mb-1 block">Süre</label>
+                <select value={banDuration} onChange={e => setBanDuration(e.target.value)} className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0]">
+                  <option value="1h">1 Saat</option>
+                  <option value="1d">1 Gün</option>
+                  <option value="7d">7 Gün</option>
+                  <option value="14d">14 Gün</option>
+                  <option value="30d">30 Gün</option>
+                  <option value="permanent">Kalıcı</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-[#94a3b8] mb-1 block">Sebep (zorunlu)</label>
+                <input value={banReason} onChange={e => setBanReason(e.target.value)} placeholder="Yasak sebebini yazın..." className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={() => setBanTarget(null)} className="px-4 py-2 rounded-md text-sm text-[#94a3b8] hover:text-[#e2e8f0]">İptal</button>
+              <button disabled={banSaving || !banReason.trim()} onClick={async () => {
+                setBanSaving(true);
+                await fetch("/api/moderation/ban", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: banTarget.id, reason: banReason, duration: banDuration }) });
+                setBanTarget(null);
+                setBanSaving(false);
+                fetchUsers();
+              }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#ef4444] hover:brightness-110 disabled:opacity-50">
+                {banSaving ? "Yasaklanıyor..." : "Yasakla"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Warn Modal */}
+      {warnTarget && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div onClick={() => setWarnTarget(null)} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.7)" }} />
+          <div style={{ position: "relative", width: 420, maxWidth: "90vw", backgroundColor: "#131820", border: "1px solid #1e293b", borderRadius: 12, padding: 24 }}>
+            <h3 className="text-base font-semibold text-[#e2e8f0] mb-1">Kullanıcıyı Uyar</h3>
+            <p className="text-sm text-[#94a3b8] mb-4">@{warnTarget.username}</p>
+            <div>
+              <label className="text-xs text-[#94a3b8] mb-1 block">Sebep (zorunlu)</label>
+              <input value={warnReason} onChange={e => setWarnReason(e.target.value)} placeholder="Uyarı sebebini yazın..." className="w-full rounded-md border border-[#1e293b] bg-[#0d1017] px-3 py-2 text-sm text-[#e2e8f0] focus:outline-none focus:border-accent-green" />
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={() => setWarnTarget(null)} className="px-4 py-2 rounded-md text-sm text-[#94a3b8] hover:text-[#e2e8f0]">İptal</button>
+              <button disabled={warnSaving || !warnReason.trim()} onClick={async () => {
+                setWarnSaving(true);
+                await fetch("/api/moderation/warn", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: warnTarget.id, reason: warnReason }) });
+                setWarnTarget(null);
+                setWarnSaving(false);
+                fetchUsers();
+              }} className="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#e8a935] hover:brightness-110 disabled:opacity-50">
+                {warnSaving ? "Gönderiliyor..." : "Uyarı Gönder"}
+              </button>
+            </div>
           </div>
         </div>
       )}

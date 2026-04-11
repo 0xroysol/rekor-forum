@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 import Link from "next/link";
@@ -13,6 +13,16 @@ export function ReplyForm({ threadId, isLocked }: { threadId: string; isLocked: 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+
+  // Listen for quote events from PostActions
+  useEffect(() => {
+    function onQuote(e: Event) {
+      const { html } = (e as CustomEvent).detail;
+      setContent((prev) => prev + html);
+    }
+    window.addEventListener("chat-quote", onQuote);
+    return () => window.removeEventListener("chat-quote", onQuote);
+  }, []);
 
   if (isLocked) {
     return (
@@ -130,14 +140,10 @@ export function PostActions({
   }
 
   function handleQuote() {
-    const replyBox = document.querySelector<HTMLTextAreaElement>("textarea[placeholder*='Yanıtınızı']");
-    if (replyBox) {
-      const quoteText = `> **${authorUsername}** yazdı:\n> ${postContent.split("\n").join("\n> ")}\n\n`;
-      replyBox.value = replyBox.value + quoteText;
-      replyBox.focus();
-      // Trigger React state update
-      replyBox.dispatchEvent(new Event("input", { bubbles: true }));
-    }
+    // Strip HTML tags for clean quote text
+    const plainText = postContent.replace(/<[^>]+>/g, "").trim();
+    const quoteHtml = `<blockquote><p><strong>@${authorUsername}</strong> dedi ki:</p><p>${plainText.slice(0, 500)}</p></blockquote><p></p>`;
+    window.dispatchEvent(new CustomEvent("chat-quote", { detail: { html: quoteHtml } }));
   }
 
   if (editing) {

@@ -51,8 +51,17 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const dbUser = await prisma.user.findUnique({ where: { email: user.email! }, select: { id: true, username: true } });
+  const dbUser = await prisma.user.findUnique({ where: { email: user.email! }, select: { id: true, username: true, isBanned: true, banReason: true, banExpiresAt: true } });
   if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  // Ban check with auto-expire
+  if (dbUser.isBanned) {
+    if (dbUser.banExpiresAt && dbUser.banExpiresAt < new Date()) {
+      await prisma.user.update({ where: { id: dbUser.id }, data: { isBanned: false, banReason: null, banExpiresAt: null } });
+    } else {
+      return NextResponse.json({ error: `Hesabınız yasaklanmıştır: ${dbUser.banReason || "Kural ihlali"}` }, { status: 403 });
+    }
+  }
 
   // Rate limit: 1 message per 3 seconds
   const rl = rateLimit(`chat:${dbUser.id}`, 1, 3000);
@@ -61,6 +70,16 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const content = (body.content || "").trim();
   const roomId = body.roomId || "genel";
+
+  // Chat mute check
+  const activeMute = await prisma.chatMute.findFirst({
+    where: { userId: dbUser.id, roomId, expiresAt: { gt: new Date() } },
+    orderBy: { expiresAt: "desc" },
+  });
+  if (activeMute) {
+    const remaining = Math.ceil((activeMute.expiresAt.getTime() - Date.now()) / 60000);
+    return NextResponse.json({ error: `Susturuldunuz. Kalan süre: ${remaining} dakika${activeMute.reason ? `. Sebep: ${activeMute.reason}` : ""}` }, { status: 403 });
+  }
 
   if (!content || content.length > 500) {
     return NextResponse.json({ error: "Mesaj 1-500 karakter olmalı" }, { status: 400 });

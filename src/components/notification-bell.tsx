@@ -12,6 +12,7 @@ interface NotifItem {
   isRead: boolean;
   createdAt: string;
   relatedThreadId?: string | null;
+  relatedThreadSlug?: string | null;
   relatedUserId?: string | null;
 }
 
@@ -86,10 +87,8 @@ export default function NotificationBell() {
     setOpen(false);
     if (n.type === "message") router.push("/mesajlar");
     else if (n.type === "system" || n.type === "badge") router.push(`/profil/${dbUser!.username}`);
-    else if (n.relatedThreadId) {
-      // Find thread slug — for now just go to notification's thread
-      router.push(`/`); // fallback, ideally we'd have the slug
-    }
+    else if (n.relatedThreadSlug) router.push(`/konu/${n.relatedThreadSlug}`);
+    else if (n.relatedThreadId) router.push(`/`);
   }
 
   const dropdown = open && mounted ? createPortal(

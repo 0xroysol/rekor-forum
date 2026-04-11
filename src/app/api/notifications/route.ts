@@ -36,7 +36,19 @@ export async function GET(request: NextRequest) {
       take: limit,
     });
 
-    return NextResponse.json({ notifications, unreadCount });
+    // Resolve thread slugs for notifications with relatedThreadId
+    const threadIds = [...new Set(notifications.filter(n => n.relatedThreadId).map(n => n.relatedThreadId!))];
+    const threads = threadIds.length > 0
+      ? await prisma.thread.findMany({ where: { id: { in: threadIds } }, select: { id: true, slug: true } })
+      : [];
+    const slugMap = new Map(threads.map(t => [t.id, t.slug]));
+
+    const enriched = notifications.map(n => ({
+      ...n,
+      relatedThreadSlug: n.relatedThreadId ? slugMap.get(n.relatedThreadId) || null : null,
+    }));
+
+    return NextResponse.json({ notifications: enriched, unreadCount });
   } catch (error) {
     console.error("Bildirim listeleme hatası:", error);
     return NextResponse.json({ error: "Sunucu hatası oluştu." }, { status: 500 });

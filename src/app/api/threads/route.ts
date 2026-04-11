@@ -37,6 +37,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
   }
 
+  // Ban check with auto-expire
+  if (dbUser.isBanned) {
+    if (dbUser.banExpiresAt && dbUser.banExpiresAt < new Date()) {
+      await prisma.user.update({ where: { id: dbUser.id }, data: { isBanned: false, banReason: null, banExpiresAt: null } });
+    } else {
+      return NextResponse.json({ error: `Hesabınız yasaklanmıştır: ${dbUser.banReason || "Kural ihlali"}` }, { status: 403 });
+    }
+  }
+
   // Rate limit: 3 threads per minute
   const rl = rateLimit(`thread_create_${dbUser.id}`, 3, 60_000);
   if (!rl.allowed) {

@@ -409,16 +409,39 @@ function ChatApp({ user }: { user: { id: string; username: string; role: string 
                       </p>
                     </div>
 
-                    {/* Delete button for mods */}
-                    {isMod && (
-                      <button
-                        onClick={() => handleDelete(msg.id)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 text-[#64748b] hover:text-[#ef4444] text-xs"
-                        style={{ background: "none", border: "none", cursor: "pointer" }}
-                        title="Mesajı sil"
-                      >
-                        🗑️
-                      </button>
+                    {/* Mod actions */}
+                    {isMod && msg.userId !== user.id && (
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 flex-shrink-0">
+                        <select
+                          defaultValue=""
+                          onChange={async (e) => {
+                            if (!e.target.value) return;
+                            await fetch("/api/moderation/chat-mute", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ userId: msg.userId, roomId: activeRoom, duration: e.target.value }),
+                            });
+                            e.target.value = "";
+                          }}
+                          className="text-[10px] bg-transparent border-none outline-none cursor-pointer"
+                          style={{ color: "#64748b" }}
+                          title="Sustur"
+                        >
+                          <option value="">🔇</option>
+                          <option value="5m">5dk</option>
+                          <option value="15m">15dk</option>
+                          <option value="1h">1 Saat</option>
+                          <option value="1d">1 Gün</option>
+                        </select>
+                        <button
+                          onClick={() => handleDelete(msg.id)}
+                          className="text-[#64748b] hover:text-[#ef4444] text-xs"
+                          style={{ background: "none", border: "none", cursor: "pointer" }}
+                          title="Mesajı sil"
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     )}
                   </div>
                 );

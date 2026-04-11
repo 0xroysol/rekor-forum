@@ -54,6 +54,22 @@ model User {
   predictionPoints Int @default(0)
   chatMessages  ChatMessage[]
 
+  // Profile comments
+  profileCommentsWritten  ProfileComment[] @relation("ProfileCommentsWritten")
+  profileCommentsReceived ProfileComment[] @relation("ProfileCommentsReceived")
+
+  // Moderation
+  bansReceived     UserBan[]     @relation("BansReceived")
+  bansGiven        UserBan[]     @relation("BansGiven")
+  warningsReceived UserWarning[] @relation("WarningsReceived")
+  warningsGiven    UserWarning[] @relation("WarningsGiven")
+  chatMutesReceived ChatMute[]   @relation("ChatMutesReceived")
+  chatMutesGiven    ChatMute[]   @relation("ChatMutesGiven")
+
+  isBanned    Boolean   @default(false)
+  banReason   String?
+  banExpiresAt DateTime?
+
   @@index([username])
   @@index([email])
 }
@@ -347,6 +363,62 @@ model ChatMessage {
 
   @@index([roomId, createdAt])
   @@index([userId])
+}
+
+model ProfileComment {
+  id        String   @id @default(cuid())
+  authorId  String
+  profileId String
+  content   String
+  createdAt DateTime @default(now())
+
+  author  User @relation("ProfileCommentsWritten", fields: [authorId], references: [id])
+  profile User @relation("ProfileCommentsReceived", fields: [profileId], references: [id])
+
+  @@index([profileId, createdAt])
+}
+
+model UserBan {
+  id        String    @id @default(cuid())
+  userId    String
+  bannedBy  String
+  reason    String
+  duration  String
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user  User @relation("BansReceived", fields: [userId], references: [id])
+  admin User @relation("BansGiven", fields: [bannedBy], references: [id])
+
+  @@index([userId])
+}
+
+model UserWarning {
+  id        String   @id @default(cuid())
+  userId    String
+  warnedBy  String
+  reason    String
+  createdAt DateTime @default(now())
+
+  user  User @relation("WarningsReceived", fields: [userId], references: [id])
+  admin User @relation("WarningsGiven", fields: [warnedBy], references: [id])
+
+  @@index([userId])
+}
+
+model ChatMute {
+  id        String    @id @default(cuid())
+  userId    String
+  mutedBy   String
+  roomId    String
+  reason    String?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  user  User @relation("ChatMutesReceived", fields: [userId], references: [id])
+  admin User @relation("ChatMutesGiven", fields: [mutedBy], references: [id])
+
+  @@index([userId, roomId])
 }
 
 model Prediction {
