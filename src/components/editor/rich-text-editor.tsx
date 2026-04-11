@@ -6,7 +6,7 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import Underline from "@tiptap/extension-underline";
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { uploadImage } from "@/lib/upload";
 
 interface RichTextEditorProps {
@@ -50,6 +50,17 @@ function RichTextEditor({
       },
     },
   });
+
+  // Listen for quote events and insert content into the editor
+  useEffect(() => {
+    if (!editor) return;
+    function onQuote(e: Event) {
+      const { html } = (e as CustomEvent).detail;
+      editor!.chain().focus().insertContent(html).run();
+    }
+    window.addEventListener("chat-quote", onQuote);
+    return () => window.removeEventListener("chat-quote", onQuote);
+  }, [editor]);
 
   const handleImageUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {

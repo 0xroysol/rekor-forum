@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 import Link from "next/link";
@@ -13,16 +13,6 @@ export function ReplyForm({ threadId, isLocked }: { threadId: string; isLocked: 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-
-  // Listen for quote events from PostActions
-  useEffect(() => {
-    function onQuote(e: Event) {
-      const { html } = (e as CustomEvent).detail;
-      setContent((prev) => prev + html);
-    }
-    window.addEventListener("chat-quote", onQuote);
-    return () => window.removeEventListener("chat-quote", onQuote);
-  }, []);
 
   if (isLocked) {
     return (

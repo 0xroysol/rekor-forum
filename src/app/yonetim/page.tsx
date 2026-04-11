@@ -76,6 +76,8 @@ interface ThreadItem {
   viewCount: number;
   replyCount: number;
   createdAt: string;
+  categoryId: string;
+  prefixId: string | null;
   author: { username: string };
   category: { name: string };
 }
@@ -1321,8 +1323,8 @@ export default function YonetimPage() {
                               setEditingThread(thread);
                               setEditThreadTitle(thread.title);
                               setEditThreadContent("");
-                              setEditThreadCategory(thread.category?.name || "");
-                              setEditThreadPrefix("");
+                              setEditThreadCategory(thread.categoryId || "");
+                              setEditThreadPrefix(thread.prefixId || "");
                             }}
                             title="Düzenle"
                             className="rounded px-2 py-1 text-xs transition-colors hover:bg-[#1a2130]"

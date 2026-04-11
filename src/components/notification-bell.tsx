@@ -127,13 +127,11 @@ export default function NotificationBell() {
                 onClick={() => handleClick(n)}
                 style={{
                   display: "flex", gap: 10, width: "100%", padding: "12px 16px",
-                  textAlign: "left", borderBottom: "1px solid #1e293b", cursor: "pointer",
-                  background: n.isRead ? "transparent" : "color-mix(in srgb, var(--accent-green) 5%, transparent)",
-                  borderLeft: n.isRead ? "2px solid transparent" : "2px solid #1f844e",
-                  border: "none", borderBottomStyle: "solid" as const, borderBottomWidth: 1, borderBottomColor: "#1e293b",
-                  borderLeftStyle: "solid" as const, borderLeftWidth: 2,
-                  borderLeftColor: n.isRead ? "transparent" : "#1f844e",
-                  backgroundColor: n.isRead ? "transparent" : "color-mix(in srgb, var(--accent-green) 5%, transparent)",
+                  textAlign: "left" as const, cursor: "pointer",
+                  border: "none",
+                  borderBottom: "1px solid #1e293b",
+                  borderLeft: n.isRead ? "2px solid transparent" : "2px solid var(--accent-green)",
+                  backgroundColor: n.isRead ? "transparent" : "rgba(31,132,78,0.05)",
                 }}
               >
                 <span style={{ fontSize: 16, flexShrink: 0, marginTop: 2 }}>{ICONS[n.type] || "🔔"}</span>
